@@ -17,10 +17,13 @@
 [Rr]eleases/
 x64/
 x86/
-build/
 bld/
 [Bb]in/
 [Oo]bj/
+build/msvc2013/Spring/[Dd]ebug/
+build/msvc2013/Spring/[Rr]elease/
+build/msvc2013/[Dd]ebug/
+build/msvc2013/[Rr]elease/
 
 # Visual Studo 2015 cache/options directory
 .vs/

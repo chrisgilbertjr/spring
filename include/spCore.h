@@ -1,0 +1,212 @@
+/// license
+
+#ifndef SP_TYPE_H
+#define SP_TYPE_H
+
+#include <assert.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <float.h>
+#include <math.h>
+
+#define SP_DEBUG
+#define SP_DEBUG_DRAW
+
+/// @defgroup spCore spCore
+/// @{
+
+#ifdef DOUBLE_PRECISION
+  typedef double spFloat;
+  #define spatan2 atan2
+  #define spfloor floor
+  #define spacos acos
+  #define spceil ceil
+  #define spsqrt sqrt
+  #define spcos cos
+  #define spexp exp
+  #define spsin sin
+  #define sppow pow
+  #define SP_MAX_FLT DBL_MAX
+  #define SP_MIN_FLT DBL_MIN
+#else
+  typedef float spFloat;
+  #define spatan2 atan2f
+  #define spfloor floorf
+  #define spacos acosf
+  #define spceil ceilf
+  #define spsqrt sqrtf
+  #define spcos cosf
+  #define spexp expf
+  #define spsin sinf
+  #define sppow powf
+  #define SP_MAX_FLT FLT_MAX
+  #define SP_MIN_FLT FLT_MIN
+#endif
+
+#define SP_EPSILON 1e-6f
+#define SP_FLT_EPSILON FLT_EPSILON
+#define SP_PI 3.1415926535897932f
+#define SP_RAD_TO_DEG 180.f / 3.1415926535897932f
+#define SP_DEG_TO_RAD 3.1415926535897932f / 180.f
+
+#define SP_IGNORE(x) ((void)x)
+#define spRealloc realloc
+#define spMalloc malloc
+#define spCalloc calloc
+#define spFree(pointer) free(pointer); pointer = 0;
+#define spFalse 0u
+#define spTrue 1u
+
+/// faked constructors for easy stack allocation
+#define spVector(x, y)                  _spVector(x, y)
+#define spVectorZero()                  _spVector(0.0f, 0.0f)
+#define spMatrix(a, b ,c, d)            _spMatrix(a, b, c, d)
+#define spMatrixZero()                  _spMatrix(0.0f, 0.0f, 0.0f, 0.0f)
+#define spMatrixIdentity()              _spMatrix(1.0f, 0.0f, 0.0f, 1.0f)
+#define spMatrixDiagonal(a)             _spMatrix(a, 0.0f, 0.0f, a);
+#define spRotation(a)                   _spRotation(a)
+#define spRotationZero()                _spRotation(0.0f)
+#define spRotationRadians(s, c)         _spRotation(s, c)
+#define spTransform(p, q)               _spTransform(p, q)
+#define spCollisionMatrix()             _spCollisionMatrix()
+#define spCollisionInput(a, b, xa, xb)  _spCollisionInput(a, b, xa, xb)
+#define spWorld(g)                      _spWorld(g)
+#define spContactKey(a, b)              _spContactKey(a, b)
+#define spBodyDef()                     _spBodyDef()
+#define spBroadPhase(a)                 _spBroadPhase(a)
+#define spNarrowPhase(c)                _spNarrowPhase(c)
+#define spMaterial(f, r)                _spMaterial(f, r)
+
+/// for each iters
+#define for_each_contact(contact, initializer) for (spContact* contact = initializer; contact != NULL; contact = contact->next)
+#define for_each_shape(shape, initializer) for (spShape* shape = initializer; shape; shape = shape->next)
+#define for_each_body(body, initializer) for (spBody* body = initializer; body; body = body->next)
+
+/// spring data types
+typedef char spInt8;
+typedef short spInt16;
+typedef int spInt;
+typedef int spSize;
+typedef unsigned char spUint8;
+typedef unsigned short spUint16;
+typedef unsigned int spUint;
+typedef unsigned int spMask;
+typedef unsigned int spBool;
+typedef void* spLazyPointer;
+
+/// struct typedefs for convenience
+typedef struct spContactPoint spContactPoint;
+typedef struct spBroadPhase spBroadPhase;
+typedef struct spConstraint spConstraint;
+typedef struct spTransform spTransform;
+typedef struct spRotation spRotation;
+typedef struct spContact spContact;
+typedef struct spCluster spCluster;
+typedef struct spVector spVector;
+typedef struct spMatrix spMatrix;
+typedef struct spChain spChain;
+typedef struct spWorld spWorld;
+typedef struct spShape spShape;
+typedef struct spBody spBody;
+typedef struct spBound spBound;
+typedef struct spMassData spMassData;
+
+inline spFloat spAbs(const spFloat a)
+{
+    return a > 0.0f ? a : -a;
+}
+
+inline spFloat spMin(const spFloat a, const spFloat b)
+{
+    return a < b ? a : b;
+}
+
+inline spFloat spMax(const spFloat a, const spFloat b)
+{
+    return a > b ? a : b;
+}
+
+inline spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
+{
+    if (x < min)
+    {
+        return min;
+    }
+    if (x > max)
+    {
+        return max;
+    }
+    return x;
+}
+
+inline spBool spAlmostEqual(const spFloat a, const spFloat b, const spFloat EPSILON = SP_FLT_EPSILON)
+{
+     return (b - EPSILON) <= a && a <= (b + EPSILON) ? spTrue : spFalse;
+}
+
+/// i could make this faster copying more than 1 byte at a time, but i dont think its necessary
+inline void* spMemset(void* mem, spInt value, spSize bytes)
+{
+    spUint8* ptr = (spUint8*)mem;
+
+    while(bytes--)
+    {
+        *ptr++ = (spUint8)value;
+    }
+    return mem;
+}
+
+/// @}
+
+/// @defgroup spDebug spDebug
+/// @{
+
+#define spNewline spLog("\n");
+#define SP_LOG(file, msg)     \
+    va_list args;             \
+    va_start(args, msg);      \
+    spDoLog(file, msg, args); \
+    va_end(args);
+
+///
+inline void spDoLog(FILE* file, const char* msg, va_list args)
+{
+    vfprintf(file, msg, args);
+}
+
+///
+inline void _spAssert(spBool condition, const char* msg, ...)
+{
+    if (condition == spFalse)
+    {
+        SP_LOG(stderr, msg);
+        assert(false);
+    }
+}
+
+///
+inline void _spWarning(spBool condition, const char* msg, ...)
+{
+    SP_LOG(stderr, msg);
+}
+
+///
+inline void _spLog(const char* msg, ...)
+{
+    SP_LOG(stdout, msg);
+}
+
+#ifdef SP_DEBUG
+  #define spAssert  _spAssert
+  #define spWarning _spWarning
+  #define spLog     _spLog
+#else
+  #define spAssert  
+  #define spWarning 
+  #define spLog     
+#endif
+
+/// @}
+
+#endif

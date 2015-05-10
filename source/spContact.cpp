@@ -208,13 +208,13 @@ spContactSolve(spContact* contact)
         /// compute the lagrange multiplier
         /// L = -(J*V-b) / E
         //spFloat Ln = -(point.b_bias + JVn) * Ein;
-        spFloat Ln = -Ein * (JVn - point.b_bias);
-        spFloat Lt = -(JVt) * Eit; /// tangent constraint has no velocity bias
-
         /// clamp the accumulated impulses
+
+        spFloat Ln = -Ein * (JVn - point.b_bias);
         spFloat LnOld = point.La_norm;
         point.La_norm = spMax(LnOld + Ln, 0.0f);
 
+        spFloat Lt = -(JVt) * Eit; /// tangent constraint has no velocity bias
         spFloat LtMax = contact->friction * point.La_norm;
         spFloat LtOld = point.La_tang;
         point.La_tang = spClamp(LtOld + Lt, -LtMax, LtMax);

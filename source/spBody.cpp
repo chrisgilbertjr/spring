@@ -11,8 +11,8 @@ spBodyInit(spBody* body, spBodyType type)
     body->f = spVectorZero();
     body->v = spVectorZero();
     body->g_scale = 1.0f;
-    body->v_damp = 0.95f;
-    body->w_damp = 0.95f;
+    body->v_damp = 0.0f;
+    body->w_damp = 0.0f;
     body->i_inv = 0.0f;
     body->m_inv = 0.0f;
     body->i = 0.0f;

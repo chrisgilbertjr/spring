@@ -45,11 +45,11 @@ int main()
     spCircleDef cdb;
     spCircleDef cdc;
 
-    spFloat u = 1.0f;
-    spFloat e = 0.0f;
+    spFloat u = 0.1f;
+    spFloat e = 0.3f;
 
     cda.center = spVectorZero();
-    cda.mass = 10000.0f;
+    cda.mass = 100000.0f;
     cda.material.friction = u;
     cda.material.restitution = e;
     cda.radius = 7.0f;
@@ -62,20 +62,21 @@ int main()
     cdb.mass = 1.0f;
     cdb.material.friction = u;
     cdb.material.restitution = e;
-    cdb.radius = 9.0f;
+    cdb.radius = 3.0f;
     spBodySetPosition(bodyb, spVector(0.0f, 25.0f));
     bodyb->g_scale = 5.0f;
-    //spCircle* circleb = spCreateCircle(bodyb, cdb);
+    spCircle* circleb = spCreateCircle(bodyb, cdb);
 
     cdc.center = spVectorZero();
     cdc.mass = 10000.0f;
     cdc.material.friction = u;
     cdc.material.restitution = e;
-    cdc.radius = 1.0f;
+    cdc.radius = 8.0f;
     spCircle* circlec = spCreateCircle(bodyc, cdc);
+    cdc.radius = 3.0f;
     spCircle* circlee = spCreateCircle(bodye, cdc);
-    spBodySetPosition(bodyc, spVector(7.0f, 8.0f));
-    spBodySetPosition(bodye, spVector(15.0f, 4.0f));
+    spBodySetPosition(bodyc, spVector(7.0f, -5.0f));
+    spBodySetPosition(bodye, spVector(18.0f, 4.0f));
     bodye->g_scale = 0.0f;
     bodyc->g_scale = 0.0f;
 
@@ -89,14 +90,18 @@ int main()
 
     spPolygonDef pdd;
     pdd.mass = 1.0f;
-    pdd.material.friction = 1.0f;
-    pdd.material.restitution = 1.0f;
+    pdd.material.friction = u;
+    pdd.material.restitution = e;
     pdd.vertex_count = 4;
     pdd.vertices = verts;
 
-    spPolygon* polygon0 = spCreatePolygon(bodyd, pdd);
-    spBodySetPosition(bodyd, spVector(1.0f, 25.0f));
-    bodyd->g_scale = 1.0f;
+    //spPolygon* polygon0 = spCreatePolygon(bodyd, pdd);
+    spFloat px = -2.0f;
+    spFloat py = 40.0f;
+    spBodySetPosition(bodyd, spVector(px, py));
+    bodyd->w_damp = 0.0f;
+    bodyd->v_damp = 0.0f;
+    bodyd->g_scale = 0.4f;
 
     glfwSetTime(0.0);
     double timestep = 1.0 / 60.0;
@@ -116,6 +121,33 @@ int main()
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        //if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) py += 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) py -= 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) px -= 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) px += 0.1f;
+        //spBodySetPosition(bodyd, spVector(px, py));
+        
+        //spContact contact;
+        //spContactInit(&contact, spContactKey((spShape*)circlea, (spShape*)polygon0));
+        //spContact* c = &contact;
+
+        //spContactKey* key = &c->key; ///< contact key of the contact
+        //spShape*      sa  = key->shape_a;  ///< shape a of the contact
+        //spShape*      sb  = key->shape_b;  ///< shape b of the contact
+        //spBody*       ba  = sa->body;      ///< body a of the contact
+        //spBody*       bb  = sb->body;      ///< body b of the contact
+        //spTransform*  xfa = &ba->xf;       ///< transform of body a
+        //spTransform*  xfb = &bb->xf;       ///< transform of body b
+
+        //const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
+        //if (spCollideCirclePolygon(c, data) == spTrue)
+        //{
+        //    spTransform xf = spTransform(spVectorZero(), spRotationZero());
+        //    spDebugDrawContact(0, c, xf);
+        //}
+        //spDebugDrawCircle(0, circlea, circlea->base_class.body->xf);
+        //spDebugDrawPolygon(0, polygon0, polygon0->base_class.body->xf);
 
         spWorldStep(wp, 1.0f / 60.0f);
 

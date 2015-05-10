@@ -39,7 +39,7 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
     
     glPushMatrix();
      glTranslatef(pos.x, pos.y, 0.0f);
-     glRotatef(angle, 0.0f, 0.0f, -1.0f);
+     glRotatef(angle, 0.0f, 0.0f, 1.0f);
 
      glBegin(GL_LINES);
      for(spInt i = 0; i < count; ++i)

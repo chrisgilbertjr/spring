@@ -111,6 +111,15 @@ spCollidePolygonCircle2(spContact*& contact, const spCollisionInput& data)
         glColor3f(1.0f, 1.0f, 1.0f); \
         glPointSize(1.0f); \
 
+#define DRAW_TRI(p0, p1, p2, r, g, b) \
+    glBegin(GL_TRIANGLES); \
+    glColor3f(r, g, b); \
+    glVertex2f(p0.x, p0.y); \
+    glVertex2f(p1.x, p1.y); \
+    glVertex2f(p2.x, p2.y); \
+    glColor3f(1.0f, 1.0f, 1.0f); \
+    glEnd(); \
+
 spBool 
 spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 {
@@ -122,114 +131,163 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
     const spTransform* xfb = data.transform_b;
     const spMaterial* ma = &poly->base_class.material;
     const spMaterial* mb = &circle->base_class.material;
+    spVector ca = spMult(*xfa, poly->base_class.bound.center);
+    spVector cb = spMult(*xfb, circle->center);
+    spVector lca = poly->base_class.bound.center;
+    spVector lcb = circle->center;
+    spFloat ra = poly->base_class.bound.radius;
+    spFloat rb = circle->base_class.bound.radius;
 
-    spVector c  = spMult(*xfb, circle->center);
-    spVector cl = spTMult(*xfa, c);
-    spFloat radius = poly->base_class.bound.radius + circle->base_class.bound.radius;
-    spFloat max_sep = SP_MIN_FLT;
-    spInt count = poly->count;
-    spInt index = 0;
+    spVector c  = spMult(*xfb, lcb);
+    spVector lc = spTMult(*xfa, c);
+
+    spInt normalIndex = 0;
+    spFloat separation = SP_MIN_FLT;
+    spFloat radius = poly->base_class.bound.radius + circle->radius;
+    radius = circle->radius;
+    spInt vertexCount = poly->count;
     spEdge* edges = poly->edges;
 
-    for (spInt i = 0; i < count; ++i)
+    for (spInt i = 0; i < vertexCount; ++i)
     {
-        spFloat sep = spDot(edges[i].normal, spSub(cl, edges[i].vertex));
+        spFloat s = spDot(edges[i].normal, spSub(lc, edges[i].vertex));
 
-        if (sep > radius) return spFalse;
-
-        if (sep > max_sep)
+        if (s > radius)
         {
-            max_sep = sep;
-            index = i;
+            return spFalse;
+        }
+
+        if (s > separation)
+        {
+            separation = s;
+            normalIndex = i;
         }
     }
 
-    spLog("%.7f\n", max_sep);
+    spInt vi1 = normalIndex;
+    spInt vi2 = (vi1 + 1) % vertexCount;
 
-    spVector v0 = edges[index].vertex;
-    spVector v1 = edges[(index+1) % count].vertex;
+    spVector v1 = edges[vi1].vertex;
+    spVector v2 = edges[vi2].vertex;
 
-    if (max_sep < SP_EPSILON)
+    if (separation < SP_FLT_EPSILON)
     {
-        spLog("INSIDE<0\n");
-        spVector pa = spMult(*xfa, poly->base_class.bound.center);
-        spVector pb = spMult(*xfb, circle->base_class.bound.center);
-        glPointSize(10.0f);
-        spVector point = spMult(spAdd(pa, pb), 0.5f);
+        spVector localNormal = edges[vi1].normal;
+        spVector localPoint = spMult(spAdd(v1, v2), 0.5f);
+        spVector localPoint_0 = circle->center;
+
+        spVector planePoint = spMult(*xfa, localPoint);
+        spVector clipPoint = spMult(*xfb, localPoint_0);
+        spVector cA = spAdd(clipPoint, spMult(localNormal, (ra - spDot(spSub(clipPoint, planePoint), localNormal))));
+        spVector cB = spSub(clipPoint, spMult(rb, localNormal));
+        spVector point = spMult(spAdd(cA, cB), 0.5f);
         DRAW_POINT(point, 1.0f, 0.0f, 1.0f);
-        contact->points[0].r_a = spSub(point, pa);
-        contact->points[0].r_b = spSub(point, pb);
-        contact->normal = spMult(xfa->q, spSub(cl, v0));
+
+        contact->count = 1;
+        contact->normal = spMult(xfa->q, localNormal);
         contact->friction = spMaterialComputeFriction(ma, mb);
         contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->count = 1;
-        spNormalize(&contact->normal);;
-    }
-
-    spFloat p0 = spDot(spSub(cl, v0), spSub(v1, v0));
-    spFloat p1 = spDot(spSub(cl, v1), spSub(v0, v1));
-
-    if (p0 <= 0.0f)
-    {
-        if (spDistanceSquared(cl, v0) > radius * radius)
-        {
-            return spFalse;
-        }
-
-        spLog("P0<0\n");
-        spVector pa = spMult(*xfa, poly->base_class.bound.center);
-        spVector pb = spMult(*xfb, circle->base_class.bound.center);
-        spVector point = spMult(*xfa, v0);
-        point = v0;
-        DRAW_POINT(point, 1.0f, 0.0f, 0.0f);
-        contact->points[0].r_a = spSub(point, pa);
-        contact->points[0].r_b = spSub(point, pb);
-        contact->normal = spMult(xfa->q, spSub(cl, v0));
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->count = 1;
+        contact->points[0].r_a = spSub(point, cA);
+        contact->points[0].r_b = spSub(point, cB);
         spNormalize(&contact->normal);
+        spNegate(&contact->normal);
+
+        spLog("sep\n");
+        return spTrue;
     }
-    else if (p1 <= 0.0f)
+
+    spFloat u1 = spDot(spSub(lc, v1), spSub(v2, v1));
+    spFloat u2 = spDot(spSub(lc, v2), spSub(v1, v2));
+
+    if (u1 <= 0.0f)
     {
-        if (spDistanceSquared(cl, v1) > radius * radius)
+        if (spDistanceSquared(lc, v1) > radius * radius)
+        {
+            return spFalse;
+        }
+        spVector localNormal = spSub(lc, v1);
+        spNormalize(&localNormal);
+        spVector localPoint = v1;
+        spVector localPoint_0 = circle->center;
+
+        spVector planePoint = spMult(*xfa, localPoint);
+        spVector clipPoint = spMult(*xfb, localPoint_0);
+        spVector cA = spAdd(clipPoint, spMult(localNormal, (ra - spDot(spSub(clipPoint, planePoint), localNormal))));
+        spVector cB = spSub(clipPoint, spMult(rb, localNormal));
+        spVector point = spMult(spAdd(cA, cB), 0.5f);
+        DRAW_POINT(point, 1.0f, 0.0f, 0.0f);
+
+        contact->count = 1;
+        contact->normal = spMult(xfa->q, localNormal);
+        contact->friction = spMaterialComputeFriction(ma, mb);
+        contact->restitution = spMaterialComputeRestitution(ma, mb);
+        contact->points[0].r_a = spSub(point, cA);
+        contact->points[0].r_b = spSub(point, cB);
+        spNormalize(&contact->normal);;
+        spNegate(&contact->normal);
+
+        spLog("u1\n");
+    }
+    else if (u2 <= 0.0f)
+    {
+        if (spDistanceSquared(lc, v2) > radius * radius)
         {
             return spFalse;
         }
 
-        spLog("P1<0\n");
-        spVector pa = spMult(*xfa, poly->base_class.bound.center);
-        spVector pb = spMult(*xfb, circle->base_class.bound.center);
-        spVector point = spMult(*xfa, v1);
-        point = v1;
+        spVector localNormal = spSub(lc, v2);
+        spNormalize(&localNormal);
+        spVector localPoint = v2;
+        spVector localPoint_0 = circle->center;
+
+        spVector planePoint = spMult(*xfa, localPoint);
+        spVector clipPoint = spMult(*xfb, localPoint_0);
+        spVector cA = spAdd(clipPoint, spMult(localNormal, (ra - spDot(spSub(clipPoint, planePoint), localNormal))));
+        spVector cB = spSub(clipPoint, spMult(rb, localNormal));
+        spVector point = spMult(spAdd(cA, cB), 0.5f);
         DRAW_POINT(point, 0.0f, 1.0f, 0.0f);
-        contact->points[0].r_a = spSub(point, pa);
-        contact->points[0].r_b = spSub(point, pb);
-        contact->normal = spMult(xfa->q, spSub(cl, v1));
+
+        contact->count = 1;
+        contact->normal = spMult(xfa->q, localNormal);
         contact->friction = spMaterialComputeFriction(ma, mb);
         contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->count = 1;
-        spNormalize(&contact->normal);;
+        contact->points[0].r_a = spSub(point, cA);
+        contact->points[0].r_b = spSub(point, cB);
+        spNormalize(&contact->normal);
+        spNegate(&contact->normal);
+
+        spLog("u2\n");
     }
     else
     {
-        spLog("ELSE<0\n");
-        spVector fc = spMult(spAdd(v0, v1), 0.5f);
-        spVector n = edges[index].normal;
-        spFloat s = spDot(spSub(cl, fc), n);
-        if (s > radius) return spFalse;
+        spVector faceCenter = spMult(spAdd(v1, v2), 0.5f);
+        spFloat sep = spDot(spSub(lc, faceCenter), edges[vi1].normal);
+        if (sep > radius)
+        {
+            return spFalse;
+        }
 
-        spVector pa = spMult(*xfa, poly->base_class.bound.center);
-        spVector pb = spMult(*xfb, circle->base_class.bound.center);
-        spVector point = spMult(n, circle->radius);
+        spVector localNormal = edges[vi1].normal;
+        spVector localPoint = faceCenter;
+        spVector localPoint_0 = circle->center;
+
+        spVector planePoint = spMult(*xfa, localPoint);
+        spVector clipPoint = spMult(*xfb, localPoint_0);
+        spVector cA = spAdd(clipPoint, spMult(localNormal, (ra - spDot(spSub(clipPoint, planePoint), localNormal))));
+        spVector cB = spSub(clipPoint, spMult(rb, localNormal));
+        spVector point = spMult(spAdd(cA, cB), 0.5f);
         DRAW_POINT(point, 0.0f, 0.0f, 1.0f);
-        contact->points[0].r_a = spSub(point, pa);
-        contact->points[0].r_b = spSub(point, pb);
-        contact->normal = spMult(xfa->q, n);
+
+        contact->count = 1;
+        contact->normal = spMult(xfa->q, localNormal);
         contact->friction = spMaterialComputeFriction(ma, mb);
         contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->count = 1;
-        spNormalize(&contact->normal);;
+        contact->points[0].r_a = spSub(point, cA);
+        contact->points[0].r_b = spSub(point, cB);
+        spNormalize(&contact->normal);
+        spNegate(&contact->normal);
+
+        spLog("else\n");
     }
 
     return spTrue;
@@ -298,12 +356,11 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
 #endif
     contact->points[0].r_a = spSub(point, world_b);
     contact->points[0].r_b = spSub(point, world_a);
-    contact->normal = spSub(world_a, world_b);
+    contact->normal = spSub(world_b, world_a);
     contact->friction = spMaterialComputeFriction(ma, mb);
     contact->restitution = spMaterialComputeRestitution(ma, mb);
     contact->count = 1;
     spNormalize(&contact->normal);
-    spNegate(&contact->normal);
 
     return spTrue;
 }

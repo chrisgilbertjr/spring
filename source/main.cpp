@@ -45,8 +45,8 @@ int main()
     spCircleDef cdb;
     spCircleDef cdc;
 
-    spFloat u = 0.01f;
-    spFloat e = 0.3f;
+    spFloat u = 0.72f;
+    spFloat e = 0.72f;
 
     cda.center = spVectorZero();
     cda.mass = 100000.0f;
@@ -88,7 +88,7 @@ int main()
     verts[3].x = -s;  verts[3].y =  s;
 
     spPolygonDef pdd;
-    pdd.mass = 0.1f;
+    pdd.mass = 0.01f;
     pdd.material.friction = u;
     pdd.material.restitution = e;
     pdd.vertex_count = 4;
@@ -96,10 +96,10 @@ int main()
 
     spPolygon* polygon0 = spCreatePolygon(bodyd, pdd);
 
-    spFloat px = -1.0f;
-    spFloat py = 40.0f;
+    spFloat px = -2.0f;
+    spFloat py = 25.0f;
     spBodySetPosition(bodyd, spVector(px, py));
-    bodyd->g_scale = 1.0f;
+    bodyd->g_scale = 0.6f;
 
     glfwSetTime(0.0);
     double timestep = 1.0 / 60.0;

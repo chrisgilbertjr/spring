@@ -195,7 +195,7 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
 
     /// integrate velocity to get new position/rotation
     body->p = spAdd(body->p, spMult(h, body->v));
-    body->a = body->a + h * body->w;
+    body->a = body->a + h * -body->w;
 
     /// update the bodys' transform according to the new position/rotation
     spBodySetTransform(body, body->p, body->a);

@@ -227,6 +227,7 @@ spContactSolve(spContact* contact)
         /// vB += miB * lB;
         /// wA += iiA * aA;
         /// wB += iiB * aB;
+
         spVector Pt = spMult(point.La_tang - LtOld, tangent); /// tangent impulse
         body_a->v  = spSub(body_a->v, spMult(Pt, mia));
         body_b->v  = spAdd(body_b->v, spMult(Pt, mib));

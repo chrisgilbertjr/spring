@@ -2,6 +2,12 @@
 #include "spDebugDraw.h"
 
 void 
+spSetupView()
+{
+    glLoadIdentity();
+}
+
+void 
 spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& xf)
 {
     const spFloat iters = 32.f;
@@ -10,8 +16,9 @@ spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& 
     spVector center = spMult(xf, circle->center);
 
     glPushMatrix();
+     glLoadIdentity();
      glTranslatef(center.x, center.y, 0.0f);
-     glRotatef(spRotationGetAngle(xf.q) * SP_RAD_TO_DEG, 0.0f, 0.0f, -1.0f);
+     glRotatef(spRotationGetAngleDeg(xf.q), 0.0f, 0.0f, 1.0f);
      glScalef(radius, radius, 0.0f);
 
      glBegin(GL_LINES);
@@ -38,6 +45,7 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
     spVector pos   = xf.p;
     
     glPushMatrix();
+     glLoadIdentity();
      glTranslatef(pos.x, pos.y, 0.0f);
      glRotatef(angle, 0.0f, 0.0f, 1.0f);
 

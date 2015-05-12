@@ -58,50 +58,6 @@ spCollisionInputSwap(const spCollisionInput& data)
 {
     return spCollisionInput(data.shape_b, data.shape_a, data.transform_b, data.transform_a);
 }
-
-spBool 
-spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
-{
-    spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
-    return result;
-}
-
-spBool
-spCollideEdgeCircle(const spEdge* edge, const spCircle* circle)
-{
-    return spFalse;
-}
-
-spBool 
-spCollidePolygonCircle2(spContact*& contact, const spCollisionInput& data)
-{
-    const spPolygon* poly = (spPolygon*)data.shape_a;
-    const spCircle* circle = (spCircle*)data.shape_b;
-    const spTransform* xfa = data.transform_a;
-    const spTransform* xfb = data.transform_b;
-    const spMaterial* ma = &poly->base_class.material;
-    const spMaterial* mb = &circle->base_class.material;
-    const spVector cp = spMult(*xfa, poly->base_class.bound.center);
-    const spVector cc = spMult(*xfb, circle->base_class.bound.center);
-    const spFloat cr2 = circle->radius * circle->radius;
-    const spInt edge_count = poly->count;
-
-    spFloat dist = SP_MIN_FLT;
-    spEdge* edges = poly->edges;
-
-    for (spInt i = 0; i < edge_count; ++i)
-    {
-        spEdge* edge = edges + i;
-    }
-
-    if (spDistanceSquared(cp, cc) < cr2)
-    {
-        /// TODO:
-        /// find
-    }
-    return spFalse;
-}
-
 #define DRAW_POINT(point, r, g, b) \
         glPointSize(5.0f); \
         glBegin(GL_POINTS); \
@@ -121,10 +77,21 @@ spCollidePolygonCircle2(spContact*& contact, const spCollisionInput& data)
     glEnd(); \
 
 spBool 
+spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
+{
+    spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
+    return result;
+}
+
+spBool
+spCollideEdgeCircle(const spEdge* edge, const spCircle* circle)
+{
+    return spFalse;
+}
+
+spBool 
 spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 {
-    /// box2d poly / circle collision alg. *lines 51 - 154*
-    /// https://github.com/ansman/box2d/blob/master/Box2D/Box2D/Collision/b2CollideCircle.cpp 
     const spPolygon* poly = (spPolygon*)data.shape_a;
     const spCircle* circle = (spCircle*)data.shape_b;
     const spTransform* xfa = data.transform_a;

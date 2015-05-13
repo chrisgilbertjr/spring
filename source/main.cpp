@@ -6,6 +6,66 @@
 #include <GLFW\glfw3.h>
 #include "spUnitTest.h"
 
+void create_square(
+    spBody* new_body,
+    spPolygon* new_poly,
+    spWorld* wp,
+    spFloat x,
+    spFloat y,
+    spFloat friction,
+    spFloat restitution,
+    spFloat g_scale,
+    spFloat mass,
+    spFloat size)
+{
+    new_body = spCreateBody(wp, SP_BODY_DYNAMIC);
+
+    spVector verts[4];
+    verts[0].x = -size;  verts[0].y = -size;
+    verts[1].x =  size;  verts[1].y = -size;
+    verts[2].x =  size;  verts[2].y =  size;
+    verts[3].x = -size;  verts[3].y =  size;
+
+    spPolygonDef pdd;
+    pdd.mass = mass;
+    pdd.material.friction = friction;
+    pdd.material.restitution = restitution;
+    pdd.vertex_count = 4;
+    pdd.vertices = verts;
+
+    new_poly = spCreatePolygon(new_body, pdd);
+
+    spBodySetPosition(new_body, spVector(x, y));
+    new_body->g_scale = g_scale;
+}
+
+void create_circle(
+    spBody* new_body, 
+    spCircle* new_circle, 
+    spWorld* wp, 
+    spFloat x,
+    spFloat y,
+    spFloat friction,
+    spFloat restitution,
+    spFloat g_scale,
+    spFloat mass,
+    spFloat radius)
+{
+    new_body = spCreateBody(wp, SP_BODY_DYNAMIC);
+
+    spCircleDef cd;
+    cd.mass = mass;
+    cd.material.friction = friction;
+    cd.material.restitution = restitution;
+    cd.center = spVectorZero();
+    cd.radius = radius;
+
+    new_circle = spCreateCircle(new_body, cd);
+
+    spBodySetPosition(new_body, spVector(x, y));
+    new_body->g_scale = g_scale;
+}
+
 int main()
 {
     //SP_RUN_TESTS(bound_tests);
@@ -36,70 +96,50 @@ int main()
     spWorld* wp = &world;
     wp->iterations = 20;
 
-    spBody* bodya = spCreateBody(wp, SP_BODY_DYNAMIC);
-    spBody* bodyb = spCreateBody(wp, SP_BODY_DYNAMIC);
-    spBody* bodyc = spCreateBody(wp, SP_BODY_DYNAMIC);
-    spBody* bodyd = spCreateBody(wp, SP_BODY_DYNAMIC);
-    spBody* bodye = spCreateBody(wp, SP_BODY_DYNAMIC);
-    spCircleDef cda;
-    spCircleDef cdb;
-    spCircleDef cdc;
+    const spInt SIZE = 64;
+    spBody bodies[SIZE];
+    spCircle circles[SIZE];
 
-    spFloat u = 0.72f;
-    spFloat e = 0.72f;
+    spFloat friction = 0.05f;
+    spFloat restitution = 0.9f;
 
-    cda.center = spVectorZero();
-    cda.mass = 100000.0f;
-    cda.material.friction = u;
-    cda.material.restitution = e;
-    cda.radius = 7.0f;
-    spBodySetPosition(bodya, spVector(-8.0f, 8.0f));
-    spBodySetRotation(bodya, 45.0f);
-    bodya->g_scale = 0.0f;
-    spCircle* circlea = spCreateCircle(bodya, cda);
+    for (spInt i = 0; i < 16; ++i)
+    {
+        spFloat f = (spFloat)i;
+        spFloat f2 = (spFloat)i * 10.0f - 100;
+        spFloat g_scale = spClamp(f/8.0f, 0.0f, 1.0f);
+        create_circle(bodies+i, circles+i, wp, f2, 25.0f, friction, restitution, g_scale, 2.0f, 0.8f);
+    }
 
-    cdb.center = spVectorZero();
-    cdb.mass = 1.0f;
-    cdb.material.friction = u;
-    cdb.material.restitution = e;
-    cdb.radius = 3.0f;
-    spBodySetPosition(bodyb, spVector(0.0f, 25.0f));
-    bodyb->g_scale = 5.0f;
-    spCircle* circleb = spCreateCircle(bodyb, cdb);
+    for (spInt i = 16; i < 20; ++i)
+    {
+        spFloat f = ((spFloat)i - 16.0f);
+        spFloat f2 = ((spFloat)i - 16.0f) * 25.0f - 37.5f;
+        create_circle(bodies+i, circles+i, wp, f2, 0.0f, friction, restitution, 0.0f, 9999.0f, 10.0f);
+    }
 
-    cdc.center = spVectorZero();
-    cdc.mass = 10000.0f;
-    cdc.material.friction = u;
-    cdc.material.restitution = e;
-    cdc.radius = 8.0f;
-    spCircle* circlec = spCreateCircle(bodyc, cdc);
-    cdc.radius = 3.0f;
-    spCircle* circlee = spCreateCircle(bodye, cdc);
-    spBodySetPosition(bodyc, spVector(7.0f, -5.0f));
-    spBodySetPosition(bodye, spVector(18.0f, 4.0f));
-    bodye->g_scale = 0.0f;
-    bodyc->g_scale = 0.0f;
+    for (spInt i = 20; i < 24; ++i)
+    {
+        spFloat f = ((spFloat)i - 20.0f);
+        spFloat f2 = ((spFloat)i - 20.0f) * 25.0f - 37.5f;
+        create_circle(bodies+i, circles+i, wp, f2, -35.0f, friction, restitution, 0.0f, 9999.0f, 12.0f);
+    }
 
-    spFloat s = 3.0f;
-    spVector verts[4];
-    verts[0].x = -s;  verts[0].y = -s;
-    verts[1].x =  s;  verts[1].y = -s;
-    verts[2].x =  s;  verts[2].y =  s;
-    verts[3].x = -s;  verts[3].y =  s;
+    for (spInt i = 24; i < 32; ++i)
+    {
+        spFloat f = ((spFloat)i - 24.0f);
+        spFloat f2 = ((spFloat)i - 24.0f) * 10.0f - 37.5f;
+        create_circle(bodies+i, circles+i, wp, f2, -20.0f, friction, restitution, 0.0f, 9999.0f, 3.0f);
+    }
 
-    spPolygonDef pdd;
-    pdd.mass = 0.01f;
-    pdd.material.friction = u;
-    pdd.material.restitution = e;
-    pdd.vertex_count = 4;
-    pdd.vertices = verts;
+    for (spInt i = 32; i < 64; ++i)
+    {
+        spFloat f = ((spFloat)i - 32.0f);
+        spFloat f2 = ((spFloat)i - 32.0f) * 5.0f - 37.5f;
+        spFloat g_scale = spClamp((f/8.0f)+0.25f, 0.0f, 1.0f);
+        create_circle(bodies+i, circles+i, wp, f2, 40.0f, friction, restitution, g_scale, 8.0f, 1.5f);
+    }
 
-    spPolygon* polygon0 = spCreatePolygon(bodyd, pdd);
-
-    spFloat px = -2.0f;
-    spFloat py = 25.0f;
-    spBodySetPosition(bodyd, spVector(px, py));
-    bodyd->g_scale = 0.6f;
 
     glfwSetTime(0.0);
     double timestep = 1.0 / 60.0;
@@ -121,87 +161,88 @@ int main()
         glLoadIdentity();
         bool t = false;
 
-        if (t == true)
-        {
+        //if (t == true)
+        //{
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) py += 0.1f;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) py -= 0.1f;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) px -= 0.1f;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) px += 0.1f;
-        spBodySetPosition(bodyd, spVector(px, py));
+        //if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) py += 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) py -= 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) px -= 0.1f;
+        //if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) px += 0.1f;
+        //spBodySetPosition(bodyd, spVector(px, py));
         
-        {
-            spContact contact;
-            spContactInit(&contact, spContactKey((spShape*)circlea, (spShape*)polygon0));
-            spContact* c = &contact;
+        //{
+        //    spContact contact;
+        //    spContactInit(&contact, spContactKey((spShape*)circlea, (spShape*)polygon0));
+        //    spContact* c = &contact;
 
-            spContactKey* key = &c->key; ///< contact key of the contact
-            spShape*      sa  = key->shape_a;  ///< shape a of the contact
-            spShape*      sb  = key->shape_b;  ///< shape b of the contact
-            spBody*       ba  = sa->body;      ///< body a of the contact
-            spBody*       bb  = sb->body;      ///< body b of the contact
-            spTransform*  xfa = &ba->xf;       ///< transform of body a
-            spTransform*  xfb = &bb->xf;       ///< transform of body b
+        //    spContactKey* key = &c->key; ///< contact key of the contact
+        //    spShape*      sa  = key->shape_a;  ///< shape a of the contact
+        //    spShape*      sb  = key->shape_b;  ///< shape b of the contact
+        //    spBody*       ba  = sa->body;      ///< body a of the contact
+        //    spBody*       bb  = sb->body;      ///< body b of the contact
+        //    spTransform*  xfa = &ba->xf;       ///< transform of body a
+        //    spTransform*  xfb = &bb->xf;       ///< transform of body b
 
-            const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
-            if (spCollideCirclePolygon(c, data) == spTrue)
-            {
-                spTransform xf = spTransform(spVectorZero(), spRotationZero());
-                spDebugDrawContact(0, c, xf);
-            }
-        }
+        //    const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
+        //    if (spCollideCirclePolygon(c, data) == spTrue)
+        //    {
+        //        spTransform xf = spTransform(spVectorZero(), spRotationZero());
+        //        spDebugDrawContact(0, c, xf);
+        //    }
+        //}
 
-        {
-            spContact contact;
-            spContactInit(&contact, spContactKey((spShape*)circleb, (spShape*)polygon0));
-            spContact* c = &contact;
+        //{
+        //    spContact contact;
+        //    spContactInit(&contact, spContactKey((spShape*)circleb, (spShape*)polygon0));
+        //    spContact* c = &contact;
 
-            spContactKey* key = &c->key; ///< contact key of the contact
-            spShape*      sa  = key->shape_a;  ///< shape a of the contact
-            spShape*      sb  = key->shape_b;  ///< shape b of the contact
-            spBody*       ba  = sa->body;      ///< body a of the contact
-            spBody*       bb  = sb->body;      ///< body b of the contact
-            spTransform*  xfa = &ba->xf;       ///< transform of body a
-            spTransform*  xfb = &bb->xf;       ///< transform of body b
+        //    spContactKey* key = &c->key; ///< contact key of the contact
+        //    spShape*      sa  = key->shape_a;  ///< shape a of the contact
+        //    spShape*      sb  = key->shape_b;  ///< shape b of the contact
+        //    spBody*       ba  = sa->body;      ///< body a of the contact
+        //    spBody*       bb  = sb->body;      ///< body b of the contact
+        //    spTransform*  xfa = &ba->xf;       ///< transform of body a
+        //    spTransform*  xfb = &bb->xf;       ///< transform of body b
 
-            const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
-            if (spCollideCirclePolygon(c, data) == spTrue)
-            {
-                spTransform xf = spTransform(spVectorZero(), spRotationZero());
-                spDebugDrawContact(0, c, xf);
-            }
-        }
+        //    const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
+        //    if (spCollideCirclePolygon(c, data) == spTrue)
+        //    {
+        //        spTransform xf = spTransform(spVectorZero(), spRotationZero());
+        //        spDebugDrawContact(0, c, xf);
+        //    }
+        //}
 
-        {
-            spContact contact;
-            spContactInit(&contact, spContactKey((spShape*)circlec, (spShape*)polygon0));
-            spContact* c = &contact;
+        //{
+        //    spContact contact;
+        //    spContactInit(&contact, spContactKey((spShape*)circlec, (spShape*)polygon0));
+        //    spContact* c = &contact;
 
-            spContactKey* key = &c->key; ///< contact key of the contact
-            spShape*      sa  = key->shape_a;  ///< shape a of the contact
-            spShape*      sb  = key->shape_b;  ///< shape b of the contact
-            spBody*       ba  = sa->body;      ///< body a of the contact
-            spBody*       bb  = sb->body;      ///< body b of the contact
-            spTransform*  xfa = &ba->xf;       ///< transform of body a
-            spTransform*  xfb = &bb->xf;       ///< transform of body b
+        //    spContactKey* key = &c->key; ///< contact key of the contact
+        //    spShape*      sa  = key->shape_a;  ///< shape a of the contact
+        //    spShape*      sb  = key->shape_b;  ///< shape b of the contact
+        //    spBody*       ba  = sa->body;      ///< body a of the contact
+        //    spBody*       bb  = sb->body;      ///< body b of the contact
+        //    spTransform*  xfa = &ba->xf;       ///< transform of body a
+        //    spTransform*  xfb = &bb->xf;       ///< transform of body b
 
-            const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
-            if (spCollideCirclePolygon(c, data) == spTrue)
-            {
-                spTransform xf = spTransform(spVectorZero(), spRotationZero());
-                spDebugDrawContact(0, c, xf);
-            }
-        }
+        //    const spCollisionInput data = spCollisionInput(sa, sb, xfa, xfb);
+        //    if (spCollideCirclePolygon(c, data) == spTrue)
+        //    {
+        //        spTransform xf = spTransform(spVectorZero(), spRotationZero());
+        //        spDebugDrawContact(0, c, xf);
+        //    }
+        //}
 
-        spDebugDrawCircle(0, circlea, circlea->base_class.body->xf);
-        spDebugDrawCircle(0, circleb, circleb->base_class.body->xf);
-        spDebugDrawCircle(0, circlec, circlec->base_class.body->xf);
-        spDebugDrawPolygon(0, polygon0, polygon0->base_class.body->xf);
-        }
-        else
-        {
-            spWorldStep(wp, 1.0f / 60.0f);
-        }
+        //spDebugDrawCircle(0, circlea, circlea->base_class.body->xf);
+        //spDebugDrawCircle(0, circleb, circleb->base_class.body->xf);
+        //spDebugDrawCircle(0, circlec, circlec->base_class.body->xf);
+        //spDebugDrawPolygon(0, polygon0, polygon0->base_class.body->xf);
+        //}
+        //else
+        //{
+        //}
+
+        spWorldStep(wp, 1.0f / 60.0f);
 
         glfwSwapBuffers(window);
 

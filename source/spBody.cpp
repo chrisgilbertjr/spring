@@ -54,65 +54,12 @@ void
 spBodyAdd(spBody* body, spBody*& body_list)
 {
     SP_LINKED_LIST_PREPEND(spBody, body, body_list);
-    //spAssert(body != NULL, "Error: body is NULL, cannot add body");
-
-    //if (body_list == NULL)
-    //{
-    //    body->next = NULL;
-    //}
-    //else
-    //{
-    //    body_list->prev = body;
-    //    body->next = body_list;
-    //}
-    //body->prev = NULL;
-    //body_list = body;
 }
 
 void 
 spBodyRemove(spBody* body, spBody*& body_list)
 {
     SP_LINKED_LIST_REMOVE(spBody, body, body_list);
-    ///// check if the list is empty
-    //spAssert(body_list != NULL, "Error: body list is NULL, cannot remove body");
-    //spAssert(body != NULL, "Error: body is NULL, cannot remove body");
-
-    //spBody* b_prev = body->prev;
-    //spBody* b_next = body->next;
-
-    //body->prev = NULL;
-    //body->next = NULL;
-
-    ///// the body is in the middle of the list
-    //if (b_prev != NULL && b_next != NULL)
-    //{
-    //    b_prev->next = b_next;
-    //    b_next->prev = b_prev;
-    //}
-
-    ///// the body is the only contact in the list
-    //else if (b_prev == NULL && b_next == NULL)
-    //{
-    //    body_list = NULL;
-    //}
-
-    ///// the body is at the beginning of the list
-    //else if (b_prev == NULL)
-    //{
-    //    body_list = b_next;
-    //    b_next->prev = NULL;
-    //}
-
-    ///// the body is at the end of the list
-    //else if (b_next == NULL)
-    //{
-    //    b_prev->next = NULL;
-    //}
-
-    //else
-    //{
-    //    spAssert(false, "removing body, shouldnt reach this...");
-    //}
 }
 
 void 
@@ -195,7 +142,7 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
 
     /// integrate velocity to get new position/rotation
     body->p = spAdd(body->p, spMult(h, body->v));
-    body->a = body->a + h * -body->w;
+    body->a = body->a + h * body->w;
 
     /// update the bodys' transform according to the new position/rotation
     spBodySetTransform(body, body->p, body->a);

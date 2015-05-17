@@ -100,8 +100,12 @@ int main()
     spBody bodies[SIZE];
     spCircle circles[SIZE];
 
-    spFloat friction = 0.05f;
-    spFloat restitution = 0.9f;
+    spFloat friction = 1.0f;
+    spFloat restitution = 0.7f;
+
+    spBody* sb = 0;
+    spPolygon* poly = 0;
+    create_square(sb, poly, wp, -7.0f, 50.0f, 1.0f, 0.2f, 1.5f, 5.0f, 2.0f);
 
     for (spInt i = 0; i < 16; ++i)
     {
@@ -115,21 +119,21 @@ int main()
     {
         spFloat f = ((spFloat)i - 16.0f);
         spFloat f2 = ((spFloat)i - 16.0f) * 25.0f - 37.5f;
-        create_circle(bodies+i, circles+i, wp, f2, 0.0f, friction, restitution, 0.0f, 9999.0f, 10.0f);
+        create_circle(bodies+i, circles+i, wp, f2, 0.0f, friction, restitution, 0.0f, 1000.0f, 8.0f);
     }
 
     for (spInt i = 20; i < 24; ++i)
     {
         spFloat f = ((spFloat)i - 20.0f);
         spFloat f2 = ((spFloat)i - 20.0f) * 25.0f - 37.5f;
-        create_circle(bodies+i, circles+i, wp, f2, -35.0f, friction, restitution, 0.0f, 9999.0f, 12.0f);
+        create_circle(bodies+i, circles+i, wp, f2, -35.0f, friction, restitution, 0.0f, 1000.0f, 12.0f);
     }
 
     for (spInt i = 24; i < 32; ++i)
     {
         spFloat f = ((spFloat)i - 24.0f);
         spFloat f2 = ((spFloat)i - 24.0f) * 10.0f - 37.5f;
-        create_circle(bodies+i, circles+i, wp, f2, -20.0f, friction, restitution, 0.0f, 9999.0f, 3.0f);
+        create_circle(bodies+i, circles+i, wp, f2, -20.0f, friction, restitution, 0.0f, 250.0f, 3.0f);
     }
 
     for (spInt i = 32; i < 64; ++i)
@@ -139,7 +143,6 @@ int main()
         spFloat g_scale = spClamp((f/8.0f)+0.25f, 0.0f, 1.0f);
         create_circle(bodies+i, circles+i, wp, f2, 40.0f, friction, restitution, g_scale, 8.0f, 1.5f);
     }
-
 
     glfwSetTime(0.0);
     double timestep = 1.0 / 60.0;

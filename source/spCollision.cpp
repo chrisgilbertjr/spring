@@ -79,7 +79,9 @@ spCollisionInputSwap(const spCollisionInput& data)
 spBool 
 spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
 {
+    spLog("a");
     spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
+    spNegate(&contact->normal);
     return result;
 }
 
@@ -92,6 +94,7 @@ spCollideEdgeCircle(const spEdge* edge, const spCircle* circle)
 spBool 
 spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 {
+    spLog("b\n");
     const spPolygon* poly = (spPolygon*)data.shape_a;
     const spCircle* circle = (spCircle*)data.shape_b;
     const spTransform* xfa = data.transform_a;
@@ -110,8 +113,7 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 
     spInt normalIndex = 0;
     spFloat separation = SP_MIN_FLT;
-    spFloat radius = poly->base_class.bound.radius + circle->radius;
-    radius = circle->radius;
+    spFloat radius = circle->radius;
     spInt vertexCount = poly->count;
     spEdge* edges = poly->edges;
 
@@ -175,10 +177,9 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         {
             return spFalse;
         }
-        spVector localNormal = spSub(v1, lc);
 
         spVector point = spMult(*xfa, v1);
-        spVector normal = spMult(xfa->q, spSub(v1, lc));
+        spVector normal = spMult(xfa->q, spSub(lc, v1)); ///changed v1,lc
         spNormalize(&normal);
         DRAW_POINT(point, 1.0f, 0.0f, 0.0f);
 
@@ -188,8 +189,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->restitution = spMaterialComputeRestitution(ma, mb);
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
-
-        spLog("u1\n");
     }
     else if (u2 <= 0.0f)
     {
@@ -199,7 +198,7 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         }
 
         spVector point = spMult(*xfa, v2);
-        spVector normal = spMult(xfa->q, spSub(v2, lc));
+        spVector normal = spMult(xfa->q, spSub(lc, v2)); /// changed
         spNormalize(&normal);
         DRAW_POINT(point, 0.0f, 1.0f, 0.0f);
 
@@ -209,8 +208,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->restitution = spMaterialComputeRestitution(ma, mb);
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
-
-        spLog("u2\n");
     }
     else
     {
@@ -223,7 +220,7 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 
         spVector normal = spMult(xfa->q, edges[vi1].normal);
         spNormalize(&normal);
-        spNegate(&normal);
+        //spNegate(&normal);
         spVector point = spAdd(spMult(normal, rb), cb);
         DRAW_POINT(point, 0.0f, 0.0f, 1.0f);
 
@@ -233,8 +230,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->restitution = spMaterialComputeRestitution(ma, mb);
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
-
-        spLog("else\n");
     }
 
     return spTrue;
@@ -301,8 +296,8 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
 #ifdef SP_DEBUG_DRAW
     contact->points[0].p = point;
 #endif
-    contact->points[0].r_a = spSub(point, world_b);
-    contact->points[0].r_b = spSub(point, world_a);
+    contact->points[0].r_a = spSub(point, world_a);
+    contact->points[0].r_b = spSub(point, world_b);
     contact->normal = spSub(world_b, world_a);
     contact->friction = spMaterialComputeFriction(ma, mb);
     contact->restitution = spMaterialComputeRestitution(ma, mb);
@@ -310,6 +305,32 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
     spNormalize(&contact->normal);
 
     return spTrue;
+}
+
+/// gets the extreme point of a polygon in a normals direction
+spInt
+spExtremalIndexQuery(const spPolygon* poly, const spVector& normal)
+{
+    spEdge* edges = poly->edges;
+    spInt count = poly->count;
+
+    spFloat mproj = SP_MIN_FLT; /// largest dot projection
+    spInt ei = 0; /// extreme index
+    for (spInt i = 0; i < count; ++i)
+    {
+        spEdge* edge = edges + i;
+        spFloat proj = spDot(edge->vertex, normal);
+
+        /// this projection is larger, save its info
+        if (proj > mproj)
+        {
+            mproj = proj;
+            ei = i;
+        }
+    }
+
+    /// return the extremel index of the poly
+    return ei;
 }
 
 spBool 

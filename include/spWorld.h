@@ -4,7 +4,6 @@
 
 #include "spConstraint.h"
 #include "spContact.h"
-#include "spCluster.h"
 #include "spNarrowPhase.h"
 #include "spBroadPhase.h"
 #include "spBody.h"

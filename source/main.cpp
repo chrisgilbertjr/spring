@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <GLFW\glfw3.h>
-#include "spUnitTest.h"
 
 void create_square(
     spBody* new_body,

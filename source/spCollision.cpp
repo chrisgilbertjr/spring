@@ -220,7 +220,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 
         spVector normal = spMult(xfa->q, edges[vi1].normal);
         spNormalize(&normal);
-        //spNegate(&normal);
         spVector point = spAdd(spMult(normal, rb), cb);
         DRAW_POINT(point, 0.0f, 0.0f, 1.0f);
 
@@ -284,13 +283,10 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
         return spFalse;
     }
 
-    /// they are in contact, create the contact and prepend it to the linked list
     spBody* ba = ca->base_class.body;
     spBody* bb = cb->base_class.body;
     const spMaterial* ma = &ca->base_class.material;
     const spMaterial* mb = &ca->base_class.material;
-
-    /// create the contact
     spVector point = spMult(spAdd(world_a, world_b), 0.5f);
 
 #ifdef SP_DEBUG_DRAW
@@ -307,9 +303,8 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
     return spTrue;
 }
 
-/// gets the extreme point of a polygon in a normals direction
-spInt
-spExtremalIndexQuery(const spPolygon* poly, const spVector& normal)
+spVector
+spExtremalQuery(const spPolygon* poly, const spVector& normal)
 {
     spEdge* edges = poly->edges;
     spInt count = poly->count;
@@ -329,8 +324,17 @@ spExtremalIndexQuery(const spPolygon* poly, const spVector& normal)
         }
     }
 
-    /// return the extremel index of the poly
-    return ei;
+    /// return the extremel point of the poly relative to a direction
+    return edges[ei].vertex;
+}
+
+spVector
+spSupportPoint(const spPolygon* a, const spPolygon* b, const spVector& normal)
+{
+    spVector negate = normal;
+    spNegate(&negate);
+
+    return spSub(spExtremalQuery(a, normal), spExtremalQuery(b, negate));
 }
 
 spBool 

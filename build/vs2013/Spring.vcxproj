@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\spApplication.h" />
     <ClInclude Include="..\..\include\spArray.h" />
     <ClInclude Include="..\..\include\spBody.h" />
     <ClInclude Include="..\..\include\spBound.h" />
@@ -35,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
+    <ClCompile Include="..\..\source\spApplication.cpp" />
     <ClCompile Include="..\..\source\spBody.cpp" />
     <ClCompile Include="..\..\source\spBound.cpp" />
     <ClCompile Include="..\..\source\spBroadPhase.cpp" />

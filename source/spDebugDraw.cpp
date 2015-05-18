@@ -4,6 +4,11 @@
 void 
 spDebugDrawPoint(const spVector& pos, const spColor& color)
 {
+    glColor3f(color.r, color.g, color.b);
+    glBegin(GL_POINTS);
+    glVertex2f(pos.x, pos.y);
+    glEnd();
+    glColor3f(0.0f, 0.0f, 0.0f);
 }
 
 void 
@@ -15,11 +20,24 @@ spDebugDrawPoint(const spFloat x, const spFloat y, const spColor& color)
 void 
 spDebugDrawLine(const spVector& a, const spVector b, const spColor& color)
 {
+    glColor3f(color.r, color.g, color.b);
+    glBegin(GL_LINES);
+    glVertex2f(a.x, a.y);
+    glVertex2f(b.x, b.y);
+    glEnd();
+    glColor3f(0.0f, 0.0f, 0.0f);
 }
 
 void 
 spDebugDrawTriangle(const spVector& a, const spVector& b, const spVector& c, const spColor& color)
 {
+    glColor3f(color.r, color.g, color.b);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(a.x, a.y);
+    glVertex2f(b.x, b.y);
+    glVertex2f(c.x, c.y);
+    glEnd();
+    glColor3f(0.0f, 0.0f, 0.0f);
 }
 
 void

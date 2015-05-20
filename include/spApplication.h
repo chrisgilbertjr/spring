@@ -25,7 +25,7 @@ struct spFrustum
 };
 
 /// function pointers
-typedef spBool (*init_func)(struct spApplication*);
+typedef void (*init_func)(struct spApplication*);
 typedef void (*main_loop_func)(struct spApplication* app);
 typedef void (*loop_func)(spApplication* app);
 
@@ -89,7 +89,14 @@ inline spViewport _spViewport(spInt width, spInt height)
 /// 'faked' constructor for stack allocation
 inline spFrustum _spFrustum(spFloat l, spFloat r, spFloat b, spFloat t, spFloat n, spFloat f)
 {
-    return { l, r, b, t, n, f };
+    spFrustum frustum;
+    frustum.left = l;
+    frustum.right = r;
+    frustum.bottom = b;
+    frustum.top = t;
+    frustum.near = n;
+    frustum.far = f;
+    return frustum;
 }
 
 /// convenience macros for stack allocators
@@ -98,7 +105,7 @@ inline spFrustum _spFrustum(spFloat l, spFloat r, spFloat b, spFloat t, spFloat 
 #define spFrustumUniform(s) _spFrustum(-s, s, -s, s, -s, s)
 
 ///
-spBool default_init(spApplication* app);
+void default_init(spApplication* app);
 
 ///
 void default_main_loop(spApplication* app);

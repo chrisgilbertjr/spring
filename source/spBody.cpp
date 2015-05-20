@@ -67,7 +67,7 @@ spBodySetPosition(spBody* body, const spVector& position)
 {
     body->p = spAdd(spMult(body->xf.q, body->com), position);
     spBodyIsSane(body);
-    spBodySetTransform(body, body->p, body->a);
+    __spBodyUpdateTransform(body);
 }
 
 void 
@@ -75,15 +75,23 @@ spBodySetRotation(spBody* body, spFloat angle)
 {
     body->a = angle;
     spBodyIsSane(body);
-    spBodySetTransform(body, body->p, body->a);
+    __spBodyUpdateTransform(body);
 }
 
 void 
-spBodySetTransform(spBody* body, const spVector& p, const spFloat a)
+spBodySetTransform(spBody* body, const spVector& position, spFloat angle)
+{
+    body->p = spAdd(spMult(body->xf.q, body->com), position);
+    body->a = angle * SP_DEG_TO_RAD;
+    __spBodyUpdateTransform(body);
+}
+
+void 
+__spBodyUpdateTransform(spBody* body)
 {
     /// new_position = rotate(center_of_mass, angle) + position
-    body->xf.q = spRotation(a);
-    body->xf.p = spAdd(spMult(body->xf.q, body->com), p);
+    body->xf.q = spRotation(body->a);
+    body->xf.p = spAdd(spMult(body->xf.q, body->com), body->p);
     spBodyIsSane(body);
 }
 
@@ -145,7 +153,7 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
     body->a = body->a + h * body->w;
 
     /// update the bodys' transform according to the new position/rotation
-    spBodySetTransform(body, body->p, body->a);
+    __spBodyUpdateTransform(body);
 
     /// reset psuedo velocities if we use them
     /// spBodyClearPsuedoVelocities(body);

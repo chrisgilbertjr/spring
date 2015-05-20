@@ -63,8 +63,13 @@ spApplicationNew(
     return app;
 }
 
-spBool 
+void 
 default_init(spApplication* app)
+{
+}
+
+spBool
+init_glfw(spApplication* app)
 {
     if (!glfwInit())
     {
@@ -135,7 +140,8 @@ spInt
 run(spApplication* app)
 {
     spAssert(app != NULL, "application is NULL!");
-    if (app->init(app) == spFalse) return -1;
+    if (init_glfw(app) == spFalse) return -1;
+    app->init(app);
     app->main(app); 
     spAplicationFree(app);
     return 0;

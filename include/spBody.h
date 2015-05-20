@@ -67,8 +67,12 @@ void spBodySetPosition(spBody* body, const spVector& position);
 /// sets the rotation of the rigid body
 void spBodySetRotation(spBody* body, spFloat angle);
 
+/// sets the position and rotation of the rigid body
+void spBodySetTransform(spBody* body, const spVector& position, spFloat angle);
+
 /// set the bodys' transform according to a new position and rotation angle
-void spBodySetTransform(spBody* body, const spVector& p, const spFloat a);
+/// this should only be called from internal functions
+void __spBodyUpdateTransform(spBody* body);
 
 /// set the mass and update mass properties of a rigid body
 void spBodySetMass(spBody* body, spFloat mass);

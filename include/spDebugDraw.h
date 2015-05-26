@@ -18,20 +18,21 @@ struct spColor
     spFloat r;
     spFloat g;
     spFloat b;
+    spFloat a;
 };
 
-inline spColor _spColor(spFloat r, spFloat g, spFloat b)
+inline spColor _spColor(spFloat r, spFloat g, spFloat b, spFloat a)
 {
-    return { r, g, b };
+    return { r, g, b, a };
 }
 
-#define spPurple() _spColor(1.0f, 0.0f, 1.0f)
-#define spYellow() _spColor(1.0f, 1.0f, 0.0f)
-#define spGreen()  _spColor(0.0f, 1.0f, 0.0f)
-#define spBlack()  _spColor(0.0f, 0.0f, 0.0f)
-#define spWhite()  _spColor(1.0f, 1.0f, 1.0f)
-#define spBlue()   _spColor(0.0f, 0.0f, 1.0f)
-#define spRed()    _spColor(1.0f, 0.0f, 0.0f)
+#define spPurple(a) _spColor(1.0f, 0.0f, 1.0f, a)
+#define spYellow(a) _spColor(1.0f, 1.0f, 0.0f, a)
+#define spGreen(a)  _spColor(0.0f, 1.0f, 0.0f, a)
+#define spBlack(a)  _spColor(0.0f, 0.0f, 0.0f, a)
+#define spWhite(a)  _spColor(1.0f, 1.0f, 1.0f, a)
+#define spBlue(a)   _spColor(0.0f, 0.0f, 1.0f, a)
+#define spRed(a)    _spColor(1.0f, 0.0f, 0.0f, a)
 
 void spDebugDrawPoint(const spVector& pos, const spColor& color);
 

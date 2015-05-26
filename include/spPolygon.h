@@ -83,14 +83,14 @@ void spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass);
  {
      spMaterialIsSane(def.material);
      spAssert(def.vertices != NULL, "vertices is null in polygon def sanity check");
-     spAssert(def.vertex_count > 3, "a polygon must have at least 3 vertices in polygon def sanity check");
+     spAssert(def.vertex_count > 2, "a polygon must have at least 3 vertices in polygon def sanity check");
      spAssert(def.mass > 0.0f, "mass must be positive in polygon def sanity check");
  }
 
  /// polygon sanity check
  inline void _spPolygonIsSane(const spPolygon* poly)
  {
-     spAssert(poly->count > 3, "a polygon must have at least 3 vertices");
+     spAssert(poly->count > 2, "a polygon must have at least 3 vertices");
      spEdgesAreSane(poly->edges, poly->count);
      spShapeIsSane(&poly->base_class);
  }

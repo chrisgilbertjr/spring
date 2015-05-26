@@ -110,7 +110,7 @@ spFloat spMaterialComputeRestitution(const spMaterial* ma, const spMaterial* mb)
      spMassDataIsSane(shape->mass_data);
      spMaterialIsSane(shape->material);
      spBoundIsSane(shape->bound);
-     spAssert(shape->body != NULL, "the shapes body is NULL in its sanity check");
+     //spAssert(shape->body != NULL, "the shapes body is NULL in its sanity check");
  }
 #else
  #define spMassDataIsSane(mass)

@@ -8,6 +8,21 @@
 /// @defgroup spCollision spCollision
 /// @{
 
+/// closest points between two shapes, calculated by GJK algorithm
+struct spClosestPoints
+{
+    spVector a; /// closest point on shape a in world coords
+    spVector b; /// closest point on shape b in world coords
+};
+
+/// a point on the minkowski difference of two shapes
+struct spMinkowskiPoint
+{
+    spVector a; /// a point on shape a in world coords
+    spVector b; /// a point on shape b in world coords
+    spVector v; /// vector b - a
+};
+
 /// collision input for collide functions
 struct spCollisionInput
 {
@@ -32,11 +47,16 @@ typedef spBool (*spCollisionFunc)(spContact*& contact, const spCollisionInput& d
 ///         +--------------+-------------+--------------+
 /// chain   | chain+circle | chain+poly  | NONE         |
 /// A       +-------------------------------------------+
-///  
 struct spCollisionMatrix
 {
     spCollisionFunc CollideFunc[SP_SHAPE_COUNT][SP_SHAPE_COUNT];
 };
+
+/// 'faked' constructor for stack allocation
+spClosestPoints _spClosestPoints(const spVector* a, const spVector* b);
+
+/// 'faked' constructor for stack allocation
+spMinkowskiPoint _spMinkowskiPoint(const spVector& a, const spVector& b);
 
 /// 'faked' constructor for stack allocation
 spCollisionInput _spCollisionInput(const spShape* sa, const spShape* sb, const spTransform* xfa, const spTransform* xfb);
@@ -44,6 +64,7 @@ spCollisionInput _spCollisionInput(const spShape* sa, const spShape* sb, const s
 /// 'faked' constructor for stack allocation
 spCollisionMatrix _spCollisionMatrix();
 
+/// query the collision function from the collision matrix based on shape types
 spCollisionFunc spCollisionQueryFunc(const spCollisionMatrix& matrix, spShapeType type_a, spShapeType type_b);
 
 /// collide a circle and a polygon

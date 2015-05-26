@@ -79,7 +79,7 @@ loop_test(spApplication* app)
     spBodySetTransform(ad->ba, spVector(bax, bay), aa);
     spBodySetTransform(ad->bb, spVector(bbx, bby), ab);
 
-    spVectorLog(&ad->ba->xf.p);
+    //spVectorLog(&ad->ba->xf.p);
 
     default_loop(app);
 }
@@ -103,7 +103,7 @@ spApplication* fall_application()
         "test application",
         spViewport(800, 800), spFrustumUniform(10.0f),
         spVector(0.0f, -1.0f),
-        20, 1.0f / 60.0f,
+        20, 1.0f / 1000.0f,
         default_init, default_loop, default_main_loop,
         0);
 }

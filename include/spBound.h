@@ -47,6 +47,24 @@ inline spBound _spBound()
     return bound;
 }
 
+/// get a bounds half width
+inline spVector spBoundGetHalfWidth(const spBound* bound)
+{
+    return bound->half_width;
+}
+
+/// get a bounds center
+inline spVector spBoundGetCenter(const spBound* bound)
+{
+    return bound->center;
+}
+
+/// get a bounds radius
+inline spFloat spBoundGetRadius(const spBound* bound)
+{
+    return bound->radius;
+}
+
 /// set the bound
 inline void spBoundSet(spBound* bound, const spVector& center, const spFloat x_size, const spFloat y_size)
 {

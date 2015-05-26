@@ -180,6 +180,12 @@ inline void spNegate(spVector* a)
     a->y = -a->y;
 }
 
+/// return a negated vector
+inline spVector spNegate(const spVector& a)
+{
+    return spVector(-a.x, -a.y);
+}
+
 inline void spVectorLog(spVector* vector, spInt8* msg = "")
 {
     spLog("%0.7f, %0.7f, %s \n", vector->x, vector->y, msg);

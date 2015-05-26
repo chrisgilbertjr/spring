@@ -80,6 +80,7 @@ spWorldStep(spWorld* world, const spFloat h)
     {
         for_each_shape(shape, body->shape_list)
         {
+            spDebugDrawBound(0, &shape->bound, body->xf);
             if (shape->type == SP_SHAPE_CIRCLE)
             {
                 spDebugDrawCircle(0, (spCircle*)shape, body->xf);
@@ -88,9 +89,9 @@ spWorldStep(spWorld* world, const spFloat h)
             {
                 spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
             }
-            spDebugDrawBound(0, &shape->bound, body->xf);
         }
     }
+    spLog("\n");
 #endif
 }
 

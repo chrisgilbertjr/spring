@@ -79,7 +79,6 @@ spCollisionInputSwap(const spCollisionInput& data)
 spBool 
 spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
 {
-    spLog("a");
     spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
     spNegate(&contact->normal);
     return result;
@@ -94,7 +93,6 @@ spCollideEdgeCircle(const spEdge* edge, const spCircle* circle)
 spBool 
 spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 {
-    spLog("b\n");
     const spPolygon* poly = (spPolygon*)data.shape_a;
     const spCircle* circle = (spCircle*)data.shape_b;
     const spTransform* xfa = data.transform_a;
@@ -198,7 +196,7 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         }
 
         spVector point = spMult(*xfa, v2);
-        spVector normal = spMult(xfa->q, spSub(lc, v2)); /// changed
+        spVector normal = spMult(xfa->q, spSub(lc, v2)); 
         spNormalize(&normal);
         DRAW_POINT(point, 0.0f, 1.0f, 0.0f);
 
@@ -283,10 +281,10 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
         return spFalse;
     }
 
-    spBody* ba = ca->base_class.body;
-    spBody* bb = cb->base_class.body;
     const spMaterial* ma = &ca->base_class.material;
     const spMaterial* mb = &ca->base_class.material;
+    spBody* ba = ca->base_class.body;
+    spBody* bb = cb->base_class.body;
     spVector point = spMult(spAdd(world_a, world_b), 0.5f);
 
 #ifdef SP_DEBUG_DRAW
@@ -303,43 +301,168 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
     return spTrue;
 }
 
-spVector
-spExtremalQuery(const spPolygon* poly, const spVector& normal)
+spClosestPoints 
+_spClosestPoints(const spVector* a, const spVector* b)
 {
+    spClosestPoints cp;
+    cp.a = *a;
+    cp.b = *b;
+    return cp;
+}
+
+spVector
+spExtremalQuery(const spPolygon* poly, const spTransform* xf, const spVector& normal)
+{
+    /// poly edges and count
     spEdge* edges = poly->edges;
     spInt count = poly->count;
 
-    spFloat mproj = SP_MIN_FLT; /// largest dot projection
-    spInt ei = 0; /// extreme index
+    spFloat mproj = -SP_MAX_FLT; /// largest dot projection
+    spVector mv = spVector(SP_MIN_FLT, SP_MIN_FLT); /// extreme vector
+
+    /// find the most extreme point along a direction
     for (spInt i = 0; i < count; ++i)
     {
         spEdge* edge = edges + i;
-        spFloat proj = spDot(edge->vertex, normal);
+        spVector v = spMult(*xf, edge->vertex);
+        spFloat proj = spDot(v, normal);
 
         /// this projection is larger, save its info
         if (proj > mproj)
         {
             mproj = proj;
-            ei = i;
+            mv = v;
         }
     }
 
-    /// return the extremel point of the poly relative to a direction
-    return edges[ei].vertex;
+    /// return the extremal point of the poly along a direction
+    return mv;
 }
 
 spVector
-spSupportPoint(const spPolygon* a, const spPolygon* b, const spVector& normal)
+spSupportPoint(const spPolygon* a, const spPolygon* b, const spTransform* xfa, const spTransform* xfb, const spVector& normal)
 {
-    spVector negate = normal;
-    spNegate(&negate);
+    spVector va = spExtremalQuery(a, xfa, normal);
+    spVector vb = spExtremalQuery(b, xfb, spNegate(normal));
+    return spSub(va, vb);
+}
 
-    return spSub(spExtremalQuery(a, normal), spExtremalQuery(b, negate));
+enum spSide
+{
+    spLeft   = -1,
+    spLinear =  0,
+    spRight  =  1
+};
+
+static inline spInt
+spWhichSide(const spVector* a, const spVector* b, const spVector* p)
+{
+    return ((b->x-a->x) * (p->y-a->y)) - ((b->y-a->y) * (p->x-a->x));
+}
+
+static inline spBool
+spOriginToLeft(const spVector* a, const spVector* b)
+{
+    return spWhichSide(a, b, &spVectorZero()) == spLeft;
+}
+
+static spBool 
+spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data)
+{
+    const spTransform* xfa = data.transform_a;
+    const spTransform* xfb = data.transform_b;
+    const spPolygon*   pa  = (spPolygon*)data.shape_a;
+    const spPolygon*   pb  = (spPolygon*)data.shape_b;
+    const spBound*     ba  = &pa->base_class.bound;
+    const spBound*     bb  = &pb->base_class.bound;
+
+    /// doesnt have to be normalized
+    spVector bca = spMult(*xfa, spBoundGetCenter(ba));
+    spVector bcb = spMult(*xfb, spBoundGetCenter(bb));
+    spVector dir = spSkew(spSub(bca, bcb));
+
+    /// calculate initial minkowski points, and their edge
+    spVector m0 = spSupportPoint(pa, pb, xfa, xfb, dir);
+    spVector m1 = spSupportPoint(pa, pb, xfa, xfb, spNegate(dir));
+
+#ifdef SP_DEBUG_DRAW
+    /// draw all minkowski points for debugging purposes
+    for (spInt i = 0; i < pb->count; ++i)
+    {
+        spEdge*  eb = pb->edges;
+        spVector vb = spMult(*xfb, eb[i].vertex);
+        for (spInt j = 0; j < pa->count; ++j)
+        {
+            spEdge*  ea = pb->edges;
+            spVector va = spMult(*xfa, ea[j].vertex);
+
+            spVector p = spSub(va, vb);
+            spDebugDrawPoint(p, spRed(0.1f));
+        }
+    }
+
+    /// draw the origin and the initial 2 minkowski points
+    spDebugDrawPoint(spVectorZero(), spGreen(0.2f));
+    spDebugDrawPoint(m0, spBlue(0.8f));
+    spDebugDrawPoint(m1, spBlue(0.8f));
+#endif
+
+    static const spInt max_iters = 20;
+
+    for (spInt i = 0; i < max_iters; ++i)
+    {
+        /// get the new normal direction
+        spVector n = spOriginToLeft(&m0, &m1) ? spSkew(spSub(m1, m0)) : spSkew(spSub(m0, m1));
+
+        /// calculate the next minkowski point with the new normal direction
+        spVector m2 = spSupportPoint(pa, pb, xfa, xfb, n);
+
+#ifdef SP_DEBUG_DRAW
+        spVector p = spLerp(m0, m1, 0.5f);
+        spNormalize(&n);
+        spDebugDrawLine(p, spAdd(p, n), spPurple(0.1f));
+        spDebugDrawPoint(m2, spGreen(0.8f));
+
+        /// draw triangle
+        spDebugDrawTriangle(m0, m1, m2, spYellow(0.2f));
+#endif
+
+        /// check if the origin is inside the simplex. m0, m1, m2
+        if (!spOriginToLeft(&m0, &m1) && !spOriginToLeft(&m1, &m2) && !spOriginToLeft(&m2, &m0))
+        {
+            /// the origin is inside the triangle simplex, call EPA and initialize the contact
+            spLog("COLLISION\n");
+            return spTrue;
+        }
+        else
+        {
+            /// check if our initial edge is closer than our new minkowski point
+            if (spMax(spDot(m0, n), spDot(m1, n)) <= spDot(m2, n))
+            {
+                /// the initial edge is closer than our new minkowski point
+                /// there is no collision,
+                spLog("initial edge is closer\n");
+                return spFalse;
+            }
+            else
+            {
+                spLog("new point\n");
+                continue;
+            }
+        }
+    }
+
+    return spFalse;
 }
 
 spBool 
 spCollidePolygons(spContact*& contact, const spCollisionInput& data)
 {
-    /// TODO:
+    spClosestPoints points;
+    if (spGJK(&points, contact, data))
+    {
+        //spDebugDrawPoint(points.a, spRed());
+        //spDebugDrawPoint(points.b, spRed());
+    }
     return spFalse;
 }

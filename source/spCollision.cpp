@@ -354,16 +354,47 @@ enum spSide
     spRight  =  1
 };
 
-static inline spInt
+static inline spFloat
 spWhichSide(const spVector* a, const spVector* b, const spVector* p)
 {
     return ((b->x-a->x) * (p->y-a->y)) - ((b->y-a->y) * (p->x-a->x));
 }
 
-static inline spBool
-spOriginToLeft(const spVector* a, const spVector* b)
+spFloat 
+spGetOriginSide(spVector head, spVector tail)
 {
-    return spWhichSide(a, b, &spVectorZero()) == spLeft;
+    /// left  < 0
+    /// on   == 0
+    /// right > 0
+    return ((tail.x-head.x) * (-head.y)) - ((tail.y-head.y) * (-head.x));
+}
+
+spBool spOriginInTriangle(spVector a, spVector b, spVector c)
+{
+    spDebugDrawTriangle(a, b, c, spGreen(0.1f));
+    spDebugDrawPoint(a, spYellow(1.0f));
+    spDebugDrawPoint(b, spYellow(0.6f));
+    spDebugDrawPoint(c, spYellow(0.3f));
+
+    spVector pa = spLerp(b, a, .5f);
+    spVector pb = spLerp(c, b, .5f);
+    spVector pc = spLerp(a, c, .5f);
+
+    spVector na = spSkew(spSub(b, a));
+    spVector nb = spSkew(spSub(c, b));
+    spVector nc = spSkew(spSub(a, c));
+
+    spNormalize(&na);
+    spNormalize(&nb);
+    spNormalize(&nc);
+
+    spDebugDrawLine(pa, spAdd(pa, na), spPurple(1.0f));
+    spDebugDrawLine(pb, spAdd(pb, nb), spPurple(1.0f));
+    spDebugDrawLine(pc, spAdd(pc, nc), spPurple(1.0f));
+
+    return spWhichSide(&a, &b, &spVectorZero()) >= 0.0f &&
+           spWhichSide(&b, &c, &spVectorZero()) >= 0.0f &&
+           spWhichSide(&c, &a, &spVectorZero()) >= 0.0f;
 }
 
 static spBool 
@@ -376,12 +407,12 @@ spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data
     const spBound*     ba  = &pa->base_class.bound;
     const spBound*     bb  = &pb->base_class.bound;
 
-    /// doesnt have to be normalized
+    /// calculate a general axis direction for GJK to start with
     spVector bca = spMult(*xfa, spBoundGetCenter(ba));
     spVector bcb = spMult(*xfb, spBoundGetCenter(bb));
     spVector dir = spSkew(spSub(bca, bcb));
 
-    /// calculate initial minkowski points, and their edge
+    /// calculate initial minkowski points
     spVector m0 = spSupportPoint(pa, pb, xfa, xfb, dir);
     spVector m1 = spSupportPoint(pa, pb, xfa, xfb, spNegate(dir));
 
@@ -407,28 +438,36 @@ spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data
     spDebugDrawPoint(m1, spBlue(0.8f));
 #endif
 
-    static const spInt max_iters = 20;
+    static const spInt max_iters = 16;
 
     for (spInt i = 0; i < max_iters; ++i)
     {
-        /// get the new normal direction
-        spVector n = spOriginToLeft(&m0, &m1) ? spSkew(spSub(m1, m0)) : spSkew(spSub(m0, m1));
+        /// check if the origin is to the right of the direction m0, m1.
+        if (spGetOriginSide(m0, m1) > 0.0f)
+        {
+            /// its to the right, swap the minkowski points so they are on the left
+            spSwap(&m0, &m1);
+        }
+
+        /// TODO: fix this for better convergence
+        /// get the direction for the next support point
+        spVector dir = spSkew(spSub(m0, m1));
 
         /// calculate the next minkowski point with the new normal direction
-        spVector m2 = spSupportPoint(pa, pb, xfa, xfb, n);
+        spVector m2 = spSupportPoint(pa, pb, xfa, xfb, dir);
 
 #ifdef SP_DEBUG_DRAW
         spVector p = spLerp(m0, m1, 0.5f);
-        spNormalize(&n);
-        spDebugDrawLine(p, spAdd(p, n), spPurple(0.1f));
+        spNormalize(&dir);
+        spDebugDrawLine(p, spAdd(p, dir), spPurple(0.1f));
         spDebugDrawPoint(m2, spGreen(0.8f));
 
         /// draw triangle
-        spDebugDrawTriangle(m0, m1, m2, spYellow(0.2f));
+        spDebugDrawTriangle(m0, m1, m2, spYellow(0.1f));
 #endif
 
         /// check if the origin is inside the simplex. m0, m1, m2
-        if (!spOriginToLeft(&m0, &m1) && !spOriginToLeft(&m1, &m2) && !spOriginToLeft(&m2, &m0))
+        if (spGetOriginSide(m0, m2) >= 0.0f && spGetOriginSide(m2, m1) >= 0.0f)
         {
             /// the origin is inside the triangle simplex, call EPA and initialize the contact
             spLog("COLLISION\n");
@@ -437,21 +476,32 @@ spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data
         else
         {
             /// check if our initial edge is closer than our new minkowski point
-            if (spMax(spDot(m0, n), spDot(m1, n)) <= spDot(m2, n))
+            if (spDot(m2, dir) <= spMax(spDot(m0, dir), spDot(m1, dir)))
             {
-                /// the initial edge is closer than our new minkowski point
-                /// there is no collision,
+                /// the initial edge is closer than our new minkowski point there is no collision
                 spLog("initial edge is closer\n");
-                return spFalse;
+                break;
             }
             else
             {
-                spLog("new point\n");
-                continue;
+                /// we need more iterations to try and get the origin inside of the simplex
+                /// check which point is farther for the newest minkowski point, and remove
+                /// it from the simplex
+                if (spDistance(m0, m2) < spDistance(m1, m2))
+                {
+                    /// the first point is farther, remove it from the simple
+                    m0 = m2;
+                }
+                else
+                {
+                    /// the second point is farther, remove it from the simple
+                    m1 = m2;
+                }
             }
         }
     }
 
+    /// return closest points
     return spFalse;
 }
 

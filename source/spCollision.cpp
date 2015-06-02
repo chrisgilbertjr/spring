@@ -76,6 +76,16 @@ spCollisionInputSwap(const spCollisionInput& data)
     glColor3f(1.0f, 1.0f, 1.0f); \
     glEnd(); \
 
+spMinkowskiPoint 
+spMinkowskiPointConstruct(spVector* a, spVector* b)
+{
+    spMinkowskiPoint m;
+    m.v = spSub(*a, *b);
+    m.a = *a;
+    m.b = *b;
+    return m;
+}
+
 spBool 
 spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
 {
@@ -310,15 +320,15 @@ _spClosestPoints(const spVector* a, const spVector* b)
     return cp;
 }
 
-spVector
-spExtremalQuery(const spPolygon* poly, const spTransform* xf, const spVector& normal)
+spInt
+spExtremalQueryIndex(const spPolygon* poly, const spTransform* xf, const spVector& normal)
 {
     /// poly edges and count
     spEdge* edges = poly->edges;
     spInt count = poly->count;
 
-    spFloat mproj = -SP_MAX_FLT; /// largest dot projection
-    spVector mv = spVector(SP_MIN_FLT, SP_MIN_FLT); /// extreme vector
+    spFloat mproj = -SP_MAX_FLT; /// largest projection
+    spInt mi = 0; /// max index with the largest projection
 
     /// find the most extreme point along a direction
     for (spInt i = 0; i < count; ++i)
@@ -331,74 +341,240 @@ spExtremalQuery(const spPolygon* poly, const spTransform* xf, const spVector& no
         if (proj > mproj)
         {
             mproj = proj;
-            mv = v;
+            mi = i;
         }
     }
 
-    /// return the extremal point of the poly along a direction
-    return mv;
+    /// return the extremal index of the poly along a direction
+    return mi;
 }
 
 spVector
+spExtremalQuery(const spPolygon* poly, const spTransform* xf, const spVector& normal)
+{
+    spEdge* edges = poly->edges;
+    spInt index = spExtremalQueryIndex(poly, xf, normal);
+    return spMult(*xf, edges[index].vertex);
+}
+
+static spMinkowskiPoint
 spSupportPoint(const spPolygon* a, const spPolygon* b, const spTransform* xfa, const spTransform* xfb, const spVector& normal)
 {
     spVector va = spExtremalQuery(a, xfa, normal);
     spVector vb = spExtremalQuery(b, xfb, spNegate(normal));
-    return spSub(va, vb);
+    return spMinkowskiPointConstruct(&va, &vb);
 }
 
-enum spSide
+static inline spBool
+spOriginToLeft(spVector a, spVector b)
 {
-    spLeft   = -1,
-    spLinear =  0,
-    spRight  =  1
-};
+    return (a.x - b.x) * (a.y + b.y) < (a.y - b.y) * (a.x + b.x);
+}
+
+static inline spBool
+spOriginToRight(spVector a, spVector b)
+{
+    return (a.x - b.x) * (a.y + b.y) > (a.y - b.y) * (a.x + b.x);
+}
 
 static inline spFloat
-spWhichSide(const spVector* a, const spVector* b, const spVector* p)
+spClosestT(spVector t, spVector h)
 {
-    return ((b->x-a->x) * (p->y-a->y)) - ((b->y-a->y) * (p->x-a->x));
+    spVector M = spSub(h, t);
+    return spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
 }
 
-spFloat 
-spGetOriginSide(spVector head, spVector tail)
+static inline spVector
+spClosestPointToOriginOnEdge(spVector t, spVector h)
 {
-    /// left  < 0
-    /// on   == 0
-    /// right > 0
-    return ((tail.x-head.x) * (-head.y)) - ((tail.y-head.y) * (-head.x));
+    /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
+    /// P = origin (0, 0).
+    /// B = a
+    spVector M = spSub(h, t);
+    spFloat t0 = spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
+    return spNegate(spAdd(t, spMult(M, t0)));
 }
 
-spBool spOriginInTriangle(spVector a, spVector b, spVector c)
+static inline spFloat
+spDistanceToOriginFromEdge(spVector t, spVector h)
 {
-    spDebugDrawTriangle(a, b, c, spGreen(0.1f));
-    spDebugDrawPoint(a, spYellow(1.0f));
-    spDebugDrawPoint(b, spYellow(0.6f));
-    spDebugDrawPoint(c, spYellow(0.3f));
-
-    spVector pa = spLerp(b, a, .5f);
-    spVector pb = spLerp(c, b, .5f);
-    spVector pc = spLerp(a, c, .5f);
-
-    spVector na = spSkew(spSub(b, a));
-    spVector nb = spSkew(spSub(c, b));
-    spVector nc = spSkew(spSub(a, c));
-
-    spNormalize(&na);
-    spNormalize(&nb);
-    spNormalize(&nc);
-
-    spDebugDrawLine(pa, spAdd(pa, na), spPurple(1.0f));
-    spDebugDrawLine(pb, spAdd(pb, nb), spPurple(1.0f));
-    spDebugDrawLine(pc, spAdd(pc, nc), spPurple(1.0f));
-
-    return spWhichSide(&a, &b, &spVectorZero()) >= 0.0f &&
-           spWhichSide(&b, &c, &spVectorZero()) >= 0.0f &&
-           spWhichSide(&c, &a, &spVectorZero()) >= 0.0f;
+    /// t = vector tail
+    /// h = vector head
+    /// vector = sub(head, tail)
+    return spLengthSquared(spClosestPointToOriginOnEdge(t, h));
 }
+
+///#define SP_DEBUG_DRAW_EPA
+
+void spDebugDrawHull(spMinkowskiPoint* hull, spInt count)
+{
+    for (spInt t = count-1, h = 0; h < count; t = h, h++)
+    {
+        spDebugDrawLine(hull[h].v, hull[t].v, spYellow(0.1f));
+    }
+}
+
+struct spContactEdge
+{
+    spVector t;
+    spVector h;
+    spVector n;
+};
+
+static spContactEdge
+spEPAContactEdge(spPolygon* poly, const spTransform* xf, spVector n)
+{
+    spContactEdge ce;
+    spEdge* e = poly->edges;
+    spInt c = poly->count;
+    spInt i  = spExtremalQueryIndex(poly, xf, n);
+    spInt ip = i == 0   ? c-1 : i-1;
+    spInt in = i == c-1 ?   0 : i+1;
+
+    /// initialize the contact edge
+    if (spDot(n, e[i].normal) > spDot(n, e[in].normal))
+    {
+        ce.t = e[ip].vertex;
+        ce.h = e[i].vertex;
+        ce.n = e[i].normal;
+    }
+    else
+    {
+        ce.t = e[i].vertex;
+        ce.h = e[in].vertex;
+        ce.n = e[in].normal;
+    }
+    return ce;
+}
+
+static void
+spEPAContactPoints(spMinkowskiPoint* head, spMinkowskiPoint* tail, const spCollisionInput& data)
+{
+    // get the polygons polygons
+    spPolygon* pa = (spPolygon*)data.shape_a;
+    spPolygon* pb = (spPolygon*)data.shape_b;
+    const spTransform* xfa = data.transform_a;
+    const spTransform* xfb = data.transform_b;
+
+    /// compute the lerp t bettwen the two minkowski points
+    spFloat t = spClosestT(tail->v, head->v);
+
+    /// get the points in world space
+    spVector wa = spLerp(tail->a, head->b, t); 
+    spVector wb = spLerp(tail->b, head->b, t);
+
+    /// get the vector of the two world points
+    spVector v = spSub(head->v, tail->v);
+
+    /// calculate the contact normal
+    spVector n = spSkewT(v);
+    spNormalize(&n);
+
+    /// calculate the penetration distance
+    spVector p = spLerp(tail->v, head->v, t);
+    spFloat d = spDot(n, p);
+
+    spContactEdge ea = spEPAContactEdge(pa, xfa, n);
+    spContactEdge eb = spEPAContactEdge(pb, xfb, n);
+
+    /// compute contact points
+}
+
+static void
+spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkowskiPoint* m2, const spCollisionInput& data)
+{
+    const spTransform* xfa = data.transform_a;
+    const spTransform* xfb = data.transform_b;
+    const spPolygon*   pa  = (spPolygon*)data.shape_a;
+    const spPolygon*   pb  = (spPolygon*)data.shape_b;
+
+    spMinkowskiPoint  hull0[32] = { 0 };
+    spMinkowskiPoint  hull1[32] = { 0 };
+    spMinkowskiPoint* hull = NULL;
+    spInt count = 3;
+
+    hull0[0] = *m0;
+    hull0[1] = *m1;
+    hull0[2] = *m2;
+    hull = hull0;
+
+    static const spInt max_iters = 16;
+
+    for (spInt iter = 0; iter < max_iters; ++iter)
+    {
+        spFloat min_dist = SP_MAX_FLT; /// min distance to an edge
+        spInt ti = 0; /// tail index
+        spInt hi = 0; /// head index
+        for (spInt t = count-1, h = 0; h < count; t = h, h++)
+        {
+            /// find the closest edge to the origin
+            spFloat d = spDistanceToOriginFromEdge(hull[t].v, hull[h].v);
+            if (d < min_dist)
+            {
+                min_dist = d;
+                ti = t;
+                hi = h;
+            }
+        }
+
+        spMinkowskiPoint head = hull[hi];
+        spMinkowskiPoint tail = hull[ti];
+
+        /// get the new point on the hull
+        spVector dir = spSkewT(spSub(head.v, tail.v));
+        spMinkowskiPoint m = spSupportPoint(pa, pb, xfa, xfb, dir);
+
+        /// check if the point it already in the hull
+        for (spInt i = 0; i < count; ++i)
+        {
+            if (spEqual(hull[i].v, m.v))
+            {
+                spDebugDrawHull(hull, count);
+                spLog("%d\n", iter);
+                //spEPAContactPoints(&head, &tail, data);
+                return;
+            }
+        }
+
+        /// rebuild the hull
+        spMinkowskiPoint* hull_old;
+        spMinkowskiPoint* hull_new;
+
+        /// check if we are on an odd number iter
+        if (iter & 1) 
+        {
+            hull_old = hull1; 
+            hull_new = hull0;
+        }
+        else
+        {
+            hull_old = hull0;
+            hull_new = hull1;
+        }
+
+        count++;
+        /// copy the hull over
+        for (spInt n = 0, o = 0; n < count; ++n)
+        {
+            if (n == hi)
+            {
+                hull_new[n] = m;
+            }
+            else
+            {
+                hull_new[n] = hull_old[o++];
+            }
+        }
+        hull = hull_new;
+        if (iter == 28) spLog("%d\n", iter);
+    }
+    spDebugDrawHull(hull, count);
+}
+
+///#define SP_DEBUG_DRAW_GJK
 
 static spBool 
-spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data)
+spGJK(spContact*& contact, const spCollisionInput& data)
 {
     const spTransform* xfa = data.transform_a;
     const spTransform* xfb = data.transform_b;
@@ -407,112 +583,95 @@ spGJK(spClosestPoints* points, spContact*& contact, const spCollisionInput& data
     const spBound*     ba  = &pa->base_class.bound;
     const spBound*     bb  = &pb->base_class.bound;
 
-    /// calculate a general axis direction for GJK to start with
+    /// generate an initial axis direction for support points
     spVector bca = spMult(*xfa, spBoundGetCenter(ba));
     spVector bcb = spMult(*xfb, spBoundGetCenter(bb));
     spVector dir = spSkew(spSub(bca, bcb));
 
     /// calculate initial minkowski points
-    spVector m0 = spSupportPoint(pa, pb, xfa, xfb, dir);
-    spVector m1 = spSupportPoint(pa, pb, xfa, xfb, spNegate(dir));
-
-#ifdef SP_DEBUG_DRAW
-    /// draw all minkowski points for debugging purposes
-    for (spInt i = 0; i < pb->count; ++i)
-    {
-        spEdge*  eb = pb->edges;
-        spVector vb = spMult(*xfb, eb[i].vertex);
-        for (spInt j = 0; j < pa->count; ++j)
-        {
-            spEdge*  ea = pb->edges;
-            spVector va = spMult(*xfa, ea[j].vertex);
-
-            spVector p = spSub(va, vb);
-            spDebugDrawPoint(p, spRed(0.1f));
-        }
-    }
-
-    /// draw the origin and the initial 2 minkowski points
-    spDebugDrawPoint(spVectorZero(), spGreen(0.2f));
-    spDebugDrawPoint(m0, spBlue(0.8f));
-    spDebugDrawPoint(m1, spBlue(0.8f));
-#endif
+    spMinkowskiPoint m0 = spSupportPoint(pa, pb, xfa, xfb, dir);
+    spMinkowskiPoint m1 = spSupportPoint(pa, pb, xfa, xfb, spNegate(dir));
 
     static const spInt max_iters = 16;
-
     for (spInt i = 0; i < max_iters; ++i)
     {
-        /// check if the origin is to the right of the direction m0, m1.
-        if (spGetOriginSide(m0, m1) > 0.0f)
+        /// make sure the origin is always to the left of the edge
+        if (spOriginToRight(m0.v, m1.v)) 
         {
-            /// its to the right, swap the minkowski points so they are on the left
-            spSwap(&m0, &m1);
+            spSwap(&m0.v, &m1.v);
         }
+            
+        /// calculate a new direction for the next support point
+        spVector dir = spSkew(spSub(m0.v, m1.v));
 
-        /// TODO: fix this for better convergence
-        /// get the direction for the next support point
-        spVector dir = spSkew(spSub(m0, m1));
+        /// expand the simplex by generating a new support point
+        spMinkowskiPoint m2 = spSupportPoint(pa, pb, xfa, xfb, dir);
 
-        /// calculate the next minkowski point with the new normal direction
-        spVector m2 = spSupportPoint(pa, pb, xfa, xfb, dir);
+#ifdef SP_DEBUG_DRAW_GJK
+        /// draw the origin
+        spDebugDrawPoint(spVectorZero(), spGreen(1.0f));
 
-#ifdef SP_DEBUG_DRAW
-        spVector p = spLerp(m0, m1, 0.5f);
+        /// draw the edge normal of the first 2 simplex points
+        spVector p = spLerp(m0.v, m1.v, 0.5f);
         spNormalize(&dir);
-        spDebugDrawLine(p, spAdd(p, dir), spPurple(0.1f));
-        spDebugDrawPoint(m2, spGreen(0.8f));
+        spDebugDrawLine(p, spAdd(p, dir), spGreen(0.25f));
 
-        /// draw triangle
-        spDebugDrawTriangle(m0, m1, m2, spYellow(0.1f));
+        ///// draw the simplex and its edges
+        spDebugDrawTriangle(m0.v, m1.v, m2.v, spYellow(0.05f));
+        spDebugDrawLine(m0.v, m1.v, spYellow(0.15f));
+        spDebugDrawLine(m1.v, m2.v, spYellow(0.15f));
+        spDebugDrawLine(m2.v, m0.v, spYellow(0.15f));
 #endif
 
-        /// check if the origin is inside the simplex. m0, m1, m2
-        if (spGetOriginSide(m0, m2) >= 0.0f && spGetOriginSide(m2, m1) >= 0.0f)
+        /// check if the origin is inside of the 3-simplex or the new minkowski point is on origin
+        if (spOriginToLeft(m1.v, m2.v) && spOriginToLeft(m2.v, m0.v) || spEqual(m2.v, spVectorZero()))
         {
-            /// the origin is inside the triangle simplex, call EPA and initialize the contact
             spLog("COLLISION\n");
+            /// the origin is in the simplex, pass the 3-simplex to EPA and generate contact info
+            spEPA(contact, &m0, &m2, &m1, data);
             return spTrue;
         }
         else
         {
-            /// check if our initial edge is closer than our new minkowski point
-            if (spDot(m2, dir) <= spMax(spDot(m0, dir), spDot(m1, dir)))
+            /// check if this is the closest edge to the origin.
+            if (spMax(spDot(m0.v, dir), spDot(m1.v, dir)) >= spDot(m2.v, dir))
             {
-                /// the initial edge is closer than our new minkowski point there is no collision
-                spLog("initial edge is closer\n");
-                break;
+#ifdef SP_DEBUG_DRAW_GJK
+                spFloat t = spClosestT(m0.v, m1.v);
+                spVector pa = spLerp(m0.a, m1.a, t);
+                spVector pb = spLerp(m0.b, m1.b, t);
+                spDebugDrawLine(m0.v, m1.v, spYellow(0.5f));
+                spDebugDrawLine(pa, pb, spGreen(0.8f));
+                spDebugDrawPoint(pa, spGreen(1.0f));
+                spDebugDrawPoint(pb, spGreen(1.0f));
+#endif
+                return spFalse;
             }
             else
             {
-                /// we need more iterations to try and get the origin inside of the simplex
-                /// check which point is farther for the newest minkowski point, and remove
-                /// it from the simplex
-                if (spDistance(m0, m2) < spDistance(m1, m2))
+                /// check which edge contains a closer point to the origin
+                /// remove the uneeded point from the simplex that is farther away
+                if (spDistanceToOriginFromEdge(m0.v, m2.v) > spDistanceToOriginFromEdge(m1.v, m2.v))
                 {
-                    /// the first point is farther, remove it from the simple
                     m0 = m2;
                 }
                 else
                 {
-                    /// the second point is farther, remove it from the simple
                     m1 = m2;
                 }
             }
         }
     }
 
-    /// return closest points
+    /// GJK terminated without converging and without an intersection.
     return spFalse;
 }
 
 spBool 
 spCollidePolygons(spContact*& contact, const spCollisionInput& data)
 {
-    spClosestPoints points;
-    if (spGJK(&points, contact, data))
+    if (spGJK(contact, data))
     {
-        //spDebugDrawPoint(points.a, spRed());
-        //spDebugDrawPoint(points.b, spRed());
     }
     return spFalse;
 }

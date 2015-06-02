@@ -23,10 +23,11 @@ init_test(spApplication* app)
     spPolygonDef def;
 
     spVector verts[4];
-    spVectorSet(verts+0,-1.0f,-1.0f);
-    spVectorSet(verts+1, 1.0f,-1.0f);
-    spVectorSet(verts+2, 1.0f, 1.0f);
-    spVectorSet(verts+3,-1.0f, 1.0f);
+    spFloat size = 2.0f;
+    spVectorSet(verts+0,-size,-size);
+    spVectorSet(verts+1, size,-size);
+    spVectorSet(verts+2, size, size);
+    spVectorSet(verts+3,-size, size);
 
     def.mass = 1.0f;
     def.material.restitution = 0.5f;
@@ -35,6 +36,8 @@ init_test(spApplication* app)
     def.vertices = verts;
     ad->pa = spCreatePolygon(ad->ba, def);
     ad->pb = spCreatePolygon(ad->bb, def);
+    ad->pa->base_class.bound.half_width = spVector(100.0f, 100.0f);
+    ad->pb->base_class.bound.half_width = spVector(100.0f, 100.0f);
 
     spBodySetPosition(ad->ba, spVector(0.0f, 0.0f));
     spBodySetPosition(ad->bb, spVector(0.0f, 0.0f));
@@ -78,8 +81,6 @@ loop_test(spApplication* app)
 
     spBodySetTransform(ad->ba, spVector(bax, bay), aa);
     spBodySetTransform(ad->bb, spVector(bbx, bby), ab);
-
-    //spVectorLog(&ad->ba->xf.p);
 
     default_loop(app);
 }

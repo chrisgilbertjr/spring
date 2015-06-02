@@ -59,6 +59,14 @@ struct spTransform
 /// @ingroup spVector
 /// @{
 
+/// swap two vectors
+inline void spSwap(spVector* a, spVector* b)
+{
+    spVector tmp = *a;
+    *a = *b;
+    *b = *b;
+}
+
 /// "faked" constructor for creating vectors
 inline spVector _spVector(const spFloat x, const spFloat y)
 {
@@ -86,7 +94,6 @@ inline spBool spEqual(const spVector& a, const spVector& b)
 inline spBool spLessThan(const spVector& a, const spVector& b)
 {
     return a.x < b.x && a.y < b.y;
-
 }
 
 /// dot product between vector a and b

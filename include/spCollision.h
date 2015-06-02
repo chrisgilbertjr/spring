@@ -56,7 +56,7 @@ struct spCollisionMatrix
 spClosestPoints _spClosestPoints(const spVector* a, const spVector* b);
 
 /// 'faked' constructor for stack allocation
-spMinkowskiPoint _spMinkowskiPoint(const spVector& a, const spVector& b);
+spMinkowskiPoint spMinkowskiPointConstruct(spVector* a, spVector* b);
 
 /// 'faked' constructor for stack allocation
 spCollisionInput _spCollisionInput(const spShape* sa, const spShape* sb, const spTransform* xfa, const spTransform* xfb);

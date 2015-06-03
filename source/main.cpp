@@ -98,19 +98,57 @@ spApplication* test_application()
 //---------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------------------------------------
-spApplication* fall_application()
+void create_box(spApplication* app, spBody* b, spPolygon* p, spFloat m, spVector pos, spFloat a, spFloat r, spFloat f, spFloat g, spVector size)
+{
+    b = spCreateBody(&app->world, SP_BODY_DYNAMIC);
+    spPolygonDef def;
+
+    spVector verts[4];
+    spVector s = size;
+    spVectorSet(verts+0,-s.x,-s.y);
+    spVectorSet(verts+1, s.x,-s.y);
+    spVectorSet(verts+2, s.x, s.y);
+    spVectorSet(verts+3,-s.x, s.y);
+
+    def.mass = m;
+    def.material.restitution = r;
+    def.material.friction = f;
+    def.vertex_count = 4;
+    def.vertices = verts;
+    p = spCreatePolygon(b, def);
+
+    spBodySetTransform(b, pos, a);
+    b->g_scale = g;
+}
+
+void
+box_box_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 3;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+
+    create_box(app, bodies[0], boxes[0], 9999999999.0f, spVector(0.0f, -4.0f), 0.0f, 0.0f, 0.2f, 0.0f, spVector(20.0f, 1.0f));
+    for (spInt i = 1; i < 8; ++i)
+    {
+        spFloat f = (spFloat)i * 8.f;
+        create_box(app, bodies[i], boxes[i], 1.0f, spVector(f * 0.1f, f), 0.0f, 0.1f, 1.0f, 1.0f, spVector(2.0f, 2.0f));
+    }
+}
+
+spApplication* box_box_collision()
 {
     return spApplicationNew(
         "test application",
-        spViewport(800, 800), spFrustumUniform(10.0f),
-        spVector(0.0f, -1.0f),
-        20, 1.0f / 1000.0f,
-        default_init, default_loop, default_main_loop,
+        spViewport(800, 800), spFrustumUniform(20.0f),
+        spVector(0.0f, -3.8f),
+        12, 1.0f / 60.0f,
+        box_box_init, default_loop, default_main_loop,
         0);
 }
 //---------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
-    return run(test_application());
+    return run(box_box_collision());
 }

@@ -427,41 +427,52 @@ spEPAContactEdge(spPolygon* poly, const spTransform* xf, spVector n)
     spContactEdge ce;
     spEdge* e = poly->edges;
     spInt c = poly->count;
-    spInt i  = spExtremalQueryIndex(poly, xf, n);
-    spInt ip = i == 0   ? c-1 : i-1;
-    spInt in = i == c-1 ?   0 : i+1;
+    spInt i1  = spExtremalQueryIndex(poly, xf, n);
+    //spInt i0 = i1 == 0   ? c-1 : i1-1;
+    //spInt i2 = i1 == c-1 ?   0 : i1+1;
+    spInt i0 = (i1 - 1 + c) % c;
+    spInt i2 = (i1 + 1) % c;
 
     /// initialize the contact edge
-    if (spDot(n, e[i].normal) > spDot(n, e[in].normal))
+    if (spDot(n, spMult(xf->q, e[i1].normal)) > spDot(n, spMult(xf->q, e[i2].normal)))
     {
-        ce.t = e[ip].vertex;
-        ce.h = e[i].vertex;
-        ce.n = e[i].normal;
+        ce.t = spMult(*xf, e[i0].vertex);
+        ce.h = spMult(*xf, e[i1].vertex);
+        ce.n = spMult(xf->q, e[i1].normal);
     }
     else
     {
-        ce.t = e[i].vertex;
-        ce.h = e[in].vertex;
-        ce.n = e[in].normal;
+        ce.t = spMult(*xf, e[i1].vertex);
+        ce.h = spMult(*xf, e[i2].vertex);
+        ce.n = spMult(xf->q, e[i2].normal);
     }
     return ce;
 }
 
 static void
-spEPAContactPoints(spMinkowskiPoint* head, spMinkowskiPoint* tail, const spCollisionInput& data)
+spMaxPenetrationContact(spContact*& contact, spFloat a, spFloat b)
+{
+}
+
+static void
+spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint* tail, const spCollisionInput& data)
 {
     // get the polygons polygons
     spPolygon* pa = (spPolygon*)data.shape_a;
     spPolygon* pb = (spPolygon*)data.shape_b;
     const spTransform* xfa = data.transform_a;
     const spTransform* xfb = data.transform_b;
+    const spMaterial* ma = &pa->base_class.material;
+    const spMaterial* mb = &pa->base_class.material;
 
     /// compute the lerp t bettwen the two minkowski points
     spFloat t = spClosestT(tail->v, head->v);
 
     /// get the points in world space
-    spVector wa = spLerp(tail->a, head->b, t); 
+    spVector wa = spLerp(tail->a, head->a, t); 
     spVector wb = spLerp(tail->b, head->b, t);
+    spVector ba = spMult(*xfa, pa->base_class.bound.center);
+    spVector bb = spMult(*xfb, pb->base_class.bound.center);
 
     /// get the vector of the two world points
     spVector v = spSub(head->v, tail->v);
@@ -470,14 +481,58 @@ spEPAContactPoints(spMinkowskiPoint* head, spMinkowskiPoint* tail, const spColli
     spVector n = spSkewT(v);
     spNormalize(&n);
 
-    /// calculate the penetration distance
-    spVector p = spLerp(tail->v, head->v, t);
-    spFloat d = spDot(n, p);
+    spInt count = contact->count;
 
-    spContactEdge ea = spEPAContactEdge(pa, xfa, n);
-    spContactEdge eb = spEPAContactEdge(pb, xfb, n);
+    if (count == 2)
+    {
+        struct spRelativeVelocity
+        {
+            spVector r_a;
+            spVector r_b;
+            spFloat pen;
+        };
 
-    /// compute contact points
+        spRelativeVelocity rv[4] = {
+           { spSub(wa, ba), spSub(wa, bb), spDot(wa, n) },
+           { spSub(wb, ba), spSub(wb, bb), spDot(wb, n) },
+           { contact->points[0].r_a, contact->points[0].r_b, spDot(contact->points[0].p, n) },
+           { contact->points[1].r_a, contact->points[1].r_b, spDot(contact->points[1].p, n) } 
+        };
+
+        for (spInt i = 0; i < 4; ++i)
+        {
+            for (spInt j = i; j < 4; j++)
+            {
+                if (rv[i].pen > rv[j].pen)
+                {
+                    spRelativeVelocity tmp = rv[i];
+                    rv[i] = rv[j];
+                    rv[j] = tmp;
+                }
+            }
+        }
+
+        contact->points[0].r_a = rv[0].r_a;
+        contact->points[0].r_b = rv[0].r_b;
+        contact->points[1].r_a = rv[1].r_a;
+        contact->points[1].r_b = rv[1].r_b;
+        contact->normal = n;
+    }
+    else
+    {
+        contact->count = 2;
+        contact->normal = n;
+        contact->points[0].p = wa;
+        contact->points[1].p = wb;
+        contact->points[0].r_a = spSub(wa, ba);
+        contact->points[0].r_b = spSub(wa, bb);
+        contact->points[1].r_a = spSub(wb, ba);
+        contact->points[1].r_b = spSub(wb, bb);
+        contact->friction = spMaterialComputeFriction(ma, mb);
+        contact->restitution = spMaterialComputeRestitution(ma, mb);
+    }
+
+    return;
 }
 
 static void
@@ -488,8 +543,8 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
     const spPolygon*   pa  = (spPolygon*)data.shape_a;
     const spPolygon*   pb  = (spPolygon*)data.shape_b;
 
-    spMinkowskiPoint  hull0[32] = { 0 };
-    spMinkowskiPoint  hull1[32] = { 0 };
+    spMinkowskiPoint  hull0[24] = { 0 };
+    spMinkowskiPoint  hull1[24] = { 0 };
     spMinkowskiPoint* hull = NULL;
     spInt count = 3;
 
@@ -498,7 +553,7 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
     hull0[2] = *m2;
     hull = hull0;
 
-    static const spInt max_iters = 16;
+    static const spInt max_iters = 21;
 
     for (spInt iter = 0; iter < max_iters; ++iter)
     {
@@ -529,9 +584,8 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
         {
             if (spEqual(hull[i].v, m.v))
             {
-                spDebugDrawHull(hull, count);
-                spLog("%d\n", iter);
-                //spEPAContactPoints(&head, &tail, data);
+                //spDebugDrawHull(hull, count);
+                spEPAContactPoints(contact, &head, &tail, data);
                 return;
             }
         }
@@ -568,7 +622,7 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
         hull = hull_new;
         if (iter == 28) spLog("%d\n", iter);
     }
-    spDebugDrawHull(hull, count);
+    //spDebugDrawHull(hull, count);
 }
 
 ///#define SP_DEBUG_DRAW_GJK
@@ -626,7 +680,6 @@ spGJK(spContact*& contact, const spCollisionInput& data)
         /// check if the origin is inside of the 3-simplex or the new minkowski point is on origin
         if (spOriginToLeft(m1.v, m2.v) && spOriginToLeft(m2.v, m0.v) || spEqual(m2.v, spVectorZero()))
         {
-            spLog("COLLISION\n");
             /// the origin is in the simplex, pass the 3-simplex to EPA and generate contact info
             spEPA(contact, &m0, &m2, &m1, data);
             return spTrue;
@@ -670,8 +723,5 @@ spGJK(spContact*& contact, const spCollisionInput& data)
 spBool 
 spCollidePolygons(spContact*& contact, const spCollisionInput& data)
 {
-    if (spGJK(contact, data))
-    {
-    }
-    return spFalse;
+    return spGJK(contact, data);
 }

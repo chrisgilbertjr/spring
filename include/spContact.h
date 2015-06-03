@@ -10,9 +10,7 @@
 
 struct spContactPoint
 {
-#ifdef SP_DEBUG_DRAW
     spVector p;     ///< used for drawing contact points
-#endif
     spVector r_a;   ///< relative velocity from body a com
     spVector r_b;   ///< relative velocity from body b com
     spFloat m_norm; ///< effective normal mass

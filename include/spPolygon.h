@@ -65,7 +65,7 @@ void spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass);
  /// edge sanity check
  inline void _spEdgeIsSane(const spEdge* edge)
  {
-     spAssert(spAlmostEqual(spLength(edge->normal), 1.0f, SP_EPSILON), "edge normal is not of length 1");
+     //spAssert(spAlmostEqual(spLength(edge->normal), 1.0f, SP_EPSILON), "edge normal is not of length 1");
  }
 
  /// sanity check for all edges

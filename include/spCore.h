@@ -112,6 +112,13 @@ typedef struct spBody spBody;
 typedef struct spBound spBound;
 typedef struct spMassData spMassData;
 
+inline void spSwap(spFloat* a, spFloat* b)
+{
+    spFloat tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 inline spFloat spAbs(const spFloat a)
 {
     return a > 0.0f ? a : -a;

@@ -467,6 +467,7 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
 
     /// compute the lerp t bettwen the two minkowski points
     spFloat t = spClosestT(tail->v, head->v);
+    spFloat pen = spDistanceToOriginFromEdge(tail->v, head->v);
 
     /// get the points in world space
     spVector wa = spLerp(tail->a, head->a, t); 
@@ -482,7 +483,6 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
     spNormalize(&n);
 
     spInt count = contact->count;
-
     if (count == 2)
     {
         struct spRelativeVelocity
@@ -517,6 +517,7 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
         contact->points[1].r_a = rv[1].r_a;
         contact->points[1].r_b = rv[1].r_b;
         contact->normal = n;
+        contact->pen = rv[0].pen;
     }
     else
     {
@@ -530,8 +531,10 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
         contact->points[1].r_b = spSub(wb, bb);
         contact->friction = spMaterialComputeFriction(ma, mb);
         contact->restitution = spMaterialComputeRestitution(ma, mb);
+        contact->pen = spMax(spDot(wa, n), spDot(wb, n));
     }
 
+    contact->pen = pen;
     return;
 }
 

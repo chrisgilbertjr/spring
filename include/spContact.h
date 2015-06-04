@@ -32,6 +32,7 @@ struct spContact
     spVector normal; ///< shared contact normal
     spFloat restitution; ///< 'bounciness' of the contact
     spFloat friction; ///< friction of the contact
+    spFloat pen;
     spInt count; ///< number of contact points
     spInt age;   ///< number of steps this contact has been alive after being out of contact
 };

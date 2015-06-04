@@ -150,8 +150,8 @@ spContactPreStep(spContact* contact, const spFloat h)
         point->b_bias = spDot(rv, normal) * -contact->restitution;
         point->L_bias = 0.0f;
 
-        spFloat separation = spDot(spAdd(spSub(ra, rb), spSub(body_b->p, body_a->p)), normal);
-        point->v_bias = -(SP_BIAS / h) * spMin(0.0f, separation + SP_SLOP);
+        //contact->pen = spDot(spAdd(spSub(rb, ra), spSub(body_b->p, body_a->p)), normal);
+        //point->v_bias = -(SP_BIAS / h) * spMin(0.0f, cont + SP_SLOP);
     }
 }
 
@@ -246,7 +246,21 @@ void
 spContactStabilize(spContact* contact)
 {
     /// stabilize position
+    spVector normal = contact->normal;           /// contact normal
+    spBody* body_a = contact->key.shape_a->body; /// rigid body a
+    spBody* body_b = contact->key.shape_b->body; /// rigid body b
+    spFloat mia = body_a->m_inv;                 /// inv mass of body a
+    spFloat mib = body_b->m_inv;                 /// inv mass of body b
 
+    const static spFloat slop = 0.05f;
+    const static spFloat perc = 0.1f;
+    //if (contact->pen < slop) return;
+
+    spVector c = spMult((spMax(contact->pen - slop, 0.0f) / (mia + mib)), spMult(normal, perc));
+    body_a->p = spSub(body_a->p, spMult(c, mia));
+    body_b->p = spAdd(body_b->p, spMult(c, mib));
+    __spBodyUpdateTransform(body_a);
+    __spBodyUpdateTransform(body_b);
     /// try a simpler method before using this method
 
     ///// psuedo velocities - position correction

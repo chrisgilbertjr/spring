@@ -124,15 +124,15 @@ void create_box(spApplication* app, spBody* b, spPolygon* p, spFloat m, spVector
 void
 box_box_init(spApplication* app)
 {
-    static const spInt MAX_BODIES = 3;
+    static const spInt MAX_BODIES = 16;
     spBody* bodies[MAX_BODIES];
     spPolygon* boxes[MAX_BODIES];
 
-    create_box(app, bodies[0], boxes[0], 9999999999.0f, spVector(0.0f, -4.0f), 0.0f, 0.0f, 0.2f, 0.0f, spVector(20.0f, 1.0f));
-    for (spInt i = 1; i < 8; ++i)
+    create_box(app, bodies[0], boxes[0], 9999999999.0f, spVector(0.0f, -4.0f), 0.0f, 0.01f, 0.8f, 0.0f, spVector(200.0f, 1.0f));
+    for (spInt i = 1; i < MAX_BODIES; ++i)
     {
         spFloat f = (spFloat)i * 8.f;
-        create_box(app, bodies[i], boxes[i], 1.0f, spVector(f * 0.1f, f), 0.0f, 0.1f, 1.0f, 1.0f, spVector(2.0f, 2.0f));
+        create_box(app, bodies[i], boxes[i], 1.0f, spVector(f * 0.1f - 16.0f, f), f*12.5f, 0.4f, 0.7f, 1.0f, spVector(3.0f, 4.0f));
     }
 }
 
@@ -140,9 +140,9 @@ spApplication* box_box_collision()
 {
     return spApplicationNew(
         "test application",
-        spViewport(800, 800), spFrustumUniform(20.0f),
-        spVector(0.0f, -3.8f),
-        12, 1.0f / 60.0f,
+        spViewport(800, 800), spFrustumUniform(50.0f),
+        spVector(0.0f, -9.8f),
+        20, 1.0f / 60.0f,
         box_box_init, default_loop, default_main_loop,
         0);
 }

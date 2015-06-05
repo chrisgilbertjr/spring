@@ -2,6 +2,8 @@
 #ifndef SP_CONSTRAINT_H
 #define SP_CONSTRAINT_H
 
+#include "spCore.h"
+
 /// @defgroup spConstraint constraint base class for joints
 /// @{
 
@@ -65,16 +67,32 @@
 /// vB += miB * lB;
 /// wB += iiB * aB;
 
-struct spConstraint
-{
-    struct cpBody* body_a;
-    struct cpBody* body_b;
+struct spBody;
 
-    spConstraint* next;
-    spConstraint* prev;
+enum spConstraintType
+{
+    SP_DISTANCE_CONSTRAINT,
+    SP_HINGE_CONSTRAINT,
 };
 
-/// TODO:
+struct spConstraint
+{
+    spConstraintType type;
+    spConstraint* next;
+    spConstraint* prev;
+    spBody* body_a;
+    spBody* body_b;
+};
+
+void spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstraintType type);
+
+spConstraint spConstraintConstruct(spBody* a, spBody* b, spConstraintType type);
+
+void spConstraintPreStep(spConstraint* constraint, const spFloat h);
+
+void spConstraintSolve(spConstraint* constraint);
+
+void spConstraintStabilize(spConstraint* constraint);
 
 /// @}
 

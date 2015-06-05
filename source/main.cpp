@@ -142,7 +142,7 @@ spApplication* box_box_collision()
         "test application",
         spViewport(800, 800), spFrustumUniform(50.0f),
         spVector(0.0f, -9.8f),
-        20, 1.0f / 60.0f,
+        5, 1.0f / 60.0f,
         box_box_init, default_loop, default_main_loop,
         0);
 }

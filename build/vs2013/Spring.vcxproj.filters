@@ -80,6 +80,15 @@
     <ClInclude Include="..\..\include\spApplication.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\spDampedSpringConstraint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spHingeJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spDistanceJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -149,6 +158,18 @@
       <Filter>unit_tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spApplication.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spConstraint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spDampedSpringConstraint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spHingeJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spDistanceJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

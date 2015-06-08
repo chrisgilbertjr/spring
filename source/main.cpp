@@ -98,9 +98,9 @@ spApplication* test_application()
 //---------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------------------------------------
-void create_box(spApplication* app, spBody* b, spPolygon* p, spFloat m, spVector pos, spFloat a, spFloat r, spFloat f, spFloat g, spVector size)
+void create_box(spApplication* app, spBody** b, spPolygon** p, spFloat m, spVector pos, spFloat a, spFloat r, spFloat f, spFloat g, spVector size)
 {
-    b = spCreateBody(&app->world, SP_BODY_DYNAMIC);
+    *b = spCreateBody(&app->world, SP_BODY_DYNAMIC);
     spPolygonDef def;
 
     spVector verts[4];
@@ -115,10 +115,11 @@ void create_box(spApplication* app, spBody* b, spPolygon* p, spFloat m, spVector
     def.material.friction = f;
     def.vertex_count = 4;
     def.vertices = verts;
-    p = spCreatePolygon(b, def);
+    *p = spCreatePolygon(*b, def);
 
-    spBodySetTransform(b, pos, a);
-    b->g_scale = g;
+    spBodySetTransform(*b, pos, a);
+    spBody* body = *b;
+    body->g_scale = g;
 }
 
 void
@@ -128,11 +129,12 @@ box_box_init(spApplication* app)
     spBody* bodies[MAX_BODIES];
     spPolygon* boxes[MAX_BODIES];
 
-    create_box(app, bodies[0], boxes[0], 9999999999.0f, spVector(0.0f, -4.0f), 0.0f, 0.01f, 0.8f, 0.0f, spVector(200.0f, 1.0f));
+    create_box(app, &bodies[0], &boxes[0], 9999999999.0f, spVector(0.0f, -4.0f), 0.0f, 0.01f, 0.8f, 0.0f, spVector(200.0f, 1.0f));
     for (spInt i = 1; i < MAX_BODIES; ++i)
     {
         spFloat f = (spFloat)i * 8.f;
-        create_box(app, bodies[i], boxes[i], 1.0f, spVector(f * 0.1f - 16.0f, f), f*12.5f, 0.4f, 0.7f, 1.0f, spVector(3.0f, 4.0f));
+        create_box(app, bodies+i, boxes+i, 1.0f, spVector(f * 0.1f - 16.0f, f), f*12.5f, 0.2f, 0.7f, 1.0f, spVector(3.0f, 4.0f));
+        //create_box(app, bodies+i, boxes+i, 5.0f, spVector(f * 0.01f - 16.0f, f), 0.0f, 0.4f, 0.4f, 1.0f, spVector(3.0f, 4.0f));
     }
 }
 
@@ -142,13 +144,41 @@ spApplication* box_box_collision()
         "test application",
         spViewport(800, 800), spFrustumUniform(50.0f),
         spVector(0.0f, -9.8f),
-        5, 1.0f / 60.0f,
+        100, 1.0f / 60.0f,
         box_box_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------
+void
+distance_constraint_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 3;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spBody* a;
+    spBody* b;
+
+    create_box(app, &a, boxes+0, 1000.0f, spVector( 0.0f,  0.0f), 0.0f, 0.4f, 0.7f, 0.0f, spVector(1.0f, 1.0f));
+    create_box(app, &b, boxes+1, 25.0f, spVector(2.0f, 25.0f), 0.0f, 0.4f, 0.7f, 1.0f, spVector(5.0f, 5.0f));
+    a->g_scale = 0.1f;
+    b->g_scale = 2.5f;
+    spDistanceJoint* djoint = spDistanceConstraintNew(a, b, spVectorZero(), spVectorZero(), 25.0f);
+    spWorldAddDistanceJoint(&app->world, djoint);
+}
+
+spApplication* distance_constraint()
+{
+    return spApplicationNew(
+        "distance constraint test app",
+        spViewport(800, 800), spFrustumUniform(100.0f),
+        spVector(0.0f, -9.8f),
+        5, 1.0f / 60.0f,
+        distance_constraint_init, default_loop, default_main_loop,
         0);
 }
 //---------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
-    return run(box_box_collision());
+    return run(distance_constraint());
 }

@@ -79,6 +79,7 @@
 #define spMaterial(f, r)                _spMaterial(f, r)
 
 /// for each iters
+#define for_each_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)
 #define for_each_contact(contact, initializer) for (spContact* contact = initializer; contact != NULL; contact = contact->next)
 #define for_each_shape(shape, initializer) for (spShape* shape = initializer; shape; shape = shape->next)
 #define for_each_body(body, initializer) for (spBody* body = initializer; body; body = body->next)

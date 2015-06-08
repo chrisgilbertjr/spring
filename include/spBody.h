@@ -22,8 +22,6 @@ struct spBody
     spVector p;                    ///< position of the com in world space
     spVector f;                    ///< force to be applied to the body during integration
     spVector v;                    ///< linear velocity
-    //spVector v_bias;               ///<
-    //spFloat w_bias;                ///<
     spFloat g_scale;               ///< gravity scale on this rigid body
     spFloat v_damp;                ///< linear velocity dampening applied during integration
     spFloat w_damp;                ///< angular velocity dampening applied during integration

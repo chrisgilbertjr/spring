@@ -124,9 +124,6 @@ spContactRemove(spContact* contact, spContact*& list)
 void 
 spContactPreStep(spContact* contact, const spFloat h)
 {
-#define SP_BIAS 0.2f
-#define SP_SLOP 0.1f
-
     spInt point_count = contact->count; /// number of contact points
     spVector normal = contact->normal;  /// normal of the contact
     spBody* body_a = contact->key.shape_a->body;   /// rigid body a
@@ -149,9 +146,6 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
         point->b_bias = spDot(rv, normal) * -contact->restitution;
         point->L_bias = 0.0f;
-
-        //contact->pen = spDot(spAdd(spSub(rb, ra), spSub(body_b->p, body_a->p)), normal);
-        //point->v_bias = -(SP_BIAS / h) * spMin(0.0f, cont + SP_SLOP);
     }
 }
 
@@ -189,8 +183,6 @@ spContactSolve(spContact* contact)
         spContactPoint point = contact->points[i]; /// contact point
         spVector ra = point.r_a;
         spVector rb = point.r_b;
-        //spVectorLog(&ra, "body a - ra");
-        //spVectorLog(&rb, "body a - ra");
 
         /// get the precomputed effective normal mass
         /// E = J*Mi*Jt
@@ -252,33 +244,15 @@ spContactStabilize(spContact* contact)
     spFloat mia = body_a->m_inv;                 /// inv mass of body a
     spFloat mib = body_b->m_inv;                 /// inv mass of body b
 
-    const static spFloat slop = 0.05f;
-    const static spFloat perc = 0.1f;
+    const static spFloat slop = 0.15f;
+    const static spFloat perc = 0.10f;
     //if (contact->pen < slop) return;
 
-    spVector c = spMult((spMax(contact->pen - slop, 0.0f) / (mia + mib)), spMult(normal, perc));
-    body_a->p = spSub(body_a->p, spMult(c, mia));
-    body_b->p = spAdd(body_b->p, spMult(c, mib));
+    spVector P = spMult((spMax(contact->pen - slop, 0.0f) / (mia + mib)), spMult(normal, perc));
+    body_a->p = spSub(body_a->p, spMult(P, mia));
+    body_b->p = spAdd(body_b->p, spMult(P, mib));
     __spBodyUpdateTransform(body_a);
     __spBodyUpdateTransform(body_b);
-    /// try a simpler method before using this method
-
-    ///// psuedo velocities - position correction
-    ///// normal relative velocities of the psuedo velocities
-    //spVector vba = spAdd(body_a->v_bias, spCross(ra, body_a->w_bias));
-    //spVector vbb = spAdd(body_b->v_bias, spCross(rb, body_b->w_bias));
-    //spFloat vbn = spDot(spSub(vbb, vba), normal);
-
-    ///// impulse bias multiplier
-    //spFloat Lbn = (point.v_bias - vbn) * point.m_norm;
-    //spFloat LbnOld = point.L_bias;
-    //point.L_bias = spMax(LbnOld + Lbn, 0.0f);
-
-    //spVector Pb = spMult(point.L_bias - LbnOld, normal); /// bias impulse for psuedo velocities
-    //body_a->v_bias  = spSub(body_a->v_bias, spMult(Pb, mia));
-    //body_b->v_bias  = spAdd(body_b->v_bias, spMult(Pb, mib));
-    //body_a->w_bias -= iia * spCross(ra, Pb);
-    //body_b->w_bias += iib * spCross(rb, Pb);
 }
 
 void 

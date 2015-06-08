@@ -180,6 +180,12 @@ inline spVector spCross(const spVector& a, const spFloat& b)
     return spVector(b*a.y, -b*a.x);
 }
 
+/// cross a vector and a scalar
+inline spVector spCross(const spFloat a, const spVector b)
+{
+    return spVector(-a*b.y, a*b.x);
+}
+
 /// negate a vector
 inline void spNegate(spVector* a)
 {

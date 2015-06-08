@@ -41,7 +41,6 @@
 /// F  = constraint force (impulse)
 /// J  = jacobian   = [ lA, aA, lB, aB ] - each jacobian is constraint dependent and is derived by hand
 /// Vt = velocities = [ vA, wA, vB, wB ]
-/// b  = velocity bias = TODO:
 /// Mi = constraint mass = |miA, 0,   0,   0|
 ///                        |0, iiA,   0,   0|
 ///                        |0,   0, miB,   0|

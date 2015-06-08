@@ -8,8 +8,8 @@
 struct spDistanceJoint
 {
     spConstraint base_class;
-    spVector lanchor_a;
-    spVector lanchor_b;
+    spVector anchor_a;
+    spVector anchor_b;
     spFloat distance;
 };
 
@@ -26,6 +26,8 @@ void spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h);
 void spDistanceJointSolve(spDistanceJoint* joint);
 
 void spDistanceJointStabilize(spDistanceJoint* joint);
+
+spFloat spDistanceJointInvEffectiveMass(spFloat ima, spFloat imb, spFloat iia, spFloat iib, spVector ra, spVector rb, spVector n);
 
 #ifdef SP_DEBUG
  #define spDistanceJointIsSane(distance_joint) __spDistanceJointIsSane(distance_joint)

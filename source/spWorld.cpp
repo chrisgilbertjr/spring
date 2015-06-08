@@ -52,6 +52,11 @@ spWorldStep(spWorld* world, const spFloat h)
     /// apply contact / joint impulses
     for (spInt i = 0; i < world->iterations; ++i)
     {
+        for_each_constraint(joint, world->joint_list)
+        {
+            spConstraintSolve(joint);
+        }
+
         for_each_contact(contact, world->contact_list)
         {
             spContactSolve(contact);
@@ -62,6 +67,11 @@ spWorldStep(spWorld* world, const spFloat h)
     for_each_body(body, body_list)
     {
         spBodyIntegratePosition(body, h);
+    }
+
+    for_each_constraint(joint, world->joint_list)
+    {
+        spConstraintStabilize(joint);
     }
 
     /// correct positions to keep things stable
@@ -93,6 +103,13 @@ spWorldStep(spWorld* world, const spFloat h)
     }
     spLog("\n");
 #endif
+}
+
+void 
+spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint)
+{
+    spConstraint* constraint = &joint->base_class;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
 }
 
 void 

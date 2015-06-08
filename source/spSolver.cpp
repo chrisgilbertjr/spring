@@ -24,8 +24,8 @@ spRelativeVelocity(
     const spVector& rA, 
     const spVector& rB)
 {
-    spVector v1 = spAdd(vA, spMult(spSkew(rA), wA));
-    spVector v2 = spAdd(vB, spMult(spSkew(rB), wB));
+    spVector v1 = spAdd(vA, spCross(wA, rA));
+    spVector v2 = spAdd(vB, spCross(wB, rB));
     return spSub(v2, v1);
 }
 

@@ -7,6 +7,7 @@
 #include "spNarrowPhase.h"
 #include "spBroadPhase.h"
 #include "spBody.h"
+#include "spDistanceJoint.h"
 
 /// @defgroup spWorld spWorld
 /// @{
@@ -39,6 +40,9 @@ void spWorldLogBriefBodies(spWorld* world);
 
 /// gives a detailed log of the world
 void spWorldLogDetail(spWorld* world);
+
+/// TODO:
+void spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint);
 
 /// sanity check
 #ifdef SP_DEBUG

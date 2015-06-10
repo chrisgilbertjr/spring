@@ -10,7 +10,12 @@ struct spDistanceJoint
     spConstraint base_class;
     spVector anchor_a;
     spVector anchor_b;
+    spVector rA;
+    spVector rB;
+    spVector n;
     spFloat distance;
+    spFloat eMass;
+    spFloat jAccum;
 };
 
 void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchor_a, spVector anchor_b, spFloat distance);

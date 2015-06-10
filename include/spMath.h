@@ -156,6 +156,13 @@ inline void spNormalize(spVector* a)
     *a = spMult(*a, 1.0f / spLength(*a) + SP_FLT_EPSILON);
 }
 
+/// return a normalized vector
+inline spVector spNormal(spVector a)
+{
+    spNormalize(&a);
+    return a;
+}
+
 /// returns the distance squared between two vectors
 inline spFloat spDistanceSquared(const spVector& a, const spVector& b)
 {

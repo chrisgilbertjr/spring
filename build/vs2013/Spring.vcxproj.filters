@@ -89,6 +89,12 @@
     <ClInclude Include="..\..\include\spDistanceJoint.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\spWeldJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spAngleJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -170,6 +176,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spDistanceJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\spWeldJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -37,7 +37,13 @@ spWorldStep(spWorld* world, const spFloat h)
 
     spContact* contact_list = world->contact_list;
 
-    /// pre step the contacts / joints
+    /// pre step the constraints
+    for_each_constraint(joint, world->joint_list)
+    {
+        spConstraintPreStep(joint, h);
+    }
+
+    /// pre step the contacts
     for_each_contact(contact, world->contact_list)
     {
         spContactPreStep(contact, h);

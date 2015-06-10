@@ -25,10 +25,10 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
 {
     switch (constraint->type)
     {
-    case SP_DISTANCE_CONSTRAINT:
+    case SP_DISTANCE_JOINT:
         spDistanceJointPreStep((spDistanceJoint*)constraint, h);
         break;
-    case SP_HINGE_CONSTRAINT:
+    case SP_HINGE_JOINT:
         /// TODO:
         break;
     default:
@@ -41,10 +41,10 @@ spConstraintSolve(spConstraint* constraint)
 {
     switch (constraint->type)
     {
-    case SP_DISTANCE_CONSTRAINT:
+    case SP_DISTANCE_JOINT:
         spDistanceJointSolve((spDistanceJoint*)constraint);
         break;
-    case SP_HINGE_CONSTRAINT:
+    case SP_HINGE_JOINT:
         /// TODO:
         break;
     default:
@@ -57,10 +57,10 @@ spConstraintStabilize(spConstraint* constraint)
 {
     switch (constraint->type)
     {
-    case SP_DISTANCE_CONSTRAINT:
+    case SP_DISTANCE_JOINT:
         spDistanceJointStabilize((spDistanceJoint*) constraint);
         break;
-    case SP_HINGE_CONSTRAINT:
+    case SP_HINGE_JOINT:
         /// TODO:
         break;
     default:

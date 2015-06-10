@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\spAngleJoint.h" />
     <ClInclude Include="..\..\include\spApplication.h" />
     <ClInclude Include="..\..\include\spArray.h" />
     <ClInclude Include="..\..\include\spBody.h" />
@@ -34,10 +35,12 @@
     <ClInclude Include="..\..\include\spring.h" />
     <ClInclude Include="..\..\include\spShape.h" />
     <ClInclude Include="..\..\include\spSolver.h" />
+    <ClInclude Include="..\..\include\spWeldJoint.h" />
     <ClInclude Include="..\..\include\spWorld.h" />
     <ClInclude Include="..\..\tests\spUnitTest.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\spWeldJoint.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />
     <ClCompile Include="..\..\source\spBody.cpp" />

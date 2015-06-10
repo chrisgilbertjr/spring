@@ -158,11 +158,12 @@ distance_constraint_init(spApplication* app)
     spBody* a;
     spBody* b;
 
-    create_box(app, &a, boxes+0, 1000.0f, spVector( 0.0f,  0.0f), 0.0f, 0.4f, 0.7f, 0.0f, spVector(1.0f, 1.0f));
-    create_box(app, &b, boxes+1, 25.0f, spVector(2.0f, 25.0f), 0.0f, 0.4f, 0.7f, 1.0f, spVector(5.0f, 5.0f));
-    a->g_scale = 0.1f;
-    b->g_scale = 2.5f;
-    spDistanceJoint* djoint = spDistanceConstraintNew(a, b, spVectorZero(), spVectorZero(), 25.0f);
+    create_box(app, &a, boxes+0, 99999999.0f, spVector(0.0f,  -10.0f), 5.0f, 0.9f, 1.0f, 0.0f, spVector(1000.0f, 1.0f));
+    create_box(app, &a, boxes+1, 25.0f, spVector( 0.0f,  0.0f), 0.0f, 0.4f, 0.7f, 0.0f, spVector(4.0f, 4.0f));
+    create_box(app, &b, boxes+2, 10.0f, spVector(2.0f, 25.0f), 0.0f, 0.4f, 0.7f, 1.0f, spVector(5.0f, 5.0f));
+    a->g_scale = 1.0f;
+    b->g_scale = 1.0f;
+    spDistanceJoint* djoint = spDistanceConstraintNew(a, b, spVectorZero(), spVector(5.0f, 5.0f), 25.0f);
     spWorldAddDistanceJoint(&app->world, djoint);
 }
 

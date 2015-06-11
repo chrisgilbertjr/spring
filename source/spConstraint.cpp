@@ -1,6 +1,6 @@
 
-#include "spConstraint.h"
 #include "spDistanceJoint.h"
+#include "spRopeJoint.h"
 
 void 
 spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstraintType type)
@@ -28,8 +28,8 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
     case SP_DISTANCE_JOINT:
         spDistanceJointPreStep((spDistanceJoint*)constraint, h);
         break;
-    case SP_HINGE_JOINT:
-        /// TODO:
+    case SP_ROPE_JOINT:
+        spRopeJointPreStep((spRopeJoint*) constraint, h);
         break;
     default:
         spAssert(false, "constraint type is not valid in prestep!\n");
@@ -42,10 +42,10 @@ spConstraintSolve(spConstraint* constraint)
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
-        spDistanceJointSolve((spDistanceJoint*)constraint);
+        spDistanceJointSolve((spDistanceJoint*) constraint);
         break;
-    case SP_HINGE_JOINT:
-        /// TODO:
+    case SP_ROPE_JOINT:
+        spRopeJointSolve((spRopeJoint*) constraint);
         break;
     default:
         spAssert(false, "constraint type is not valid in solve!\n");
@@ -60,8 +60,8 @@ spConstraintStabilize(spConstraint* constraint)
     case SP_DISTANCE_JOINT:
         spDistanceJointStabilize((spDistanceJoint*) constraint);
         break;
-    case SP_HINGE_JOINT:
-        /// TODO:
+    case SP_ROPE_JOINT:
+        spRopeJointStabilize((spRopeJoint*) constraint);
         break;
     default:
         spAssert(false, "constraint type is not valid in stabilize!\n");

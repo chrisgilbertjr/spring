@@ -134,7 +134,6 @@ box_box_init(spApplication* app)
     {
         spFloat f = (spFloat)i * 8.f;
         create_box(app, bodies+i, boxes+i, 1.0f, spVector(f * 0.1f - 16.0f, f), f*12.5f, 0.2f, 0.7f, 1.0f, spVector(3.0f, 4.0f));
-        //create_box(app, bodies+i, boxes+i, 5.0f, spVector(f * 0.01f - 16.0f, f), 0.0f, 0.4f, 0.4f, 1.0f, spVector(3.0f, 4.0f));
     }
 }
 
@@ -143,7 +142,7 @@ spApplication* box_box_collision()
     return spApplicationNew(
         "test application",
         spViewport(800, 800), spFrustumUniform(50.0f),
-        spVector(0.0f, -9.8f),
+        spVector(0.0f, -19.6f),
         100, 1.0f / 60.0f,
         box_box_init, default_loop, default_main_loop,
         0);
@@ -158,12 +157,12 @@ distance_constraint_init(spApplication* app)
     spBody* a;
     spBody* b;
 
-    create_box(app, &a, boxes+0, 99999999.0f, spVector(0.0f,  -10.0f), 5.0f, 0.9f, 1.0f, 0.0f, spVector(1000.0f, 1.0f));
-    create_box(app, &a, boxes+1, 25.0f, spVector( 0.0f,  0.0f), 0.0f, 0.4f, 0.7f, 0.0f, spVector(4.0f, 4.0f));
-    create_box(app, &b, boxes+2, 10.0f, spVector(2.0f, 25.0f), 0.0f, 0.4f, 0.7f, 1.0f, spVector(5.0f, 5.0f));
+    create_box(app, &a, boxes+0, 99999999.0f, spVector(0.0f,  -10.0f), 25.0f, 0.1f, 1.0f, 0.0f, spVector(1000.0f, 1.0f));
+    create_box(app, &a, boxes+1, 100.0f, spVector( 0.0f,  0.0f), 0.0f, 0.4f, 0.7f, 0.0f, spVector(4.0f, 4.0f));
+    create_box(app, &b, boxes+2, 10.0f, spVector(2.0f, 25.0f), 0.0f, 0.4f, 0.2f, 1.0f, spVector(5.0f, 5.0f));
     a->g_scale = 1.0f;
     b->g_scale = 1.0f;
-    spDistanceJoint* djoint = spDistanceConstraintNew(a, b, spVectorZero(), spVector(5.0f, 5.0f), 25.0f);
+    spDistanceJoint* djoint = spDistanceConstraintNew(a, b, spVectorZero(), spVector(0.0f, 0.0f), 25.0f);
     spWorldAddDistanceJoint(&app->world, djoint);
 }
 
@@ -172,14 +171,57 @@ spApplication* distance_constraint()
     return spApplicationNew(
         "distance constraint test app",
         spViewport(800, 800), spFrustumUniform(100.0f),
-        spVector(0.0f, -9.8f),
-        5, 1.0f / 60.0f,
+        spVector(0.0f, -90.8f),
+        20, 1.0f / 60.0f,
         distance_constraint_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------
+void
+rope_constraint_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 8;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spRopeJoint* rope[MAX_BODIES];
+
+    spFloat x = 0.0f;
+    spFloat y = 75.0f;
+    spFloat h = 5.0f;
+    spFloat w = 1.0f;
+
+    create_box(app, bodies+0, boxes+0, 999999.0f, spVector(0.0f, y), 90.0f, 0.4f, 0.5f, 0.0f, spVector(1.0f, 1.0f));
+
+    for (spInt i = 1; i < MAX_BODIES; ++i)
+    {
+        x = (spFloat)i*h*3.0f;
+        spFloat mass = i * 5.0f;
+        create_box(app, bodies+i, boxes+i, mass, spVector(x, y), 90.0f, 0.4f, 0.5f, 1.0f, spVector(w, h));
+    }
+
+    rope[0] = spRopeJointNew(bodies[0], bodies[1], spVector(0.0f, 0.0f), spVector(0.0f, h), h);
+    spWorldAddRopeJoint(&app->world, rope[0]);
+
+    for (spInt i = 1; i < MAX_BODIES-1; ++i)
+    {
+        rope[i] = spRopeJointNew(bodies[i], bodies[i+1], spVector(0.0f, -h), spVector(0.0f, h), h);
+        spWorldAddRopeJoint(&app->world, rope[i]);
+    }
+}
+
+spApplication* rope_constraint()
+{
+    return spApplicationNew(
+        "rope constraint test app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        100, 1.0f / 60.0f,
+        rope_constraint_init, default_loop, default_main_loop,
         0);
 }
 //---------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
-    return run(distance_constraint());
+    return run(rope_constraint());
 }

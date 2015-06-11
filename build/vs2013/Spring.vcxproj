@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\spAngleJoint.h" />
+    <ClInclude Include="..\..\include\spRevoluteJoint.h" />
     <ClInclude Include="..\..\include\spApplication.h" />
     <ClInclude Include="..\..\include\spArray.h" />
     <ClInclude Include="..\..\include\spBody.h" />
@@ -33,6 +33,7 @@
     <ClInclude Include="..\..\include\spPolygon.h" />
     <ClInclude Include="..\..\include\spHingeJoint.h" />
     <ClInclude Include="..\..\include\spring.h" />
+    <ClInclude Include="..\..\include\spRopeJoint.h" />
     <ClInclude Include="..\..\include\spShape.h" />
     <ClInclude Include="..\..\include\spSolver.h" />
     <ClInclude Include="..\..\include\spWeldJoint.h" />
@@ -58,6 +59,7 @@
     <ClCompile Include="..\..\source\spPolygon.cpp" />
     <ClCompile Include="..\..\source\spHingeJoint.cpp" />
     <ClCompile Include="..\..\source\spring.cpp" />
+    <ClCompile Include="..\..\source\spRopeJoint.cpp" />
     <ClCompile Include="..\..\source\spShape.cpp" />
     <ClCompile Include="..\..\source\spSolver.cpp" />
     <ClCompile Include="..\..\source\spWorld.cpp" />

@@ -45,7 +45,7 @@ spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
 
     joint->rA = spSub(pA, bA->p);
     joint->rB = spSub(pB, bB->p);
-    joint->n = spNormal(spSub(pA, pB));
+    joint->n = spMult(joint->n, 1.0f / (spLength(joint->n) + SP_FLT_EPSILON));
 
     spFloat nrA = spCross(joint->n, joint->rA);
     spFloat nrB = spCross(joint->n, joint->rB);
@@ -76,38 +76,23 @@ spDistanceJointSolve(spDistanceJoint* joint)
 void 
 spDistanceJointStabilize(spDistanceJoint* joint)
 {
-    /// TODO - clean this up
-    spConstraint constraint = joint->base_class;
-    spBody* ba = constraint.body_a;
-    spBody* bb = constraint.body_b;
-    spTransform* xfa = &ba->xf;
-    spTransform* xfb = &bb->xf;
-    spVector pa = spMult(*xfa, joint->anchor_a);
-    spVector pb = spMult(*xfb, joint->anchor_b);
-    spVector ra = spSub(pa, spMult(*xfa, ba->p));
-    spVector rb = spSub(pb, spMult(*xfb, bb->p));
-    spVector va = ba->v;
-    spVector vb = bb->v;
-    spFloat wa = ba->w;
-    spFloat wb = bb->w;
-    spFloat ima = ba->m_inv;
-    spFloat imb = bb->m_inv;
-    spFloat iia = ba->i_inv;
-    spFloat iib = bb->i_inv;
-
-    spVector n = spSub(pa, pb);
-    spDebugDrawLine(pa, pb, spGreen(1.0f));
+    spBody* bA = joint->base_class.body_a;
+    spBody* bB = joint->base_class.body_b;
+    spVector pA = spMult(bA->xf, joint->anchor_a);
+    spVector pB = spMult(bB->xf, joint->anchor_b);
+    spVector n = spSub(pA, pB);
     spFloat length = spLength(n);
-    spLog("%.7f\n", length);
     spFloat C = length - joint->distance;
-    n = spMult(n, 1.0f / (length + SP_FLT_EPSILON));
-    spVector P = spMult(n, C);
-    ba->p = spSub(ba->p, spMult(P, ima));
-    bb->p = spAdd(bb->p, spMult(P, imb));
-    ba->a -= iia * spCross(ra, P);
-    bb->a += iib * spCross(rb, P);
-    __spBodyUpdateTransform(ba);
-    __spBodyUpdateTransform(bb);
+    spVector P = spMult(C, spMult(n, 1.0f / (length + SP_FLT_EPSILON)));
+    bA->p = spSub(bA->p, spMult(P, bA->m_inv));
+    bB->p = spAdd(bB->p, spMult(P, bB->m_inv));
+    bA->a -= bA->i_inv * spCross(joint->rA, P);
+    bB->a += bB->i_inv * spCross(joint->rB, P);
+    __spBodyUpdateTransform(bA);
+    __spBodyUpdateTransform(bB);
+
+    spDebugDrawLine(pA, pB, spGreen(1.0f));
+    spLog("%.7f\n", length);
 }
 
 spFloat 

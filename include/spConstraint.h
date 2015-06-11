@@ -71,9 +71,7 @@ struct spBody;
 enum spConstraintType
 {
     SP_DISTANCE_JOINT,
-    SP_ANGLE_JOINT,
-    SP_HINGE_JOINT,
-    SP_WELD_JOINT,
+    SP_ROPE_JOINT,
 };
 
 struct spConstraint

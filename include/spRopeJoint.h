@@ -16,6 +16,7 @@ struct spRopeJoint
     spFloat maxDistance;
     spFloat eMass;
     spFloat jAccum;
+    spFloat bias;
     spBool shorterThanMax;
 };
 

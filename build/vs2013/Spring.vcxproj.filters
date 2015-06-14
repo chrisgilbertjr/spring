@@ -98,6 +98,9 @@
     <ClInclude Include="..\..\include\spRopeJoint.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\spMotorJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -185,6 +188,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spRopeJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\spMotorJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

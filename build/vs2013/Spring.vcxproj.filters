@@ -80,9 +80,6 @@
     <ClInclude Include="..\..\include\spApplication.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\spDampedSpringConstraint.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spHingeJoint.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -99,6 +96,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\spMotorJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spSpringJoint.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -175,9 +175,6 @@
     <ClCompile Include="..\..\source\spConstraint.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\spDampedSpringConstraint.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\spHingeJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -191,6 +188,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\spMotorJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spSpringJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

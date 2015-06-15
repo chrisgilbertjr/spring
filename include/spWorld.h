@@ -9,6 +9,8 @@
 #include "spBody.h"
 #include "spDistanceJoint.h"
 #include "spRopeJoint.h"
+#include "spMotorJoint.h"
+#include "spSpringJoint.h"
 
 /// @defgroup spWorld spWorld
 /// @{
@@ -47,6 +49,12 @@ void spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint);
 
 /// TODO:
 void spWorldAddRopeJoint(spWorld* world, spRopeJoint* joint);
+
+// TODO:
+void spWorldAddMotorJoint(spWorld* world, spMotorJoint* joint);
+
+/// TODO:
+void spWorldAddSpringJoint(spWorld* world, spSpringJoint* joint);
 
 /// sanity check
 #ifdef SP_DEBUG

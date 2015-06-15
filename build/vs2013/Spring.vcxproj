@@ -25,7 +25,7 @@
     <ClInclude Include="..\..\include\spContact.h" />
     <ClInclude Include="..\..\include\spContactKey.h" />
     <ClInclude Include="..\..\include\spCore.h" />
-    <ClInclude Include="..\..\include\spDampedSpringConstraint.h" />
+    <ClInclude Include="..\..\include\spSpringJoint.h" />
     <ClInclude Include="..\..\include\spDebugDraw.h" />
     <ClInclude Include="..\..\include\spDistanceJoint.h" />
     <ClInclude Include="..\..\include\spLinkedList.h" />
@@ -54,7 +54,7 @@
     <ClCompile Include="..\..\source\spConstraint.cpp" />
     <ClCompile Include="..\..\source\spContact.cpp" />
     <ClCompile Include="..\..\source\spContactKey.cpp" />
-    <ClCompile Include="..\..\source\spDampedSpringConstraint.cpp" />
+    <ClCompile Include="..\..\source\spSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spDebugDraw.cpp" />
     <ClCompile Include="..\..\source\spDistanceJoint.cpp" />
     <ClCompile Include="..\..\source\spNarrowPhase.cpp" />

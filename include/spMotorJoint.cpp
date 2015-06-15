@@ -52,5 +52,5 @@ spMotorJointSolve(spMotorJoint* joint)
     spFloat impulse = joint->lambdaAccum - lambdaPrev;
 
     a->w -= impulse * a->i_inv;
-    a->w += impulse * b->i_inv;
+    b->w += impulse * b->i_inv;
 }

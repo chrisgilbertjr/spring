@@ -1,5 +1,6 @@
 
 #include <spring.h> 
+#include "spMotorJoint.h"
 #include "spApplication.h"
 
 #define PRESSED(key) glfwGetKey(app->window, key) == GLFW_PRESS
@@ -120,6 +121,7 @@ void create_box(spApplication* app, spBody** b, spPolygon** p, spFloat m, spVect
     spBodySetTransform(*b, pos, a);
     spBody* body = *b;
     body->g_scale = g;
+    body->v_damp = .1f;
 }
 
 void
@@ -152,7 +154,6 @@ void
 distance_constraint_init(spApplication* app)
 {
     static const spInt MAX_BODIES = 3;
-    spBody* bodies[MAX_BODIES];
     spPolygon* boxes[MAX_BODIES];
     spBody* a;
     spBody* b;
@@ -207,8 +208,8 @@ rope_constraint_init(spApplication* app)
         rope[i] = spRopeJointNew(bodies[i], bodies[i+1], spVector(0.0f, -h), spVector(0.0f, h), h*.4f);
         spWorldAddRopeJoint(&app->world, rope[i]);
     }
-    spBody* b2[2];
-    spPolygon* bx2[2];
+    //spBody* b2[2];
+    //spPolygon* bx2[2];
 
     //create_box(app, b2+0, bx2+0, 99999999.0f, spVector(10.0f, 35.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(8.0f, 8.0f));
     //create_box(app, b2+1, bx2+1, 99999999.0f, spVector(-20.0f, -20.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(8.0f, 8.0f));
@@ -226,7 +227,106 @@ spApplication* rope_constraint()
 }
 //---------------------------------------------------------------------------------------------------------------------
 
+void
+motor_constraint_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 16;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spMotorJoint* motor[MAX_BODIES];
+
+    spFloat x = 0.0f;
+    spFloat y = 85.0f;
+    spFloat h = 2.0f;
+    spFloat w = 1.0f;
+    spFloat d = 3.0f;
+
+    create_box(app, bodies+0, boxes+0, 999999.0f, spVector( 40.0f, 0.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+    create_box(app, bodies+1, boxes+1, 999999.0f, spVector(-40.0f, 0.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+
+    create_box(app, bodies+2, boxes+2, 20.0f, spVector(0.0, 5.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+3, boxes+3, 20.0f, spVector(0.0,-5.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+4, boxes+4, 20.0f, spVector(1.0, 10.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+5, boxes+5, 20.0f, spVector(1.0,-10.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+6, boxes+6, 20.0f, spVector(2.0, 10.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+7, boxes+7, 20.0f, spVector(2.0,-10.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    spRopeJoint* rope0 = spRopeJointNew(bodies[0], bodies[2], spVector( 10.0f,  10.0f), spVector(0.0f, 5.0f), d);
+    spRopeJoint* rope1 = spRopeJointNew(bodies[0], bodies[3], spVector(-10.0f, -10.0f), spVector(0.0f, 5.0f), d);
+    spRopeJoint* rope2 = spRopeJointNew(bodies[2], bodies[4], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),   d);
+    spRopeJoint* rope3 = spRopeJointNew(bodies[3], bodies[5], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),   d);
+    spRopeJoint* rope4 = spRopeJointNew(bodies[4], bodies[6], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),   d);
+    spRopeJoint* rope5 = spRopeJointNew(bodies[5], bodies[7], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),   d);
+
+    create_box(app, bodies+8, boxes+8, 20.0f, spVector(0.0, 5.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+9, boxes+9, 20.0f, spVector(0.0,-5.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+10, boxes+10, 20.0f, spVector(1.0, 10.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+11, boxes+11, 20.0f, spVector(1.0,-10.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+12, boxes+12, 20.0f, spVector(2.0, 10.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    create_box(app, bodies+13, boxes+13, 20.0f, spVector(2.0,-10.1f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(1.0f, 5.0f));
+    spRopeJoint* arope0 = spRopeJointNew(bodies[1], bodies[8], spVector( 10.0f,  10.0f), spVector(0.0f, 5.0f), d);
+    spRopeJoint* arope1 = spRopeJointNew(bodies[1], bodies[9], spVector(-10.0f, -10.0f), spVector(0.0f, 5.0f), d);
+    spRopeJoint* arope2 = spRopeJointNew(bodies[8], bodies[10], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),  d);
+    spRopeJoint* arope3 = spRopeJointNew(bodies[9], bodies[11], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f),  d);
+    spRopeJoint* arope4 = spRopeJointNew(bodies[10], bodies[12], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f), d);
+    spRopeJoint* arope5 = spRopeJointNew(bodies[11], bodies[13], spVector(-1.0f, -5.0f), spVector(0.0f, 5.0f), d);
+
+    spMotorJoint* joint = spMotorJointNew(bodies[0], bodies[1], 5.0f);
+
+    spWorldAddRopeJoint(&app->world, rope0);
+    spWorldAddRopeJoint(&app->world, rope1);
+    spWorldAddRopeJoint(&app->world, rope2);
+    spWorldAddRopeJoint(&app->world, rope3);
+    spWorldAddRopeJoint(&app->world, rope4);
+    spWorldAddRopeJoint(&app->world, rope5);
+    spWorldAddRopeJoint(&app->world, arope0);
+    spWorldAddRopeJoint(&app->world, arope1);
+    spWorldAddRopeJoint(&app->world, arope2);
+    spWorldAddRopeJoint(&app->world, arope3);
+    spWorldAddRopeJoint(&app->world, arope4);
+    spWorldAddRopeJoint(&app->world, arope5);
+    spWorldAddMotorJoint(&app->world, joint);
+}
+
+spApplication* motor_constraint()
+{
+    return spApplicationNew(
+        "motor constraint test app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        motor_constraint_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------
+void
+spring_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 2;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spSpringJoint* spring[MAX_BODIES];
+
+    create_box(app, bodies+0, boxes+0, 999999.0f, spVector(0.0f, 10.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+    create_box(app, bodies+1, boxes+1, 25.0f, spVector(0.0f, 0.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(10.0f, 10.0f));
+
+
+    spring[0] = spSpringJointNew(bodies[0], bodies[1], spVector(0.0f, -10.0f), spVector(-10.0f, 10.0f), 10.0f, 0.0f, 0.0f);
+    spWorldAddSpringJoint(&app->world, spring[0]);
+}
+
+spApplication* spring()
+{
+    return spApplicationNew(
+        "motor constraint test app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        spring_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------
+
 int main()
 {
-    return run(rope_constraint());
+    return run(spring());
 }

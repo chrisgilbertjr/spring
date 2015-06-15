@@ -126,6 +126,20 @@ spWorldAddRopeJoint(spWorld* world, spRopeJoint* joint)
 }
 
 void 
+spWorldAddMotorJoint(spWorld* world, spMotorJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void 
+spWorldAddSpringJoint(spWorld* world, spSpringJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void 
 spWorldLogBrief(spWorld* world)
 {
 }

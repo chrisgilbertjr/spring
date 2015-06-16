@@ -306,11 +306,13 @@ spring_init(spApplication* app)
     spPolygon* boxes[MAX_BODIES];
     spSpringJoint* spring[MAX_BODIES];
 
-    create_box(app, bodies+0, boxes+0, 999999.0f, spVector(0.0f, 10.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
-    create_box(app, bodies+1, boxes+1, 25.0f, spVector(0.0f, 0.0f), 90.0f, 0.4f, 0.5f, 1.0f, spVector(10.0f, 10.0f));
+    create_box(app, bodies+0, boxes+0, 100000.0f, spVector(0.0f, 0.0f), 0.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+    create_box(app, bodies+1, boxes+1, 10.0f, spVector(100.0f, -0.0f), 0.0f, 0.4f, 0.5f, 1.0f, spVector(10.0f, 10.0f));
+    bodies[0]->v_damp = 1.0f;
+    bodies[1]->w_damp = 0.1f;
+    bodies[1]->v_damp = 0.1f;
 
-
-    spring[0] = spSpringJointNew(bodies[0], bodies[1], spVector(0.0f, -10.0f), spVector(-10.0f, 10.0f), 10.0f, 0.0f, 0.0f);
+    spring[0] = spSpringJointNew(bodies[0], bodies[1], spVector(0.0f, -10.0f), spVector(-10.0f, 10.0f), 10.0f, 0.5f, 0.1f);
     spWorldAddSpringJoint(&app->world, spring[0]);
 }
 

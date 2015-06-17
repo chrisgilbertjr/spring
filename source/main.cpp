@@ -121,7 +121,7 @@ void create_box(spApplication* app, spBody** b, spPolygon** p, spFloat m, spVect
     spBodySetTransform(*b, pos, a);
     spBody* body = *b;
     body->g_scale = g;
-    body->v_damp = .1f;
+    body->v_damp = .0f;
 }
 
 void
@@ -312,7 +312,7 @@ spring_init(spApplication* app)
     bodies[1]->w_damp = 0.1f;
     bodies[1]->v_damp = 0.1f;
 
-    spring[0] = spSpringJointNew(bodies[0], bodies[1], spVector(0.0f, -10.0f), spVector(-10.0f, 10.0f), 10.0f, 0.5f, 0.1f);
+    spring[0] = spSpringJointNew(bodies[0], bodies[1], spVector(0.0f, -10.0f), spVector(-10.0f, 10.0f), 0.5f, 0.1f, 10.0f);
     spWorldAddSpringJoint(&app->world, spring[0]);
 }
 
@@ -328,7 +328,35 @@ spApplication* spring()
 }
 //---------------------------------------------------------------------------------------------------------------------
 
+void
+angspring_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 2;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spAngularSpringJoint* spring[MAX_BODIES];
+
+    create_box(app, bodies+0, boxes+0, 1.0f, spVector(-20.0f, 0.0f), 0.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+    create_box(app, bodies+1, boxes+1, 1.0f, spVector( 20.0f, 0.0f), 0.0f, 0.4f, 0.5f, 0.0f, spVector(10.0f, 10.0f));
+
+    spring[0] = spAngularSpringJointNew(bodies[0], bodies[1], spTrue, 1.0f, 0.0f, 135.0f * SP_DEG_TO_RAD);
+    spWorldAddAngularSpringJoint(&app->world, spring[0]);
+}
+
+spApplication* angspring()
+{
+    return spApplicationNew(
+        "motor constraint test app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        angspring_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------
+
+
 int main()
 {
-    return run(spring());
+    return run(angspring());
 }

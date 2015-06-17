@@ -80,16 +80,7 @@
     <ClInclude Include="..\..\include\spApplication.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\spHingeJoint.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spDistanceJoint.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\spWeldJoint.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\spRevoluteJoint.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\spRopeJoint.h">
@@ -101,15 +92,24 @@
     <ClInclude Include="..\..\include\spSpringJoint.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\spAngularSpringJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spWheelJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spPointJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\spGearJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spBody.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\spBound.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spBroadPhase.cpp">
@@ -175,22 +175,28 @@
     <ClCompile Include="..\..\source\spConstraint.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\spHingeJoint.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\spDistanceJoint.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\spWeldJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spRopeJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\spMotorJoint.cpp">
+    <ClCompile Include="..\..\source\spSpringJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\spSpringJoint.cpp">
+    <ClCompile Include="..\..\source\spAngularSpringJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spMotorJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spWheelJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spGearJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spPointJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

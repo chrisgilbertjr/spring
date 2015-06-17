@@ -1,4 +1,5 @@
 
+#include "spAngularSpringJoint.h"
 #include "spDistanceJoint.h"
 #include "spSpringJoint.h"
 #include "spMotorJoint.h"
@@ -39,6 +40,9 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
     case SP_SPRING_JOINT:
         spSpringJointPreStep((spSpringJoint*) constraint, h);
         break;
+    case SP_ANGULAR_SPRING_JOINT:
+        spAngularSpringJointPreSolve((spAngularSpringJoint*) constraint, h);
+        break;
     default:
         spAssert(false, "constraint type is not valid in prestep!\n");
     }
@@ -61,6 +65,9 @@ spConstraintSolve(spConstraint* constraint)
     case SP_SPRING_JOINT:
         spSpringJointSolve((spSpringJoint*) constraint);
         break;
+    case SP_ANGULAR_SPRING_JOINT:
+        spAngularSpringJointSolve((spAngularSpringJoint*) constraint);
+        break;
     default:
         spAssert(false, "constraint type is not valid in solve!\n");
     }
@@ -80,6 +87,8 @@ spConstraintStabilize(spConstraint* constraint)
     case SP_MOTOR_JOINT:
         break;
     case SP_SPRING_JOINT:
+        break;
+    case SP_ANGULAR_SPRING_JOINT:
         break;
     default:
         spAssert(false, "constraint type is not valid in stabilize!\n");

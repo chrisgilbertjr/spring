@@ -74,6 +74,7 @@ enum spConstraintType
     SP_MOTOR_JOINT,
     SP_ROPE_JOINT,
     SP_SPRING_JOINT,
+    SP_ANGULAR_SPRING_JOINT,
 };
 
 struct spConstraint

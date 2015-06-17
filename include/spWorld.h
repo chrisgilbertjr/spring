@@ -11,6 +11,7 @@
 #include "spRopeJoint.h"
 #include "spMotorJoint.h"
 #include "spSpringJoint.h"
+#include "spAngularSpringJoint.h"
 
 /// @defgroup spWorld spWorld
 /// @{
@@ -55,6 +56,9 @@ void spWorldAddMotorJoint(spWorld* world, spMotorJoint* joint);
 
 /// TODO:
 void spWorldAddSpringJoint(spWorld* world, spSpringJoint* joint);
+
+/// TODO:
+void spWorldAddAngularSpringJoint(spWorld* world, spAngularSpringJoint* joint);
 
 /// sanity check
 #ifdef SP_DEBUG

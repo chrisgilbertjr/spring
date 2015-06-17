@@ -140,6 +140,13 @@ spWorldAddSpringJoint(spWorld* world, spSpringJoint* joint)
 }
 
 void 
+spWorldAddAngularSpringJoint(spWorld* world, spAngularSpringJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void 
 spWorldLogBrief(spWorld* world)
 {
 }

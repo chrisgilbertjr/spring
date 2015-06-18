@@ -61,10 +61,11 @@ spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
     joint->gamma = h * (c + h * k);
     joint->gamma = joint->gamma ? 1.0f / joint->gamma : 0.0f;
     joint->beta = C * h * k * joint->gamma;
-    joint->lambdaAccum = 0.0f;
 
     iMass += joint->gamma;
     joint->eMass = iMass ? 1.0f / iMass : 0.0f;
+
+    joint->lambdaAccum = 0.0f;
 }
 
 void 

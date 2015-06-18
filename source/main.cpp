@@ -124,6 +124,22 @@ void create_box(spApplication* app, spBody** b, spPolygon** p, spFloat m, spVect
     body->v_damp = .0f;
 }
 
+void create_circle(spApplication* app, spBody** b, spCircle** c, spVector pos, spFloat ang, spFloat rad, spFloat mass, spFloat r, spFloat f, spFloat g)
+{
+    *b = spCreateBody(&app->world, SP_BODY_DYNAMIC);
+    spCircleDef def;
+
+    def.center = spVectorZero();
+    def.mass = mass;
+    def.material.restitution = r;
+    def.material.friction = f;
+    def.radius = rad;
+    *c = spCreateCircle(*b, def);
+    spBodySetTransform(*b, pos, ang);
+    spBody* body = *b;
+    body->g_scale = g;
+}
+
 void
 box_box_init(spApplication* app)
 {
@@ -355,8 +371,97 @@ spApplication* angspring()
 }
 //---------------------------------------------------------------------------------------------------------------------
 
+void
+wheel_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 4;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spBody* cbodies[MAX_BODIES];
+    spCircle* circle[MAX_BODIES];
+    spWheelJoint* wheel[MAX_BODIES];
+
+
+    create_box(app, bodies+0, boxes+0, 100.0f, spVector(  0.0f, 50.0f), 0.0f, 0.4f, 0.5f, 1.0f, spVector(60.0f, 20.0f));
+    create_box(app, bodies+3, boxes+3, 999999.0f, spVector(  0.0f, -20.0f), 0.0f, 0.4f, 0.5f, 0.0f, spVector(100.0f, 1.0f));
+    create_circle(app, cbodies+0, circle+0, spVector(-50.0f, 0.0f), 0.0f, 10.0f, 10.0f, 0.9f, 0.1f, 1.0f);
+    create_circle(app, cbodies+1, circle+1, spVector( 50.0f, 0.0f), 0.0f, 10.0f, 10.0f, 0.9f, 0.1f, 1.0f);
+
+    wheel[0] = spWheelJointNew(bodies[0], cbodies[0], spVector(-50.0f, -50.0f), spVector(0.0f, 0.0f), spVector(0.0f, 1.0f), 2.0f, 0.2f);
+    wheel[1] = spWheelJointNew(bodies[0], cbodies[1], spVector( 50.0f, -50.0f), spVector(0.0f, 0.0f), spVector(0.0f, 1.0f), 2.0f, 0.2f);
+    spWorldAddWheelJoint(&app->world, wheel[0]);
+    spWorldAddWheelJoint(&app->world, wheel[1]);
+    wheel[0]->enableMotor = spTrue;
+    wheel[0]->motorSpeed = 10.f;
+    wheel[0]->maxMotorTorque = 2000000.0f;
+    wheel[1]->enableMotor = spTrue;
+    wheel[1]->motorSpeed = 10.f;
+    wheel[1]->maxMotorTorque = 2000000.0f;
+}
+
+spApplication* wheel()
+{
+    return spApplicationNew(
+        "wheel constraint test app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        wheel_init, default_loop, default_main_loop,
+        0);
+}
+//---------------------------------------------------------------------------------------------------------------------//---------------------------------------------------------------------------------------------------------------------
+
+void
+ttest_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 6;
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+    spBody* cbodies[MAX_BODIES];
+    spCircle* circle[MAX_BODIES];
+    spWheelJoint* wheel[MAX_BODIES];
+
+    spFloat r = 0.4f;
+    spFloat f = 1.0f;
+
+    create_box(app, bodies+0, boxes+0, 9999.0f, spVector(  0.0f,  -50.0f), 0.0f, r, f, 0.0f, spVector(10000.0f, 10.0f));
+    create_box(app, bodies+1, boxes+1, 999999.0f, spVector( 75.0f, 10.0f), 0.0f, r, f, 0.0f, spVector(10.0f, 50.0f));
+    create_box(app, bodies+2, boxes+2, 999999.0f, spVector(-75.0f, 10.0f), 0.0f, r, f, 0.0f, spVector(10.0f, 50.0f));
+
+    for (spInt i = 3; i < MAX_BODIES; ++i)
+    {
+        spFloat p = (spFloat)i;
+        spFloat p1 = p*20.0f;
+        spFloat x = p1 - 80.0f;
+        spFloat y = p1+10.0f;
+        spFloat a = p*2.5f*p1;
+        create_box(app, bodies+i, boxes+i, 10.0f, spVector(x, y), a, r, f, 1.0f, spVector(9.0f, 12.0f));
+    }
+
+    for (spInt i = 0; i < MAX_BODIES-3; ++i)
+    {
+        create_circle(app, cbodies+0, circle+0, spVector((spFloat)i*19.0f-25.f, i*2+150.5f), 0.0f, 8.0f, 10.0f, 0.4f, 1.0f, 1.0f);
+    }
+
+    //for (spInt i = 0; i < MAX_BODIES-3; ++i)
+    //{
+    //    create_circle(app, cbodies+0, circle+0, spVector((spFloat)i*11.0f, i*20.5f), 0.0f, 8.0f, 10.0f, 1.0f, 0.9f, 1.0f);
+    //}
+}
+
+spApplication* ttest()
+{
+    return spApplicationNew(
+        "ttest app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -25.0f),
+        20, 1.0f / 60.0f,
+        ttest_init, default_loop, default_main_loop,
+        0);
+}
+//-----------------
 
 int main()
 {
-    return run(angspring());
+    return run(wheel());
 }

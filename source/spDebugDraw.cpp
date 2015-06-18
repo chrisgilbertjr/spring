@@ -104,24 +104,27 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
 void 
 spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf)
 {
-    //glPointSize(2.0f);
-    //glPushMatrix();
+    //spLog("ASDASDAS");
+    glPointSize(8.0f);
+    glPushMatrix();
  
-    // spVector normal = contact->normal;
-    // for (spInt i = 0; i < contact->count; ++i)
-    // {
-    //     spVector pos  = contact->points[i].p;
-    //     spVector norm = spAdd(pos, normal);
-    //     glBegin(GL_POINTS);
-    //     glVertex2f(pos.x, pos.y);
-    //     glEnd();
+     spVector normal = contact->normal;
+     for (spInt i = 0; i < contact->count; ++i)
+     {
+         glColor3f(i, 1.0f, 1.0f);
+         spVector pos  = contact->points[i].p;
+         spVector norm = spAdd(pos, normal);
+         glBegin(GL_POINTS);
+         glVertex2f(pos.x, pos.y);
+         glEnd();
 
-    //     glBegin(GL_LINES);
-    //     glVertex2f(pos.x, pos.y);
-    //     glVertex2f(norm.x, norm.y);
-    //     glEnd();
-    // }
-    //glPopMatrix();
+         glBegin(GL_LINES);
+         glVertex2f(pos.x, pos.y);
+         glVertex2f(norm.x, norm.y);
+         glEnd();
+         glColor3f(1.0f, 1.0f, 1.0f);
+     }
+    glPopMatrix();
 }
 
 void 

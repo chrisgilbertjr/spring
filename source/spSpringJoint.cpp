@@ -116,11 +116,12 @@ spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
     /// compute beta and gamma for soft constraint
     joint->gamma = 1.0f / (h * (c + h * k) + SP_FLT_EPSILON);
     joint->beta = C * h * k * joint->gamma;
-    joint->lambdaAccum = 0.0f;
 
     /// compute effective mass
     iMass += joint->gamma;
     joint->eMass = 1.0f / (iMass + SP_FLT_EPSILON);
+
+    joint->lambdaAccum = 0.0f;
 }
 
 void 

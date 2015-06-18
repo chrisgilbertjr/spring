@@ -89,6 +89,9 @@ init_glfw(spApplication* app)
     return spTrue;
 }
 
+#define PRESSED(key) glfwGetKey(app->window, key) == GLFW_PRESS
+#define RELEASED(key) glfwGetKey(app->window, key) == GLFW_RELEASE
+
 void 
 default_main_loop(spApplication* app)
 {
@@ -118,7 +121,15 @@ default_main_loop(spApplication* app)
         }
         glClear(GL_COLOR_BUFFER_BIT);
 
-        app->loop(app);
+        if (PRESSED(' '))
+        {
+            app->loop(app);
+        }
+        else
+        {
+            app->loop(app);
+            spWorldDraw(&app->world);
+        }
 
         glfwSwapBuffers(app->window);
 

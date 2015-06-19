@@ -414,17 +414,17 @@ spApplication* wheel()
 void
 ttest_init(spApplication* app)
 {
-    static const spInt MAX_BODIES = 6;
+    static const spInt MAX_BODIES = 12;
     spBody* bodies[MAX_BODIES];
     spPolygon* boxes[MAX_BODIES];
     spBody* cbodies[MAX_BODIES];
     spCircle* circle[MAX_BODIES];
     spWheelJoint* wheel[MAX_BODIES];
 
-    spFloat r = 0.4f;
-    spFloat f = 1.0f;
+    spFloat r = 0.8f;
+    spFloat f = 0.9f;
 
-    create_box(app, bodies+0, boxes+0, 9999.0f, spVector(  0.0f,  -50.0f), 0.0f, r, f, 0.0f, spVector(10000.0f, 10.0f));
+    create_box(app, bodies+0, boxes+0, 999999.0f, spVector(  0.0f,-50.0f), 0.0f, r, f, 0.0f, spVector(10000.0f, 10.0f));
     create_box(app, bodies+1, boxes+1, 999999.0f, spVector( 75.0f, 10.0f), 0.0f, r, f, 0.0f, spVector(10.0f, 50.0f));
     create_box(app, bodies+2, boxes+2, 999999.0f, spVector(-75.0f, 10.0f), 0.0f, r, f, 0.0f, spVector(10.0f, 50.0f));
 
@@ -435,18 +435,13 @@ ttest_init(spApplication* app)
         spFloat x = p1 - 80.0f;
         spFloat y = p1+10.0f;
         spFloat a = p*2.5f*p1;
-        create_box(app, bodies+i, boxes+i, 10.0f, spVector(x, y), a, r, f, 1.0f, spVector(9.0f, 12.0f));
+        create_box(app, bodies+i, boxes+i, 10.0f, spVector(x, y), a, r, f, 1.0f, spVector(9.0f, 20.0f));
     }
 
     for (spInt i = 0; i < MAX_BODIES-3; ++i)
     {
-        create_circle(app, cbodies+0, circle+0, spVector((spFloat)i*19.0f-25.f, i*2+150.5f), 0.0f, 8.0f, 10.0f, 0.4f, 1.0f, 1.0f);
+        create_circle(app, cbodies+0, circle+0, spVector((spFloat)i*19.0f-25.f, i*2+150.5f), 0.0f, 6.0f, 10.0f, 0.4f, 1.0f, 1.0f);
     }
-
-    //for (spInt i = 0; i < MAX_BODIES-3; ++i)
-    //{
-    //    create_circle(app, cbodies+0, circle+0, spVector((spFloat)i*11.0f, i*20.5f), 0.0f, 8.0f, 10.0f, 1.0f, 0.9f, 1.0f);
-    //}
 }
 
 spApplication* ttest()
@@ -454,14 +449,66 @@ spApplication* ttest()
     return spApplicationNew(
         "ttest app",
         spViewport(1200, 1200), spFrustumUniform(100.0f),
-        spVector(0.0f, -25.0f),
+        spVector(0.0f, -98.0f),
         20, 1.0f / 60.0f,
         ttest_init, default_loop, default_main_loop,
         0);
 }
-//-----------------
+
+//---------------------------------------------------------------------------------------------------------------------//---------------------------------------------------------------------------------------------------------------------
+
+void
+gear_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 12;
+    spBody* cbodies[MAX_BODIES];
+    spCircle* circle[MAX_BODIES];
+    spGearJoint* gear[MAX_BODIES];
+
+    create_circle(app, cbodies+0, circle+0, spVector(-25.0f, 0.0f), 0.0f, 25.0f, 10.0f, 0.4f, 1.0f, 0.0f);
+    create_circle(app, cbodies+1, circle+1, spVector( 25.0f, 0.0f), 0.0f, 25.0f, 10.0f, 0.4f, 1.0f, 0.0f);
+
+    gear[0] = spGearJointNew(cbodies[0], cbodies[1], 2.0f, 1.0f);
+    spWorldAddGearJoint(&app->world, gear[0]);
+
+    struct app_data
+    {
+        spBody* a;
+        spBody* b;
+    };
+    app_data* data = (app_data*)spMalloc(sizeof(data));
+    data->a = cbodies[0];
+    data->b = cbodies[1];
+    app->data = (spLazyPointer*)data;
+}
+
+void 
+gear_loop(spApplication* app)
+{
+    struct app_data
+    {
+        spBody* a;
+        spBody* b;
+    };
+    app_data* data = (app_data*)app->data;
+    spBodyApplyTorque(data->a, 5.0f);
+    spWorldStep(&app->world, app->timestep);
+}
+
+spApplication* gear()
+{
+    return spApplicationNew(
+        "gear app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        gear_init, gear_loop, default_main_loop,
+        0);
+}
+
+//---------------------------------------------------------------------------------------------------------------------//---------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
-    return run(wheel());
+    return run(gear());
 }

@@ -85,18 +85,18 @@ spWorldStep(spWorld* world, const spFloat h)
     {
         spContactStabilize(contact);
     }
+    spWorldDraw(world);
+}
 
+void spWorldDraw(spWorld* world)
+{
+    spBody* body_list = world->body_list;
 #ifdef SP_DEBUG_DRAW
-    for_each_contact(contact, world->contact_list)
-    {
-        spDebugDrawContact(0, contact, contact->key.shape_a->body->xf);
-    }
-
     for_each_body(body, body_list)
     {
         for_each_shape(shape, body->shape_list)
         {
-            //spDebugDrawBound(0, &shape->bound, body->xf);
+            spDebugDrawBound(0, &shape->bound, body->xf);
             if (shape->type == SP_SHAPE_CIRCLE)
             {
                 spDebugDrawCircle(0, (spCircle*)shape, body->xf);
@@ -107,35 +107,12 @@ spWorldStep(spWorld* world, const spFloat h)
             }
         }
     }
+    for_each_contact(contact, world->contact_list)
+    {
+        spDebugDrawContact(0, contact, contact->key.shape_a->body->xf);
+    }
     spLog("\n");
 #endif
-}
-
-void spWorldDraw(spWorld* world)
-{
-//    spBody* body_list = world->body_list;
-//#ifdef SP_DEBUG_DRAW
-//    for_each_body(body, body_list)
-//    {
-//        for_each_shape(shape, body->shape_list)
-//        {
-//            spDebugDrawBound(0, &shape->bound, body->xf);
-//            if (shape->type == SP_SHAPE_CIRCLE)
-//            {
-//                spDebugDrawCircle(0, (spCircle*)shape, body->xf);
-//            }
-//            if (shape->type == SP_SHAPE_POLYGON)
-//            {
-//                spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
-//            }
-//        }
-//    }
-//    for_each_contact(contact, world->contact_list)
-//    {
-//        spDebugDrawContact(0, contact, contact->key.shape_a->body->xf);
-//    }
-//    spLog("\n");
-//#endif
 }
 
 void 
@@ -175,6 +152,13 @@ spWorldAddAngularSpringJoint(spWorld* world, spAngularSpringJoint* joint)
 
 void 
 spWorldAddWheelJoint(spWorld* world, spWheelJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void 
+spWorldAddGearJoint(spWorld* world, spGearJoint* joint)
 {
     spConstraint* constraint = &joint->constraint;
     SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);

@@ -93,6 +93,9 @@ spVector spBodyAcceleration(spBody* body, const spVector& gravity);
 /// calculates the combined mass data of all shapes
 void spBodyComputeShapeMassData(spBody* body);
 
+/// TODO:
+void spBodyApplyTorque(spBody* body, spFloat torque);
+
 /// sanity check
 #ifdef SP_DEBUG
  #define spBodyIsSane(body) _spBodyIsSane(body)

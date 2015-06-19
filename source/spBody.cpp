@@ -213,3 +213,9 @@ void spBodyComputeShapeMassData(spBody* body)
     spBodySetPosition(body, position);
     spBodyIsSane(body);
 }
+
+void 
+spBodyApplyTorque(spBody* body, spFloat torque)
+{
+    body->t += torque;
+}

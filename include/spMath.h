@@ -219,13 +219,12 @@ inline void spVectorLog(spVector* vector, spInt8* msg = "")
 /// "faked" constructor function for creating matrices
 inline spMatrix _spMatrix(const spFloat& a, const spFloat& b, const spFloat& c, const spFloat& d)
 {
-    return 
-    { 
-        a,  /// a
-        b,  /// b
-        c,  /// c
-        d   /// d
-    };
+    spMatrix matrix;
+    matrix.a = a;
+    matrix.b = b;
+    matrix.c = c;
+    matrix.d = d;
+    return matrix;
 }
 
 /// matrix setter
@@ -343,8 +342,8 @@ inline void spTranspose(spMatrix* a)
 inline spMatrix spInverse(const spMatrix& a)
 {
     spFloat d = spDeterminant(a);
-    spAssert(d < SP_FLT_EPSILON, "determinant is 0!");
-    spFloat d_inv = 1.0f / d;
+    if (d == 0.0f) return spMatrixZero();
+    spFloat d_inv =  1.0f / d;
     return spMatrix(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
 }
 
@@ -365,6 +364,11 @@ inline void spInvert(spMatrix* a)
 /// @ingroup spRotation
 /// @{
 
+inline spFloat spDegrees(const spFloat radians)
+{
+    return radians * SP_RAD_TO_DEG;
+}
+
 /// gets the angle of a rotation
 inline spFloat spRotationGetAngle(const spRotation& a)
 {
@@ -374,7 +378,7 @@ inline spFloat spRotationGetAngle(const spRotation& a)
 /// gets the angle of a rotation in degrees
 inline spFloat spRotationGetAngleDeg(const spRotation& a)
 {
-    return spatan2(a.s, a.c) * SP_RAD_TO_DEG;
+    return spDegrees(spatan2(a.s, a.c));
 }
 
 /// sets the angle of a rotation in radians

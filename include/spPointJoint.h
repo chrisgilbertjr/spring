@@ -10,9 +10,11 @@ struct spPointJoint
     spConstraint constraint;
     spVector anchorA;
     spVector anchorB;
-    spFloat lambdaAccum;
-    spFloat eMass;
-    spFloat bias;
+    spVector lambdaAccum;
+    spVector bias;
+    spVector rA;
+    spVector rB;
+    spMatrix eMass;
 };
 
 void spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB);

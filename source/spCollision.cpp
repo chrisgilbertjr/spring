@@ -429,7 +429,7 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
     const spMaterial* mb = &ca->base_class.material;
     spBody* ba = ca->base_class.body;
     spBody* bb = cb->base_class.body;
-    spVector point = spMult(spAdd(world_a, world_b), 0.5f);
+    spVector point = spLerp(world_a, world_b, ca->radius / radius);
 
 #ifdef SP_DEBUG_DRAW
     contact->points[0].p = point;

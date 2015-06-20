@@ -508,7 +508,40 @@ spApplication* gear()
 
 //---------------------------------------------------------------------------------------------------------------------//---------------------------------------------------------------------------------------------------------------------
 
+void
+point_init(spApplication* app)
+{
+    static const spInt MAX_BODIES = 12;
+    spBody* cbodies[MAX_BODIES];
+    spCircle* circle[MAX_BODIES];
+    spPointJoint* point[MAX_BODIES];
+
+    spBody* bodies[MAX_BODIES];
+    spPolygon* boxes[MAX_BODIES];
+
+    create_box(app, bodies+0, boxes+0, 999999.0f, spVector(  0.0f,-50.0f), 0.0f, 0.3f, 0.9f, 0.0f, spVector(10000.0f, 10.0f));
+ 
+    create_circle(app, cbodies+0, circle+0, spVector(8.0f, 20.0f), 0.0f, 40.0f, 30.0f, 0.4f, 0.1f, 1.0f);
+    create_circle(app, cbodies+1, circle+1, spVector(10.0f,  0.0f), 0.0f, 10.0f, 10.0f, 0.4f, 0.1f, 1.0f);
+
+    point[0] = spPointJointNew(cbodies[0], cbodies[1], spVector(0.0f, -80.0f), spVector(-10.0f, -10.0f));
+    spWorldAddPointJoint(&app->world, point[0]);
+}
+
+spApplication* point()
+{
+    return spApplicationNew(
+        "gear app",
+        spViewport(1200, 1200), spFrustumUniform(100.0f),
+        spVector(0.0f, -98.0f),
+        20, 1.0f / 60.0f,
+        point_init, default_loop, default_main_loop,
+        0);
+}
+
+//---------------------------------------------------------------------------------------------------------------------//---------------------------------------------------------------------------------------------------------------------
+
 int main()
 {
-    return run(gear());
+    return run(point());
 }

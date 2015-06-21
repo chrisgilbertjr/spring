@@ -1,5 +1,7 @@
 
+#include "spDebugDraw.h"
 #include "spCircle.h"
+#include "spBody.h"
 
 void 
 spCircleInit(spCircle* circle, spBody* body, const spCircleDef& def)
@@ -55,7 +57,7 @@ spCircleComputeInertia(spCircle* circle, spFloat mass)
 
     /// http://en.wikipedia.org/wiki/List_of_moments_of_inertia
     /// inertia for a 'disk' = mass * radius * radius / 2.0f
-    return mass * circle->radius * circle->radius * 0.5f;
+    return mass * circle->radius * circle->radius * 0.5f * SP_DEG_TO_RAD;
 }
 
 void 
@@ -79,4 +81,11 @@ spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass)
     spAssert(data != NULL, "mass data is null while computing mass data");
 
     spMassDataInit(data, circle->center, spCircleComputeInertia(circle, mass), mass);
+}
+
+spBool 
+spCircleTestPoint(spCircle* circle, spVector point)
+{
+    spVector center = spMult(circle->base_class.body->xf, circle->center);
+    return spLength(spSub(point, center)) < circle->radius;
 }

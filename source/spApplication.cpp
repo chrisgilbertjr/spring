@@ -1,7 +1,6 @@
 
 #include "spApplication.h"
 
-
 spApplication* 
 spApplicationAlloc()
 {
@@ -32,6 +31,8 @@ spApplicationInit(
     app->loop = loop;
     app->main = main;
     app->data = data;
+    app->mouse = spMouseJointNew(NULL, 1.0f, 0.3f, spVectorZero(), spVectorZero());
+    app->mouseShape = NULL;
 }
 
 spApplication* 
@@ -128,7 +129,6 @@ default_main_loop(spApplication* app)
         else
         {
             app->loop(app);
-            spWorldDraw(&app->world);
         }
 
         glfwSwapBuffers(app->window);
@@ -144,6 +144,44 @@ default_main_loop(spApplication* app)
 void 
 default_loop(spApplication* app)
 {
+    double x, y;
+    glfwGetCursorPos(app->window, &x, &y);
+    x =  x / app->viewport.width;
+    y = -y / app->viewport.height + 1;
+    spFloat w = spAbs(app->frustum.right - app->frustum.left);
+    spFloat h = spAbs(app->frustum.top - app->frustum.bottom);
+    x *= w; x -= w*0.5f;
+    y *= h; y -= h*0.5f;
+    spVector pos = spVector((spFloat)x, (spFloat)y);
+
+    if (glfwGetMouseButton(app->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+    {
+        if (app->mouseShape == NULL)
+        {
+            spShape* shape = spWorldTestPointAgainstShapes(&app->world, pos);
+            if (shape != NULL)
+            {
+                spMouseJointStart(app->mouse, shape->body, pos);
+                spWorldAddMouseJoint(&app->world, app->mouse);
+                app->mouse->constraint.body_a = shape->body;
+                app->mouseShape = shape;
+            }
+        }
+        else
+        {
+            spMouseJointUpdate(app->mouse, pos);
+        }
+    }
+    else
+    {
+        if (app->mouseShape != NULL)
+        {
+            spMouseJointEnd(app->mouse);
+            spWorldRemoveMouseJoint(&app->world, app->mouse);
+        }
+        app->mouseShape = NULL;
+    }
+
     spWorldStep(&app->world, app->timestep);
 }
 

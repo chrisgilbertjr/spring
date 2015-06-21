@@ -26,6 +26,7 @@
     <ClInclude Include="..\..\include\spContact.h" />
     <ClInclude Include="..\..\include\spContactKey.h" />
     <ClInclude Include="..\..\include\spCore.h" />
+    <ClInclude Include="..\..\include\spMouseJoint.h" />
     <ClInclude Include="..\..\include\spPointJoint.h" />
     <ClInclude Include="..\..\include\spSpringJoint.h" />
     <ClInclude Include="..\..\include\spDebugDraw.h" />
@@ -55,6 +56,7 @@
     <ClCompile Include="..\..\source\spContactKey.cpp" />
     <ClCompile Include="..\..\source\spGearJoint.cpp" />
     <ClCompile Include="..\..\source\spMotorJoint.cpp" />
+    <ClCompile Include="..\..\source\spMouseJoint.cpp" />
     <ClCompile Include="..\..\source\spPointJoint.cpp" />
     <ClCompile Include="..\..\source\spSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spDebugDraw.cpp" />

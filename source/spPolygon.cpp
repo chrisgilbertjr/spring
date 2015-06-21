@@ -1,5 +1,7 @@
 
+#include "spDebugDraw.h"
 #include "spPolygon.h"
+#include "spBody.h"
 
 void 
 spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def)
@@ -128,7 +130,8 @@ spPolygonComputeInertia(spPolygon* poly, spFloat mass)
         N += A * B;
         D += B;
     }
-    return  (mass * N) / (6.0f * D);
+    //return (SP_DEG_TO_RAD * mass * N) / (6.0f * D);
+    return ((mass * N) / (6.0f * D)) * SP_DEG_TO_RAD;
 }
 
 void 
@@ -172,4 +175,25 @@ spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
         spPolygonComputeCenterOfMass(poly), 
         spPolygonComputeInertia(poly, mass), 
         mass);
+}
+
+spBool 
+spPolygonTestPoint(spPolygon* poly, spVector point)
+{
+    spTransform* xf = &poly->base_class.body->xf;
+    spVector v0 = spTMult(*xf, point);
+
+    spInt count = poly->count;
+    for (spInt i = 0; i < count; ++i)
+    {
+        spVector v1 = poly->edges[i].vertex;
+        spVector v2 = poly->edges[(i+1) % count].vertex;
+
+        spVector A = spSub(v1, v0);
+        spVector B = spSub(v2, v0);
+
+        spMatrix mat = spMatrix(A.x, B.x, A.y, B.y);
+        if (spDeterminant(mat) < 0.0f) return spFalse;
+    }
+    return spTrue;
 }

@@ -45,6 +45,9 @@ void spCircleComputeBound(spCircle* circle, spBound* bound);
 /// compute mass, inertia, and center of mass for the shape
 void spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass);
 
+/// TODO:
+spBool spCircleTestPoint(spCircle* circle, spVector point);
+
 /// sanity checks
 #ifdef SP_DEBUG
  #define spCircleDefIsSane(circle) _spCircleDefIsSane(circle)

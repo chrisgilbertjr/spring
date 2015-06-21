@@ -169,7 +169,6 @@ spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_b = spSub(point, ca);
         contact->points[0].r_a = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("v1\n");
     }
     else if (u2 <= 0.0f)
     {
@@ -190,7 +189,6 @@ spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_b = spSub(point, ca);
         contact->points[0].r_a = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("v2\n");
     }
     else
     {
@@ -213,7 +211,6 @@ spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_b = spSub(point, ca);
         contact->points[0].r_a = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("n\n");
     }
 
     spNegate(&contact->normal);
@@ -326,7 +323,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("v1\n");
     }
     else if (u2 <= 0.0f)
     {
@@ -347,7 +343,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("v2\n");
     }
     else
     {
@@ -370,7 +365,6 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
         contact->points[0].r_a = spSub(point, ca);
         contact->points[0].r_b = spSub(point, cb);
         contact->points[0].p = point;
-        spLog("n\n");
     }
 
     return spTrue;

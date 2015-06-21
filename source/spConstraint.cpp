@@ -5,6 +5,7 @@
 #include "spPointJoint.h"
 #include "spMotorJoint.h"
 #include "spWheelJoint.h"
+#include "spMouseJoint.h"
 #include "spRopeJoint.h"
 #include "spGearJoint.h"
 
@@ -55,6 +56,9 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
     case SP_POINT_JOINT:
         spPointJointPreSolve((spPointJoint*) constraint, h);
         break;
+    case SP_MOUSE_JOINT:
+        spMouseJointPreSolve((spMouseJoint*) constraint, h);
+        break;
     default:
         spAssert(false, "constraint type is not valid in prestep!\n");
     }
@@ -89,6 +93,9 @@ spConstraintSolve(spConstraint* constraint)
     case SP_POINT_JOINT:
         spPointJointSolve((spPointJoint*) constraint);
         break;
+    case SP_MOUSE_JOINT:
+        spMouseJointSolve((spMouseJoint*) constraint);
+        break;
     default:
         spAssert(false, "constraint type is not valid in solve!\n");
     }
@@ -110,6 +117,8 @@ spConstraintStabilize(spConstraint* constraint)
     case SP_SPRING_JOINT:
         break;
     case SP_ANGULAR_SPRING_JOINT:
+        break;
+    case SP_MOUSE_JOINT:
         break;
         //spAssert(false, "constraint type is not valid in stabilize!\n");
     }

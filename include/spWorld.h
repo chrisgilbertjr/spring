@@ -15,6 +15,7 @@
 #include "spWheelJoint.h"
 #include "spGearJoint.h"
 #include "spPointJoint.h"
+#include "spMouseJoint.h"
 
 /// @defgroup spWorld spWorld
 /// @{
@@ -48,6 +49,8 @@ void spWorldLogBriefBodies(spWorld* world);
 /// gives a detailed log of the world
 void spWorldLogDetail(spWorld* world);
 
+spShape* spWorldTestPointAgainstShapes(spWorld* world, spVector point);
+
 /// TODO:
 void spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint);
 
@@ -71,6 +74,12 @@ void spWorldAddGearJoint(spWorld* world, spGearJoint* joint);
 
 /// TODO:
 void spWorldAddPointJoint(spWorld* world, spPointJoint* joint);
+
+/// TODO:
+void spWorldAddMouseJoint(spWorld* world, spMouseJoint* joint);
+
+/// TODO:
+void spWorldRemoveMouseJoint(spWorld* world, spMouseJoint* joint);
 
 void spWorldDraw(spWorld* world);
 

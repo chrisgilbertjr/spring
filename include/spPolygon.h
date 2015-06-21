@@ -55,6 +55,9 @@ void spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& com)
 /// compute the mass, inertia, and center of gravity of mass for the shape
 void spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass);
 
+/// TODO:
+spBool spPolygonTestPoint(spPolygon* poly, spVector point);
+
 /// sanity checks
 #ifdef SP_DEBUG
  #define spEdgeIsSane(edge) _spEdgeIsSane(edge)

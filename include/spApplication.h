@@ -3,6 +3,7 @@
 #define SP_APPLICATION_H
 
 #include "spWorld.h"
+#include "spMouseJoint.h"
 #include "spDebugDraw.h"
 #include <GLFW\glfw3.h>
 
@@ -41,6 +42,8 @@ struct spApplication
     spLazyPointer* data;
     spViewport viewport;
     spFrustum frustum;
+    spMouseJoint* mouse;
+    spShape* mouseShape;
     const spInt8* name;
 };
 

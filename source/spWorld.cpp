@@ -115,6 +115,22 @@ void spWorldDraw(spWorld* world)
 #endif
 }
 
+spShape* 
+spWorldTestPointAgainstShapes(spWorld* world, spVector point)
+{
+    for_each_body(body, world->body_list)
+    {
+        for_each_shape(shape, body->shape_list)
+        {
+            if (spShapeTestPoint(shape, point))
+            {
+                return shape;
+            }
+        }
+    }
+    return NULL;
+}
+
 void 
 spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint)
 {
@@ -168,6 +184,19 @@ void spWorldAddPointJoint(spWorld* world, spPointJoint* joint)
 {
     spConstraint* constraint = &joint->constraint;
     SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void spWorldAddMouseJoint(spWorld* world, spMouseJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+}
+
+void 
+spWorldRemoveMouseJoint(spWorld* world, spMouseJoint* joint)
+{
+    spConstraint* constraint = &joint->constraint;
+    SP_LINKED_LIST_REMOVE(spConstraint, constraint, world->joint_list);
 }
 
 void 

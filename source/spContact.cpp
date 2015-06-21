@@ -251,8 +251,8 @@ spContactStabilize(spContact* contact)
     spVector P = spMult((spMax(contact->pen - slop, 0.0f) / (mia + mib)), spMult(normal, perc));
     body_a->p = spSub(body_a->p, spMult(P, mia));
     body_b->p = spAdd(body_b->p, spMult(P, mib));
-    //__spBodyUpdateTransform(body_a);
-    //__spBodyUpdateTransform(body_b);
+    __spBodyUpdateTransform(body_a);
+    __spBodyUpdateTransform(body_b);
 }
 
 void 

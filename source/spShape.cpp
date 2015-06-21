@@ -1,4 +1,6 @@
 
+#include "spPolygon.h"
+#include "spCircle.h"
 #include "spShape.h"
 
 void 
@@ -42,6 +44,19 @@ void
 spShapeRemove(spShape* shape, spShape* shape_list)
 {
     SP_LINKED_LIST_REMOVE(spShape, shape, shape_list);
+}
+
+spBool 
+spShapeTestPoint(spShape* shape, spVector point)
+{
+    switch (shape->type)
+    {
+    case SP_SHAPE_CIRCLE:
+        return spCircleTestPoint((spCircle*) shape, point);
+    case SP_SHAPE_POLYGON:
+        return spPolygonTestPoint((spPolygon*) shape, point);
+    }
+    return spFalse;
 }
 
 spMaterial 

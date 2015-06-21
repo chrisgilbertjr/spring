@@ -78,6 +78,7 @@ enum spConstraintType
     SP_WHEEL_JOINT,
     SP_GEAR_JOINT,
     SP_POINT_JOINT,
+    SP_MOUSE_JOINT,
 };
 
 struct spConstraint

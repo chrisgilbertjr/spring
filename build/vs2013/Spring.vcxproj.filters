@@ -104,6 +104,9 @@
     <ClInclude Include="..\..\include\spGearJoint.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\spMouseJoint.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -197,6 +200,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spPointJoint.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spMouseJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

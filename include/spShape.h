@@ -75,6 +75,9 @@ void spShapeAdd(spShape* shape, spShape*& shape_list);
 /// remove a shape from a linked list
 void spShapeRemove(spShape* shape, spShape* shape_list);
 
+/// TODO:
+spBool spShapeTestPoint(spShape* shape, spVector point);
+
 /// 'faked' constructor for stack allocation
 spMaterial _spMaterial(const spFloat friction, const spFloat restitution);
 

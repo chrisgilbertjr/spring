@@ -1,8 +1,84 @@
 
-#include "spDebugDraw.h"
 #include "spRopeJoint.h"
-#include "spSolver.h"
 #include "spBody.h"
+
+spVector 
+spRopeJointGetLocalAnchorA(spRopeJoint* joint)
+{
+    return joint->anchorA;
+}
+
+spVector 
+spRopeJointGetLocalAnchorB(spRopeJoint* joint)
+{
+    return joint->anchorB;
+}
+
+spVector 
+spRopeJointGetWorldAnchorA(spRopeJoint* joint)
+{
+    return spMult(joint->constraint.body_a->xf, joint->anchorA);
+}
+
+spVector 
+spRopeJointGetWorldAnchorB(spRopeJoint* joint)
+{
+    return spMult(joint->constraint.body_b->xf, joint->anchorB);
+}
+
+spVector 
+spRopeJointGetImpulseDirection(spRopeJoint* joint)
+{
+    return joint->n;
+}
+
+spVector 
+spRopeJointGetImpulse(spRopeJoint* joint)
+{
+    return spMult(joint->n, joint->lambdaAccum);
+}
+
+spFloat 
+spRopeJointGetMaxDistance(spRopeJoint* joint)
+{
+    return joint->maxDistance;
+}
+
+spFloat 
+spRopeJointGetImpulseLength(spRopeJoint* joint)
+{
+    return joint->lambdaAccum;
+}
+
+void 
+spRopeJointSetLocalAnchorA(spRopeJoint* joint, spVector anchorA)
+{
+    joint->anchorA = anchorA;
+}
+
+void 
+spRopeJointSetLocalAnchorB(spRopeJoint* joint, spVector anchorB)
+{
+    joint->anchorB = anchorB;
+}
+
+void 
+spRopeJointSetWorldAnchorA(spRopeJoint* joint, spVector anchorA)
+{
+    joint->anchorA = spTMult(joint->constraint.body_a->xf, anchorA);
+}
+
+void 
+spRopeJointSetWorldAnchorB(spRopeJoint* joint, spVector anchorB)
+{
+    joint->anchorB = spTMult(joint->constraint.body_a->xf, anchorB);
+}
+
+void 
+spRopeJointSetMaxDistance(spRopeJoint* joint, spFloat maxDistance)
+{
+    joint->maxDistance = maxDistance;
+}
 
 void 
 spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
@@ -10,9 +86,19 @@ spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVe
     joint->constraint = spConstraintConstruct(a, b, SP_ROPE_JOINT);
     joint->anchorA = anchorA;
     joint->anchorB = anchorB;
+    joint->rA = spVectorZero();
+    joint->rB = spVectorZero();
+    joint->n = spVectorZero();
     joint->maxDistance = maxDistance;
-    joint->shorterThanMax = false;
+    joint->lambdaAccum = 0.0f;
+    joint->eMass = 0.0f;
     joint->bias = 0.0f;
+}
+
+void 
+spRopeJointWorldInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
+{
+    spRopeJointInit(joint, a, b, spTMult(a->xf, anchorA), spTMult(b->xf, anchorB), maxDistance);
 }
 
 spRopeJoint* 
@@ -29,74 +115,87 @@ spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat
     return joint;
 }
 
+spRopeJoint* 
+spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
+{
+    spRopeJoint* joint = spRopeJointAlloc();
+    spRopeJointWorldInit(joint, a, b, anchorA, anchorB, maxDistance);
+    return joint;
+}
+
 void 
 spRopeJointFree(spRopeJoint** joint)
 {
     free(*joint);
     *joint = NULL;
-    joint = NULL;
 }
 
 void 
-spRopeJointPreStep(spRopeJoint* joint, const spFloat h)
+spRopeJointApplyCachedImpulse(spRopeJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
-    spVector pA = spMult(bA->xf, joint->anchorA);
-    spVector pB = spMult(bB->xf, joint->anchorB);
+    spBody* a = joint->constraint.body_a;
+    spBody* b = joint->constraint.body_b;
 
-    joint->rA = spSub(pA, bA->p);
-    joint->rB = spSub(pB, bB->p);
-    joint->n = spSub(pA, pB);
+    /// compute impulse
+    spVector impulse = spMult(joint->n, joint->lambdaAccum);
+
+    /// apply the impulse
+    a->v = spSub(a->v, spMult(impulse, a->m_inv));
+    b->v = spAdd(b->v, spMult(impulse, b->m_inv));
+    a->w -= a->i_inv * spCross(joint->rA, impulse);
+    b->w += b->i_inv * spCross(joint->rB, impulse);
+}
+
+void 
+spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
+{
+    spBody* a = joint->constraint.body_a;
+    spBody* b = joint->constraint.body_b;
+
+    /// compute anchors in world space
+    spVector anchorA = spMult(a->xf, joint->anchorA);
+    spVector anchorB = spMult(b->xf, joint->anchorB);
+
+    /// compute relative velocity and normal direction
+    joint->rA = spSub(anchorA, a->p);
+    joint->rB = spSub(anchorB, b->p);
+    joint->n = spSub(anchorA, anchorB);
     spFloat length = spLength(joint->n);
     joint->n = spMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
 
+    /// compute the effective mass
     spFloat nrA = spCross(joint->n, joint->rA);
     spFloat nrB = spCross(joint->n, joint->rB);
-    joint->eMass = 1.0f / (bA->m_inv + bB->m_inv + bA->i_inv * nrA * nrA + bB->i_inv * nrB * nrB);
-    joint->jAccum = 0.0f;
-    spFloat bias = powf(1.0f - .1f, 60.0f);
-    bias = 1.0f - powf(bias, h);
-    joint->bias = .2f * (length - joint->maxDistance) / h;
+    joint->eMass = a->m_inv + b->m_inv + a->i_inv * nrA * nrA + b->i_inv * nrB * nrB;
+    joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
+
+    /// compute the position constraint, and compute baumgarte stabilization bias
+    spFloat C = length - joint->maxDistance;
+    spFloat beta = 0.2f;
+    joint->bias = C * (beta / h);
+    joint->lambdaAccum = 0.0f;
 }
 
 void 
 spRopeJointSolve(spRopeJoint* joint)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* a = joint->constraint.body_a;
+    spBody* b = joint->constraint.body_b;
 
-    spVector rv = spRelativeVelocity(bA->v, bB->v, bA->w, bB->w, joint->rA, joint->rB);
-    spFloat nrv = spDot(joint->n, rv);
+    /// compute the velocity constraint
+    spVector rvA = spAdd(a->v, spCross(a->w, joint->rA));
+    spVector rvB = spAdd(b->v, spCross(b->w, joint->rB));
+    spFloat Cdot = spDot(joint->n, spSub(rvB, rvA));
 
-    spFloat lambda = joint->bias - nrv * joint->eMass;
-    spFloat jPrev = joint->jAccum;
-    joint->jAccum = jPrev + lambda;
-    spFloat  j = joint->jAccum - jPrev;
-    spVector P = spMult(joint->n, j);
-    bA->v = spSub(bA->v, spMult(P, bA->m_inv));
-    bB->v = spAdd(bB->v, spMult(P, bB->m_inv));
-    bA->w -= bA->i_inv * spCross(joint->rA, P);
-    bB->w += bB->i_inv * spCross(joint->rB, P);
-}
+    /// accumulate the impulse
+    spFloat lambda = (joint->bias - Cdot) * joint->eMass;
+    spFloat lambdaOld = joint->lambdaAccum;
+    joint->lambdaAccum += lambda;
+    spVector impulse = spMult(joint->n, joint->lambdaAccum - lambdaOld);
 
-void 
-spRopeJointStabilize(spRopeJoint* joint)
-{
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
-    spVector pA = spMult(bA->xf, joint->anchorA);
-    spVector pB = spMult(bB->xf, joint->anchorB);
-    spDebugDrawLine(pA, pB, spGreen(1.0f));
-    //spVector n = spSub(pA, pB);
-    //spFloat length = spLength(n);
-    //spFloat C = length - joint->maxDistance;
-    //spVector P = spMult(C, joint->n);
-
-    //bA->p = spSub(bA->p, spMult(P, bA->m_inv));
-    //bB->p = spAdd(bB->p, spMult(P, bB->m_inv));
-    //bA->a -= bA->i_inv * spCross(joint->rA, P);
-    //bB->a += bB->i_inv * spCross(joint->rB, P);
-    //__spBodyUpdateTransform(bA);
-    //__spBodyUpdateTransform(bB);
+    /// apply the impulse
+    a->v = spSub(a->v, spMult(impulse, a->m_inv));
+    b->v = spAdd(b->v, spMult(impulse, b->m_inv));
+    a->w -= a->i_inv * spCross(joint->rA, impulse);
+    b->w += b->i_inv * spCross(joint->rB, impulse);
 }

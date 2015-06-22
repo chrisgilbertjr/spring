@@ -28,6 +28,35 @@ spConstraintConstruct(spBody* a, spBody* b, spConstraintType type)
 }
 
 void 
+spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
+{
+    switch (constraint->type)
+    {
+    case SP_DISTANCE_JOINT:
+        break;
+    case SP_ROPE_JOINT:
+        spRopeJointApplyCachedImpulse((spRopeJoint*) constraint, h);
+        break;
+    case SP_MOTOR_JOINT:
+        break;
+    case SP_SPRING_JOINT:
+        break;
+    case SP_ANGULAR_SPRING_JOINT:
+        break;
+    case SP_WHEEL_JOINT:
+        break;
+    case SP_GEAR_JOINT:
+        break;
+    case SP_POINT_JOINT:
+        break;
+    case SP_MOUSE_JOINT:
+        break;
+    default:
+        spAssert(false, "constraint type is not valid in prestep!\n");
+    }
+}
+
+void 
 spConstraintPreStep(spConstraint* constraint, const spFloat h)
 {
     switch (constraint->type)
@@ -36,7 +65,7 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
         spDistanceJointPreStep((spDistanceJoint*) constraint, h);
         break;
     case SP_ROPE_JOINT:
-        spRopeJointPreStep((spRopeJoint*) constraint, h);
+        spRopeJointPreSolve((spRopeJoint*) constraint, h);
         break;
     case SP_MOTOR_JOINT:
         spMotorJointPreStep((spMotorJoint*) constraint, h);
@@ -104,22 +133,4 @@ spConstraintSolve(spConstraint* constraint)
 void 
 spConstraintStabilize(spConstraint* constraint)
 {
-    switch (constraint->type)
-    {
-    case SP_DISTANCE_JOINT:
-        spDistanceJointStabilize((spDistanceJoint*) constraint);
-        break;
-    case SP_ROPE_JOINT:
-        spRopeJointStabilize((spRopeJoint*) constraint);
-        break;
-    case SP_MOTOR_JOINT:
-        break;
-    case SP_SPRING_JOINT:
-        break;
-    case SP_ANGULAR_SPRING_JOINT:
-        break;
-    case SP_MOUSE_JOINT:
-        break;
-        //spAssert(false, "constraint type is not valid in stabilize!\n");
-    }
 }

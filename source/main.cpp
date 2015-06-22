@@ -203,15 +203,15 @@ rope_constraint_init(spApplication* app)
 
     spFloat x = 0.0f;
     spFloat y = 85.0f;
-    spFloat h = 2.0f;
-    spFloat w = 1.0f;
+    spFloat h = 4.0f;
+    spFloat w = 3.0f;
 
     create_box(app, bodies+0, boxes+0, 999999.0f, spVector(0.0f, y), 90.0f, 0.4f, 0.5f, 0.0f, spVector(1.0f, 1.0f));
 
     for (spInt i = 1; i < MAX_BODIES; ++i)
     {
         x = (spFloat)i*h*3.0f;
-        spFloat mass = i * 1.0f + 25.0f;
+        spFloat mass = 100.0f;
         create_box(app, bodies+i, boxes+i, mass, spVector(x, y), 90.0f, 0.4f, 0.5f, 1.0f, spVector(w, h));
     }
 
@@ -220,14 +220,9 @@ rope_constraint_init(spApplication* app)
 
     for (spInt i = 1; i < MAX_BODIES-1; ++i)
     {
-        rope[i] = spRopeJointNew(bodies[i], bodies[i+1], spVector(0.0f, -h), spVector(0.0f, h), h*.4f);
+        rope[i] = spRopeJointNew(bodies[i], bodies[i+1], spVector(0.0f, -h), spVector(0.0f, h), h*2.f);
         spWorldAddRopeJoint(&app->world, rope[i]);
     }
-    //spBody* b2[2];
-    //spPolygon* bx2[2];
-
-    //create_box(app, b2+0, bx2+0, 99999999.0f, spVector(10.0f, 35.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(8.0f, 8.0f));
-    //create_box(app, b2+1, bx2+1, 99999999.0f, spVector(-20.0f, -20.0f), 90.0f, 0.4f, 0.5f, 0.0f, spVector(8.0f, 8.0f));
 }
 
 spApplication* rope_constraint()
@@ -575,5 +570,5 @@ spApplication* mouse()
 
 int main()
 {
-    return run(wheel());
+    return run(rope_constraint());
 }

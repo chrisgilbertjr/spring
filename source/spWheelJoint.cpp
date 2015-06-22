@@ -168,15 +168,6 @@ spWheelJointSolve(spWheelJoint* joint)
         spFloat impulseA = joint->sAy * lambda;
         spFloat impulseB = joint->sBy * lambda;
 
-        spVectorLog(&bA->v, "vA");
-        spVectorLog(&bB->v, "vB");
-        spLog("wA %.7f\n", bA->w);
-        spLog("wB %.7f\n", bB->w);
-        spLog("sAy %.7f\n", joint->sAy);
-        spLog("sBy %.7f\n", joint->sBy);
-        spVectorLog(&joint->tWorld, "tworld:");
-        spNewline;
-
         bA->v = spSub(bA->v, spMult(bA->m_inv, impulse));
         bB->v = spAdd(bB->v, spMult(bB->m_inv, impulse));
         bA->w -= bA->i_inv * impulseA;

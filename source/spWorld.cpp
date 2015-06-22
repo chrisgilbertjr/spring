@@ -55,6 +55,12 @@ spWorldStep(spWorld* world, const spFloat h)
         spBodyIntegrateVelocity(body, world->gravity, h);
     }
 
+    /// warm start the joints
+    for_each_constraint(joint, world->joint_list)
+    {
+        spConstraintApplyCachedImpulse(joint, h);
+    }
+
     /// apply contact / joint impulses
     for (spInt i = 0; i < world->iterations; ++i)
     {

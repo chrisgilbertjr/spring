@@ -32,6 +32,16 @@ struct spMaterial
     spFloat friction;    ///< friction of a shape
 };
 
+typedef spUint spGroup;
+
+/// collision filter
+struct spCollisionFilter
+{
+    spGroup group;
+    spMask  layer;
+    spMask  type;
+};
+
 /// used to create shapes
 struct spShapeDef
 {
@@ -51,13 +61,13 @@ struct spShapeDef
 /// only destroy a shape if you want to remove it from a rigid body, otherwise let the body manage the shape.
 struct spShape
 {
-    spShapeType type;     ///< type of shape
-    spMassData mass_data; ///< mass data of the shape (center of mass, mass, inertia)
-    spMaterial material;  ///< the shapes material (restitution, friction)
-    spShape* next;        ///< next shape in the doubly linked list
-    spShape* prev;        ///< previous shape in the doubly linked list
-    spBody*  body;        ///< the body the shape is attached to
-    spBound  bound;       ///< bounding volume of the shape
+    spShapeType type;     ///< INTERNAL: type of shape
+    spMassData mass_data; ///<         : mass data of the shape (center of mass, mass, inertia)
+    spMaterial material;  ///<         : the shapes material (restitution, friction)
+    spShape* next;        ///< INTERNAL: next shape in the doubly linked list
+    spShape* prev;        ///< INTERNAL: previous shape in the doubly linked list
+    spBody*  body;        ///< INTERNAL: the body the shape is attached to
+    spBound  bound;       ///< INTERNAL: bounding volume of the shape
 };
 
 /// initialize mass data with a mass, inertia, and center of mass

@@ -94,6 +94,8 @@ void spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstrai
 
 spConstraint spConstraintConstruct(spBody* a, spBody* b, spConstraintType type);
 
+void spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h);
+
 void spConstraintPreStep(spConstraint* constraint, const spFloat h);
 
 void spConstraintSolve(spConstraint* constraint);

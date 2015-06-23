@@ -96,6 +96,7 @@ inline spBool spBoundBoxOverlap(const spBound& a, const spBound& b, const spTran
 {
     spBoundIsSane(a); 
     spBoundIsSane(b); 
+
     spVector ca_world = spMult(xfa, a.center);
     spVector cb_world = spMult(xfb, b.center);
 

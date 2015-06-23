@@ -38,7 +38,7 @@ void spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def);
 spPolygon* spPolygonAlloc();
 
 /// allocate and init a new polygon on the heap
-spPolygon* spPolygonNew(spBody* body, const spPolygonDef& def);
+spShape* spPolygonNew(spBody* body, const spPolygonDef& def);
 
 /// free allocated memory for a polygon from the heap
 void spPolygonFree(spPolygon*& poly);

@@ -52,6 +52,9 @@ void spWorldLogDetail(spWorld* world);
 spShape* spWorldTestPointAgainstShapes(spWorld* world, spVector point);
 
 /// TODO:
+void spWorldAddBody(spWorld* world, spBody* body);
+
+/// TODO:
 void spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint);
 
 /// TODO:

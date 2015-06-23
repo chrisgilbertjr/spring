@@ -32,15 +32,19 @@ struct spMaterial
     spFloat friction;    ///< friction of a shape
 };
 
-typedef spUint spGroup;
-
 /// collision filter
-struct spCollisionFilter
+struct spFilter
 {
-    spGroup group;
-    spMask  layer;
-    spMask  type;
+    spGroup group;   ///< objects in similar groups will not collide with one another
+    spMask  type;    ///< bitmask that describes the type of filter
+    spMask  collide; ///< bitmask that describes which types to collide with
 };
+
+/// TODO:
+extern const spMask spCollideAll;
+extern const spMask spCollideNone;
+extern const spFilter spFilterCollideNone;
+extern const spFilter spFilterCollideAll;
 
 /// used to create shapes
 struct spShapeDef
@@ -64,10 +68,11 @@ struct spShape
     spShapeType type;     ///< INTERNAL: type of shape
     spMassData mass_data; ///<         : mass data of the shape (center of mass, mass, inertia)
     spMaterial material;  ///<         : the shapes material (restitution, friction)
+    spFilter filter;      ///<         : used for collision filtering
     spShape* next;        ///< INTERNAL: next shape in the doubly linked list
     spShape* prev;        ///< INTERNAL: previous shape in the doubly linked list
-    spBody*  body;        ///< INTERNAL: the body the shape is attached to
     spBound  bound;       ///< INTERNAL: bounding volume of the shape
+    spBody*  body;        ///< INTERNAL: the body the shape is attached to
 };
 
 /// initialize mass data with a mass, inertia, and center of mass
@@ -75,6 +80,9 @@ void spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, s
 
 /// initialize a shape with mass properties, a material, and a type
 void spShapeInit(spShape* shape, const spShapeDef& def);
+
+/// TODO:
+void spShapeSetFilter(spShape* shape, const spFilter filter);
 
 /// sorts two shapes based on their pointer values
 spBool spShapeLessThan(const spShape* a, const spShape* b);
@@ -87,6 +95,12 @@ void spShapeRemove(spShape* shape, spShape* shape_list);
 
 /// TODO:
 spBool spShapeTestPoint(spShape* shape, spVector point);
+
+/// TODO:
+spBool spShapesCanCollide(spShape* a, spShape* b);
+
+/// TODO:
+spFilter spFilterConstruct(spGroup group, spMask type, spMask collide);
 
 /// 'faked' constructor for stack allocation
 spMaterial _spMaterial(const spFloat friction, const spFloat restitution);

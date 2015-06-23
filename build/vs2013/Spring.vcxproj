@@ -54,6 +54,7 @@
     <ClCompile Include="..\..\source\spConstraint.cpp" />
     <ClCompile Include="..\..\source\spContact.cpp" />
     <ClCompile Include="..\..\source\spContactKey.cpp" />
+    <ClCompile Include="..\..\source\spCore.cpp" />
     <ClCompile Include="..\..\source\spGearJoint.cpp" />
     <ClCompile Include="..\..\source\spMotorJoint.cpp" />
     <ClCompile Include="..\..\source\spMouseJoint.cpp" />

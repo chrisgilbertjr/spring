@@ -27,6 +27,9 @@ spBroadPhaseStep(spBroadPhase* broad, spBody* body_list, spContact*& contact_lis
                     spBound* ba = &shape_a->bound; ///< bound of shape a
                     spBound* bb = &shape_b->bound; ///< bound of shape b
 
+                    /// check if the two shapes can collide (via collision filters)
+                    if (spShapesCanCollide(shape_a, shape_b) == spFalse) continue;
+
                     /// check if the shapes AABB's overlap
                     if (spBoundBoxOverlap(*ba, *bb, body_a->xf, body_b->xf) == spFalse) continue;
 

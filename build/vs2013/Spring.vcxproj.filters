@@ -205,5 +205,8 @@
     <ClCompile Include="..\..\source\spMouseJoint.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\spCore.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

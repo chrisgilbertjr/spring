@@ -159,7 +159,8 @@ default_loop(spApplication* app)
         if (app->mouseShape == NULL)
         {
             spShape* shape = spWorldTestPointAgainstShapes(&app->world, pos);
-            if (shape != NULL)
+
+            if (shape != NULL && shape->body->type == SP_BODY_DYNAMIC)
             {
                 spMouseJointStart(app->mouse, shape->body, pos);
                 spWorldAddMouseJoint(&app->world, app->mouse);

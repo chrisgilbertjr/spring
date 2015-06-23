@@ -3,6 +3,11 @@
 #include "spCircle.h"
 #include "spShape.h"
 
+extern const spMask spCollideAll = ~(spMask)0;
+extern const spMask spCollideNone = (spMask)0;
+const spFilter spFilterCollideNone = {  (spMask)0,  (spMask)0,  (spMask)0 };
+const spFilter spFilterCollideAll  = { ~(spMask)0, ~(spMask)0, ~(spMask)0 };
+
 void 
 spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, spFloat mass)
 {
@@ -23,8 +28,15 @@ spShapeInit(spShape* shape, const spShapeDef& def)
     shape->type = def.type;
     shape->next = NULL;
     shape->prev = NULL;
+    shape->filter = spFilterCollideAll;
 
     spShapeIsSane(shape);
+}
+
+void 
+spShapeSetFilter(spShape* shape, const spFilter filter)
+{
+    shape->filter = filter;
 }
 
 spBool 
@@ -37,7 +49,6 @@ void
 spShapeAdd(spShape* shape, spShape*& shape_list)
 {
     SP_LINKED_LIST_PREPEND(spShape, shape, shape_list);
-    int x = 0;
 }
 
 void 
@@ -57,6 +68,24 @@ spShapeTestPoint(spShape* shape, spVector point)
         return spPolygonTestPoint((spPolygon*) shape, point);
     }
     return spFalse;
+}
+
+spBool 
+spShapesCanCollide(spShape* a, spShape* b)
+{
+    if (a->filter.group == spCollideAll && b->filter.group == spCollideAll) return spTrue;
+    if (a->filter.group == b->filter.group) return spFalse;
+    if (a->filter.type & b->filter.collide) return spTrue;
+    if (b->filter.type & a->filter.collide) return spTrue;
+
+    return spFalse;
+}
+
+spFilter 
+spFilterConstruct(spGroup group, spMask type, spMask collide)
+{
+    spFilter filter = { group, type, collide };
+    return filter;
 }
 
 spMaterial 

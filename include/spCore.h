@@ -50,6 +50,12 @@
 #define SP_RAD_TO_DEG 180.f / 3.1415926535897932f
 #define SP_DEG_TO_RAD 3.1415926535897932f / 180.f
 
+#ifdef INFINITY
+    #define SP_INFINITY INFINITY
+#else
+    #define SP_INFINITY 1e1000
+#endif
+
 #define SP_IGNORE(x) ((void)x)
 #define spRealloc realloc
 #define spMalloc malloc
@@ -94,6 +100,7 @@ typedef unsigned short spUint16;
 typedef unsigned int spUint;
 typedef unsigned int spMask;
 typedef unsigned int spBool;
+typedef unsigned int spGroup;
 typedef void* spLazyPointer;
 
 /// struct typedefs for convenience
@@ -178,20 +185,20 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
     va_end(args);
 
 ///
-inline void spDoLog(FILE* file, const char* msg, va_list args)
-{
-    vfprintf(file, msg, args);
-}
+void spDoLog(FILE* file, const char* msg, va_list args);
+//{
+//    vfprintf(file, msg, args);
+//}
 
 ///
-inline void _spAssert(spBool condition, const char* msg, ...)
-{
-    if (condition == spFalse)
-    {
-        SP_LOG(stderr, msg);
-        assert(false);
-    }
-}
+void _spAssert(spBool condition, const char* msg, ...);
+//{
+//    if (condition == spFalse)
+//    {
+//        SP_LOG(stderr, msg);
+//        assert(false);
+//    }
+//}
 
 ///
 inline void _spWarning(spBool condition, const char* msg, ...)

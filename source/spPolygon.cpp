@@ -46,12 +46,12 @@ spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def)
     spPolygonIsSane(poly);
 }
 
-spPolygon* 
+spShape* 
 spPolygonNew(spBody* body, const spPolygonDef& def)
 {
     spPolygon* poly = spPolygonAlloc();
     spPolygonInit(poly, body, def);
-    return poly;
+    return (spShape*)poly;
 }
 
 spPolygon* 

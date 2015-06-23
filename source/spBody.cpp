@@ -13,20 +13,16 @@ spBodyInit(spBody* body, spBodyType type)
     body->g_scale = 1.0f;
     body->v_damp = 0.0f;
     body->w_damp = 0.0f;
-    body->i_inv = 0.0f;
-    body->m_inv = 0.0f;
-    body->i = 0.0f;
-    body->m = 0.0f;
     body->t = 0.0f;
     body->a = 0.0f;
     body->w = 0.0f;
     body->next = NULL;
     body->prev = NULL;
     body->can_sleep = spTrue;
-    body->type = type;
     body->shape_list = NULL;
     body->constraint_list = NULL;
     body->user_data = NULL;
+    spBodySetType(body, type);
     spBodyIsSane(body);
 }
 
@@ -44,6 +40,24 @@ spBodyNew(spBodyType type)
     return body;
 }
 
+spBody* 
+spBodyNewKinematic()
+{
+    return spBodyNew(SP_BODY_KINEMATIC);
+}
+
+spBody* 
+spBodyNewDynamic()
+{
+    return spBodyNew(SP_BODY_DYNAMIC);
+}
+
+spBody* 
+spBodyNewStatic()
+{
+    return spBodyNew(SP_BODY_STATIC);
+}
+
 void 
 spBodyFree(spBody*& body)
 {
@@ -57,6 +71,12 @@ spBodyAdd(spBody* body, spBody*& body_list)
 }
 
 void 
+spBodyAddShape(spBody* body, spShape* shape)
+{
+    SP_LINKED_LIST_PREPEND(spShape, shape, body->shape_list);
+}
+
+void 
 spBodyRemove(spBody* body, spBody*& body_list)
 {
     SP_LINKED_LIST_REMOVE(spBody, body, body_list);
@@ -66,15 +86,13 @@ void
 spBodySetPosition(spBody* body, const spVector& position)
 {
     body->p = spAdd(spMult(body->xf.q, body->com), position);
-    spBodyIsSane(body);
     __spBodyUpdateTransform(body);
 }
 
 void 
 spBodySetRotation(spBody* body, spFloat angle)
 {
-    body->a = angle;
-    spBodyIsSane(body);
+    body->a = angle * SP_DEG_TO_RAD;
     __spBodyUpdateTransform(body);
 }
 
@@ -93,6 +111,24 @@ __spBodyUpdateTransform(spBody* body)
     body->xf.q = spRotation(body->a);
     body->xf.p = spAdd(spMult(body->xf.q, body->com), body->p);
     spBodyIsSane(body);
+}
+
+void 
+spBodySetType(spBody* body, spBodyType type)
+{
+    body->type = type;
+
+    switch (type)
+    {
+    case SP_BODY_DYNAMIC:
+        spBodyComputeShapeMassData(body);
+        break;
+    case SP_BODY_KINEMATIC:
+    case SP_BODY_STATIC:
+        body->w = body->m_inv = body->i_inv = 0.0f;
+        body->m = body->i = SP_INFINITY;
+        body->v = spVectorZero();
+    }
 }
 
 void 
@@ -131,6 +167,8 @@ spBodyIntegrateVelocity(spBody* body, const spVector& gravity, const spFloat h)
     /// v *= 1.0 / 1.0 + dt + v_damping
     /// w *= 1.0 / 1.0 + dt + w_damping
 
+    if (body->type != SP_BODY_DYNAMIC) return;
+
     /// integrate forces to get new velocities
     body->v  = spAdd(body->v, spMult(h, spBodyAcceleration(body, gravity)));
     body->w += h * body->m_inv * body->t;
@@ -159,6 +197,20 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
     /// spBodyClearPsuedoVelocities(body);
 }
 
+ void _spBodyIsSane(spBody* body)
+ {
+     spAssert(body->m == body->m && body->m_inv == body->m_inv, "mass is NaN in sanity check");
+     spAssert(body->i == body->i && body->i_inv == body->i_inv, "inertia is NaN in sanity check");
+     spAssert(body->p.x == body->p.x && body->p.y == body->p.y, "position contains NaN in sanity check");
+     spAssert(body->v.x == body->v.x && body->v.y == body->v.y, "velocity contains NaN in sanity check");
+     spAssert(body->f.x == body->f.x && body->f.y == body->f.y, "force contains NaN in sanity check");
+     spAssert(body->m >= 0.0f, "mass is negative in sanity check");
+     spAssert(body->i >= 0.0f, "inertia is negative in sanity check");
+     spAssert(body->a == body->a, "angle is NaN in sanity check");
+     spAssert(body->w == body->w, "angular velocity is NaN in sanity check");
+     spAssert(body->t == body->t, "torque is Nan in sanity check");
+ }
+
 spVector 
 spBodyAcceleration(spBody* body, const spVector& gravity)
 {
@@ -186,7 +238,7 @@ void spBodyComputeShapeMassData(spBody* body)
     tinertia = tmass = t0mass = 0.0f;
     tcom = spVectorZero();
 
-    /// accumulate mass data, reduce calls to body struct for better cache performance
+    /// accumulate mass data
     for_each_shape(shape, body->shape_list)
     {
         spMassData* data = &shape->mass_data;
@@ -204,10 +256,10 @@ void spBodyComputeShapeMassData(spBody* body)
         }
     }
 
-    body->m_inv = 1.0f / tmass;
-    body->m = tmass;
-    body->i_inv = 1.0f / tinertia;
-    body->i = tinertia;
+    body->m_inv = tmass ? 1.0f / tmass : 0.0f;
+    body->m = tmass ? tmass : SP_INFINITY;
+    body->i_inv = tinertia ? 1.0f / tinertia : 0.0f;
+    body->i = tinertia ? tinertia : SP_INFINITY;
     body->com = tcom;
 
     spBodySetPosition(body, position);

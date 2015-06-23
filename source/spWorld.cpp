@@ -138,6 +138,12 @@ spWorldTestPointAgainstShapes(spWorld* world, spVector point)
 }
 
 void 
+spWorldAddBody(spWorld* world, spBody* body)
+{
+    SP_LINKED_LIST_PREPEND(spBody, body, world->body_list);
+}
+
+void 
 spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint)
 {
     spConstraint* constraint = &joint->base_class;

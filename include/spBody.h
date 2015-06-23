@@ -50,11 +50,24 @@ spBody* spBodyAlloc();
 /// allocates space for a rigid body and initializes it with a type
 spBody* spBodyNew(spBodyType type);
 
+/// TODO:
+spBody* spBodyNewKinematic();
+
+/// TODO:
+spBody* spBodyNewDynamic();
+
+/// TODO:
+spBody* spBodyNewStatic();
+
 /// frees the rigid body
 void spBodyFree(spBody*& body);
 
 /// add a body into the body list
+/// DEPRECATED:
 void spBodyAdd(spBody* body, spBody*& body_list);
+
+/// TODO:
+void spBodyAddShape(spBody* body, spShape* shape);
 
 /// remove a body from the body list
 void spBodyRemove(spBody* body, spBody*& body_list);
@@ -71,6 +84,9 @@ void spBodySetTransform(spBody* body, const spVector& position, spFloat angle);
 /// set the bodys' transform according to a new position and rotation angle
 /// this should only be called from internal functions
 void __spBodyUpdateTransform(spBody* body);
+
+/// TODO:
+void spBodySetType(spBody* body, spBodyType type);
 
 /// set the mass and update mass properties of a rigid body
 void spBodySetMass(spBody* body, spFloat mass);
@@ -99,19 +115,19 @@ void spBodyApplyTorque(spBody* body, spFloat torque);
 /// sanity check
 #ifdef SP_DEBUG
  #define spBodyIsSane(body) _spBodyIsSane(body)
- inline void _spBodyIsSane(spBody* body)
- {
-     spAssert(body->m == body->m && body->m_inv == body->m_inv, "mass is NaN in sanity check");
-     spAssert(body->i == body->i && body->i_inv == body->i_inv, "inertia is NaN in sanity check");
-     spAssert(body->p.x == body->p.x && body->p.y == body->p.y, "position contains NaN in sanity check");
-     spAssert(body->v.x == body->v.x && body->v.y == body->v.y, "velocity contains NaN in sanity check");
-     spAssert(body->f.x == body->f.x && body->f.y == body->f.y, "force contains NaN in sanity check");
-     spAssert(body->m >= 0.0f, "mass is negative in sanity check");
-     spAssert(body->i >= 0.0f, "inertia is negative in sanity check");
-     spAssert(body->a == body->a, "angle is NaN in sanity check");
-     spAssert(body->w == body->w, "angular velocity is NaN in sanity check");
-     spAssert(body->t == body->t, "torque is Nan in sanity check");
- }
+ void _spBodyIsSane(spBody* body);
+ //{
+ //    spAssert(body->m == body->m && body->m_inv == body->m_inv, "mass is NaN in sanity check");
+ //    spAssert(body->i == body->i && body->i_inv == body->i_inv, "inertia is NaN in sanity check");
+ //    spAssert(body->p.x == body->p.x && body->p.y == body->p.y, "position contains NaN in sanity check");
+ //    spAssert(body->v.x == body->v.x && body->v.y == body->v.y, "velocity contains NaN in sanity check");
+ //    spAssert(body->f.x == body->f.x && body->f.y == body->f.y, "force contains NaN in sanity check");
+ //    spAssert(body->m >= 0.0f, "mass is negative in sanity check");
+ //    spAssert(body->i >= 0.0f, "inertia is negative in sanity check");
+ //    spAssert(body->a == body->a, "angle is NaN in sanity check");
+ //    spAssert(body->w == body->w, "angular velocity is NaN in sanity check");
+ //    spAssert(body->t == body->t, "torque is Nan in sanity check");
+ //}
 #else
  #define spBodyIsSane(body) 
 #endif

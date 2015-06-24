@@ -34,6 +34,7 @@ spContactInit(spContact* contact, const spContactKey& key)
     contact->friction    = 0.0f;
     contact->count       = 0;
     contact->age         = 0;
+    contact->pen         = 0.0f;
 }
 
 spContact* 
@@ -140,8 +141,10 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rb = point->r_b;
 
         /// TODO: optimize
-        point->m_norm = 1.0f / spContactEffectiveMass(ima, imb, iia, iib, ra, rb, normal);
-        point->m_tang = 1.0f / spContactEffectiveMass(ima, imb, iia, iib, ra, rb, spSkew(normal));
+        point->m_norm = spContactEffectiveMass(ima, imb, iia, iib, ra, rb, normal);
+        point->m_tang = spContactEffectiveMass(ima, imb, iia, iib, ra, rb, spSkew(normal));
+        point->m_norm = point->m_norm ? 1.0f / point->m_norm : 0.0f;
+        point->m_tang = point->m_tang ? 1.0f / point->m_tang : 0.0f;
 
         spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
         point->b_bias = spDot(rv, normal) * -contact->restitution;
@@ -246,13 +249,17 @@ spContactStabilize(spContact* contact)
 
     const static spFloat slop = 0.15f;
     const static spFloat perc = 0.10f;
-    //if (contact->pen < slop) return;
+    if (contact->pen < slop) return;
 
-    spVector P = spMult((spMax(contact->pen - slop, 0.0f) / (mia + mib)), spMult(normal, perc));
-    body_a->p = spSub(body_a->p, spMult(P, mia));
-    body_b->p = spAdd(body_b->p, spMult(P, mib));
-    __spBodyUpdateTransform(body_a);
-    __spBodyUpdateTransform(body_b);
+    spFloat im = mia + mib;
+    if (im != 0.0f)
+    {
+        spVector P = spMult((spMax(contact->pen - slop, 0.0f) / im), spMult(normal, perc));
+    	body_a->p = spSub(body_a->p, spMult(P, mia));
+    	body_b->p = spAdd(body_b->p, spMult(P, mib));
+        __spBodyUpdateTransform(body_a);
+    	__spBodyUpdateTransform(body_b);
+    }
 }
 
 void 

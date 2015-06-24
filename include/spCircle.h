@@ -31,7 +31,7 @@ void spCircleInit(spCircle* circle, spBody* body, const spCircleDef& def);
 spCircle* spCircleAlloc();
 
 /// allocate, and init a circle on the heap
-spCircle* spCircleNew(spBody* body, const spCircleDef& def);
+spShape* spCircleNew(spBody* body, const spCircleDef& def);
 
 /// free a circle from the heap
 void spCircleFree(spCircle*& circle);

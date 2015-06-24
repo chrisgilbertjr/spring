@@ -4,7 +4,7 @@
 void 
 spDebugDrawPoint(const spVector& pos, const spColor& color)
 {
-    glPointSize(4.0f);
+    glPointSize(3.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(color.r, color.g, color.b, color.a);
@@ -104,14 +104,13 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
 void 
 spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf)
 {
-    //spLog("ASDASDAS");
-    glPointSize(8.0f);
+    glPointSize(5.0f);
     glPushMatrix();
  
      spVector normal = contact->normal;
      for (spInt i = 0; i < contact->count; ++i)
      {
-         glColor3f(i, 1.0f, 1.0f);
+         glColor3f(1.0f, 0.0f, 0.0f);
          spVector pos  = contact->points[i].p;
          spVector norm = spAdd(pos, normal);
          glBegin(GL_POINTS);

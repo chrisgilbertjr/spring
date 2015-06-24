@@ -504,4 +504,10 @@ inline spFloat spSmoothstep(spFloat a, spFloat b, spFloat t)
     return t0 * t0 * (3.0f - 2.0f * t0);
 }
 
+/// TODO:
+inline spBool spAlmostEqual(const spVector a, const spVector b, const spFloat EPSILON = SP_FLT_EPSILON)
+{
+    return spAlmostEqual(a.x, b.x, EPSILON) && spAlmostEqual(a.y, b.y, EPSILON);
+}
+
 #endif

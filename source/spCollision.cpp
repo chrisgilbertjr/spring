@@ -5,6 +5,21 @@
 #include <stdio.h>
 #include "spBody.h"
 
+static inline void
+initContact(spContact* contact, spFloat count, spVector normal, spVector point, spVector pointA, spVector pointB, const spCollisionInput& data)
+{
+    const spMaterial* mA = &data.shape_a->material;
+    const spMaterial* mB = &data.shape_b->material;
+
+    contact->count = count;
+    contact->normal = normal;
+    contact->points[0].r_a = spSub(point, pointA);
+    contact->points[0].r_b = spSub(point, pointB);
+    contact->points[0].p = point;
+    contact->friction = spMaterialComputeFriction(mA, mB);
+    contact->restitution = spMaterialComputeRestitution(mA, mB);
+}
+
 spCollisionMatrix 
 _spCollisionMatrix()
 {
@@ -26,10 +41,7 @@ _spCollisionMatrix()
 }
 
 spCollisionFunc 
-spCollisionQueryFunc(
-    const spCollisionMatrix& matrix, 
-    const spShapeType        type_a, 
-    const spShapeType        type_b)
+spCollisionQueryFunc(const spCollisionMatrix& matrix, const spShapeType type_a, const spShapeType type_b)
 {
     spCollisionFunc collision_func = matrix.CollideFunc[type_b][type_a];
     spAssert(collision_func != 0, "trying to collide two chains!");
@@ -37,11 +49,7 @@ spCollisionQueryFunc(
 }
 
 spCollisionInput 
-_spCollisionInput(
-    const spShape* sa, 
-    const spShape* sb, 
-    const spTransform* xfa, 
-    const spTransform* xfb)
+_spCollisionInput(const spShape* sa, const spShape* sb, const spTransform* xfa, const spTransform* xfb)
 {
     return
     {
@@ -59,314 +67,145 @@ spCollisionInputSwap(const spCollisionInput& data)
 {
     return spCollisionInput(data.shape_b, data.shape_a, data.transform_b, data.transform_a);
 }
-#define DRAW_POINT(point, r, g, b) \
-        glPointSize(5.0f); \
-        glBegin(GL_POINTS); \
-        glColor3f(r, g, b); \
-        glVertex2f(point.x, point.y); \
-        glEnd(); \
-        glColor3f(1.0f, 1.0f, 1.0f); \
-        glPointSize(1.0f); \
-
-#define DRAW_TRI(p0, p1, p2, r, g, b) \
-    glBegin(GL_TRIANGLES); \
-    glColor3f(r, g, b); \
-    glVertex2f(p0.x, p0.y); \
-    glVertex2f(p1.x, p1.y); \
-    glVertex2f(p2.x, p2.y); \
-    glColor3f(1.0f, 1.0f, 1.0f); \
-    glEnd(); \
 
 spMinkowskiPoint 
-spMinkowskiPointConstruct(spVector* a, spVector* b)
+spMinkowskiPointConstruct(spVector a, spVector b)
 {
     spMinkowskiPoint m;
-    m.v = spSub(*a, *b);
-    m.a = *a;
-    m.b = *b;
+    m.v = spSub(a, b);
+    m.a = a;
+    m.b = b;
     return m;
 }
 
 spBool 
 spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data)
 {
-    //spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
-    //spLog("SWAP");
-    //spNegate(&contact->normal);
-    ////spVector tmp = contact->points[0].r_a;
-    ////contact->points[0].r_a = contact->points[0].r_b;
-    ////contact->points[0].r_a = tmp;
-    //return result;
-    glPointSize(12.0f);
-    const spPolygon* poly = (spPolygon*)data.shape_b;
-    const spCircle* circle = (spCircle*)data.shape_a;
-    const spTransform* xfa = data.transform_b;
-    const spTransform* xfb = data.transform_a;
-    const spMaterial* ma = &poly->base_class.material;
-    const spMaterial* mb = &circle->base_class.material;
-    spVector ca = spMult(*xfa, poly->base_class.bound.center);
-    spVector cb = spMult(*xfb, circle->center);
-    spVector lca = poly->base_class.bound.center;
-    spVector lcb = circle->center;
-    spFloat rb = poly->base_class.bound.radius;
-    spFloat ra = circle->base_class.bound.radius;
+    /// swap the collision data, and do the collision
+    spBool result = spCollidePolygonCircle(contact, spCollisionInputSwap(data));
 
-    spVector c  = spMult(*xfb, lcb);
-    spVector lc = spTMult(*xfa, c);
-
-    spInt normalIndex = 0;
-    spFloat separation = SP_MIN_FLT;
-    spFloat radius = circle->radius;
-    spInt vertexCount = poly->count;
-    spEdge* edges = poly->edges;
-
-    for (spInt i = 0; i < vertexCount; ++i)
-    {
-        spFloat s = spDot(edges[i].normal, spSub(lc, edges[i].vertex));
-
-        if (s > radius)
-        {
-            return spFalse;
-        }
-
-        if (s > separation)
-        {
-            separation = s;
-            normalIndex = i;
-        }
-    }
-
-    spInt vi1 = normalIndex;
-    spInt vi2 = (vi1 + 1) % vertexCount;
-
-    spVector v1 = edges[vi1].vertex;
-    spVector v2 = edges[vi2].vertex;
-
-    if (separation < SP_FLT_EPSILON)
-    {
-
-    }
-
-    spFloat u1 = spDot(spSub(lc, v1), spSub(v2, v1));
-    spFloat u2 = spDot(spSub(lc, v2), spSub(v1, v2));
-
-    if (u1 <= 0.0f)
-    {
-        if (spDistanceSquared(v1, lc) > radius * radius)
-        {
-            return spFalse;
-        }
-
-        spVector point = spMult(*xfa, v1);
-        spVector normal = spMult(xfa->q, spSub(lc, v1)); ///changed v1,lc
-        spNormalize(&normal);
-        DRAW_POINT(point, 1.0f, 0.0f, 0.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_b = spSub(point, ca);
-        contact->points[0].r_a = spSub(point, cb);
-        contact->points[0].p = point;
-    }
-    else if (u2 <= 0.0f)
-    {
-        if (spDistanceSquared(lc, v2) > radius * radius)
-        {
-            return spFalse;
-        }
-
-        spVector point = spMult(*xfa, v2);
-        spVector normal = spMult(xfa->q, spSub(lc, v2)); 
-        spNormalize(&normal);
-        DRAW_POINT(point, 0.0f, 1.0f, 0.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_b = spSub(point, ca);
-        contact->points[0].r_a = spSub(point, cb);
-        contact->points[0].p = point;
-    }
-    else
-    {
-        spVector faceCenter = spMult(spAdd(v1, v2), 0.5f);
-        spFloat sep = spDot(spSub(lc, faceCenter), edges[vi1].normal);
-        if (sep > radius)
-        {
-            return spFalse;
-        }
-
-        spVector normal = spMult(xfa->q, edges[vi1].normal);
-        spNormalize(&normal);
-        spVector point = spAdd(spMult(spNegate(normal), ra), data.shape_a->body->p);
-        DRAW_POINT(point, 0.0f, 0.0f, 1.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_b = spSub(point, ca);
-        contact->points[0].r_a = spSub(point, cb);
-        contact->points[0].p = point;
-    }
-
+    /// swap the normal and relative velocities
     spNegate(&contact->normal);
+    spVector tmp = contact->points[0].r_a;
+    contact->points[0].r_a = contact->points[0].r_b;
+    contact->points[0].r_b = tmp;
 
-    return spTrue;
+    /// return the result
+    return result;
 }
 
 spBool
 spCollideEdgeCircle(const spEdge* edge, const spCircle* circle)
 {
+    /// TODO:
     return spFalse;
 }
 
 spBool 
 spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
 {
-    glPointSize(12.0f);
-    const spPolygon* poly = (spPolygon*)data.shape_a;
+    /// get the shapes
+    /// TODO: DO A SHAPE CAST HERE!
+    const spPolygon* poly  = (spPolygon*)data.shape_a;
     const spCircle* circle = (spCircle*)data.shape_b;
-    const spTransform* xfa = data.transform_a;
-    const spTransform* xfb = data.transform_b;
-    const spMaterial* ma = &poly->base_class.material;
-    const spMaterial* mb = &circle->base_class.material;
-    spVector ca = spMult(*xfa, poly->base_class.bound.center);
-    spVector cb = spMult(*xfb, circle->center);
-    spVector lca = poly->base_class.bound.center;
-    spVector lcb = circle->center;
-    spFloat ra = poly->base_class.bound.radius;
-    spFloat rb = circle->base_class.bound.radius;
 
-    spVector c  = spMult(*xfb, lcb);
-    spVector lc = spTMult(*xfa, c);
+    /// get the shapes transforms
+    const spTransform* xfA = data.transform_a;
+    const spTransform* xfB = data.transform_b;
 
-    spInt normalIndex = 0;
-    spFloat separation = SP_MIN_FLT;
-    spFloat radius = circle->radius;
-    spInt vertexCount = poly->count;
+    /// get local centers
+    /// TODO: ADD POLY CENTER, NOT COM, MULTI-BODIES WILL NOT WORK!
+    spVector lcA = poly->base_class.body->com;
+    spVector lcB = circle->center;
+
+    /// compute centers in world space
+    spVector cA = spMult(*xfA, lcA);
+    spVector cB = spMult(*xfB, lcB);
+
+    /// get circle radius, and radius^2
+    spFloat radius  = circle->radius;
+    spFloat radius2 = radius * radius;
+
+    /// get local center b in a's local space
+    spVector center = spTMult(*xfA, cB);
+
+    spInt iSep = 0;
+    spInt count = poly->count;
     spEdge* edges = poly->edges;
+    spFloat maxSep = -SP_MAX_FLT;
 
-    for (spInt i = 0; i < vertexCount; ++i)
+    /// find the closest poly edge from the circle
+    for (spInt i = 0; i < count; ++i)
     {
-        spFloat s = spDot(edges[i].normal, spSub(lc, edges[i].vertex));
+        spFloat edgeSep = spDot(edges[i].normal, spSub(center, edges[i].vertex));
 
-        if (s > radius)
+        if (edgeSep > radius)
         {
             return spFalse;
         }
 
-        if (s > separation)
+        if (edgeSep > maxSep)
         {
-            separation = s;
-            normalIndex = i;
+            maxSep = edgeSep;
+            iSep = i;
         }
     }
 
-    spInt vi1 = normalIndex;
-    spInt vi2 = (vi1 + 1) % vertexCount;
+    /// get the indices of the closest edge vertices
+    spInt i0 = iSep;
+    spInt i1 = (i0 + 1) % count;
 
-    spVector v1 = edges[vi1].vertex;
-    spVector v2 = edges[vi2].vertex;
+    /// get the edge vertices
+    spVector v0 = edges[i0].vertex;
+    spVector v1 = edges[i1].vertex;
 
-    if (separation < SP_FLT_EPSILON)
+    /// the circles center is inside of the polygon
+    /// TODO:
+    if (maxSep < SP_FLT_EPSILON)
     {
-        /// TODO: Fix
-        //spVector localNormal = edges[vi1].normal;
-        //spVector localPoint = spMult(spAdd(v1, v2), 0.5f);
-        //spVector localPoint_0 = circle->center;
-
-        //spVector planePoint = spMult(*xfa, localPoint);
-        //spVector clipPoint = spMult(*xfb, localPoint_0);
-        //spVector cA = spAdd(clipPoint, spMult(localNormal, (ra - spDot(spSub(clipPoint, planePoint), localNormal))));
-        //spVector cB = spSub(clipPoint, spMult(rb, localNormal));
-        //spVector point = spMult(spAdd(cA, cB), 0.5f);
-        //DRAW_POINT(cA, 1.0f, 0.0f, 1.0f);
-        //DRAW_POINT(cB, 1.0f, 0.0f, 1.0f);
-        //DRAW_POINT(point, 1.0f, 0.0f, 1.0f);
-
-        //contact->count = 1;
-        //contact->normal = spMult(xfa->q, localNormal);
-        //contact->friction = spMaterialComputeFriction(ma, mb);
-        //contact->restitution = spMaterialComputeRestitution(ma, mb);
-        //contact->points[0].r_a = spSub(point, ca);
-        //contact->points[0].r_b = spSub(point, cb);
-        //spNormalize(&contact->normal);
-        //spNegate(&contact->normal);
-
-        //spLog("sep\n");
-        //return spTrue;
+        /// TODO:
     }
 
-    spFloat u1 = spDot(spSub(lc, v1), spSub(v2, v1));
-    spFloat u2 = spDot(spSub(lc, v2), spSub(v1, v2));
+    /// compute voronoi regions
+    spFloat voronoi0 = spDot(spSub(center, v0), spSub(v1, v0));
+    spFloat voronoi1 = spDot(spSub(center, v1), spSub(v0, v1));
 
-    if (u1 <= 0.0f)
+    /// collision normal and point
+    spVector normal, point;
+
+    /// the point is to the left and in v0's voronoi region
+    if (voronoi0 <= 0.0f)
     {
-        if (spDistanceSquared(lc, v1) > radius * radius)
-        {
-            return spFalse;
-        }
+        /// check if the point is inside of the circle
+        if (spDistanceSquared(center, v0) > radius2) return spFalse;
 
-        spVector point = spMult(*xfa, v1);
-        spVector normal = spMult(xfa->q, spSub(lc, v1)); ///changed v1,lc
-        spNormalize(&normal);
-        DRAW_POINT(point, 1.0f, 0.0f, 0.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_a = spSub(point, ca);
-        contact->points[0].r_b = spSub(point, cb);
-        contact->points[0].p = point;
+        /// compute the point and normal
+        normal = spNormal(spMult(xfA->q, spSub(center, v0)));
+        point  = spMult(*xfA, v0);
     }
-    else if (u2 <= 0.0f)
+
+    /// the point is to the right and in v1's voronoi region
+    else if (voronoi1 <= 0.0f)
     {
-        if (spDistanceSquared(lc, v2) > radius * radius)
-        {
-            return spFalse;
-        }
+        /// check if the point is inside of the circle
+        if (spDistanceSquared(center, v1) > radius2) return spFalse;
 
-        spVector point = spMult(*xfa, v2);
-        spVector normal = spMult(xfa->q, spSub(lc, v2)); 
-        spNormalize(&normal);
-        DRAW_POINT(point, 0.0f, 1.0f, 0.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_a = spSub(point, ca);
-        contact->points[0].r_b = spSub(point, cb);
-        contact->points[0].p = point;
+        normal = spNormal(spMult(xfA->q, spSub(center, v1)));
+        point  = spMult(*xfA, v1);
     }
+    
+    /// the point is in between v1 and v2, its on the edges voronoi region
     else
     {
-        spVector faceCenter = spMult(spAdd(v1, v2), 0.5f);
-        spFloat sep = spDot(spSub(lc, faceCenter), edges[vi1].normal);
-        if (sep > radius)
-        {
-            return spFalse;
-        }
+        /// check if the point is inside of the circle
+        if (spDot(spSub(center, v0), edges[i0].normal) > radius) return spFalse;
 
-        spVector normal = spMult(xfa->q, edges[vi1].normal);
-        spNormalize(&normal);
-        spVector point = spAdd(spMult(spNegate(normal), rb), data.shape_b->body->p);
-        DRAW_POINT(point, 0.0f, 0.0f, 1.0f);
-
-        contact->count = 1;
-        contact->normal = normal;
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->points[0].r_a = spSub(point, ca);
-        contact->points[0].r_b = spSub(point, cb);
-        contact->points[0].p = point;
+        normal = spNormal(spMult(xfA->q, edges[i0].normal));
+        point  = spAdd(spMult(spNegate(normal), radius), data.shape_b->body->p);
     }
 
+    /// initialize the contact and return a successful collision
+    initContact(contact, 1, normal, point, cA, cB, data);
     return spTrue;
 }
 
@@ -490,7 +329,7 @@ spSupportPoint(const spPolygon* a, const spPolygon* b, const spTransform* xfa, c
 {
     spVector va = spExtremalQuery(a, xfa, normal);
     spVector vb = spExtremalQuery(b, xfb, spNegate(normal));
-    return spMinkowskiPointConstruct(&va, &vb);
+    return spMinkowskiPointConstruct(va, vb);
 }
 
 static inline spBool
@@ -530,6 +369,15 @@ spDistanceToOriginFromEdge(spVector t, spVector h)
     /// h = vector head
     /// vector = sub(head, tail)
     return spLengthSquared(spClosestPointToOriginOnEdge(t, h));
+}
+
+static inline spFloat
+spDistanceToOriginFromEdge2(spVector t, spVector h)
+{
+    /// t = vector tail
+    /// h = vector head
+    /// vector = sub(head, tail)
+    return spLength(spClosestPointToOriginOnEdge(t, h));
 }
 
 ///#define SP_DEBUG_DRAW_EPA
@@ -595,6 +443,99 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
 
     /// compute the lerp t bettwen the two minkowski points
     spFloat t = spClosestT(tail->v, head->v);
+    spFloat pen = spDistanceToOriginFromEdge2(tail->v, head->v);
+
+    /// get the points in world space
+    spVector wa = spLerp(tail->a, head->a, t); 
+    spVector wb = spLerp(tail->b, head->b, t);
+    spVector ba = spMult(*xfa, pa->base_class.body->com);
+    spVector bb = spMult(*xfb, pb->base_class.body->com);
+
+    /// get the vector of the two world points
+    spVector v = spSub(head->v, tail->v);
+
+    /// calculate the contact normal
+    spVector n = spNormal(spSkewT(v));
+
+    spInt count = contact->count;
+    spMinkowskiPoint a = *head;
+    spMinkowskiPoint b = *tail;
+
+    static spInt index = 1;
+
+    if (count == 2)
+    {
+        if (index == 0)
+        {
+            if (!spAlmostEqual(contact->points[1].p, wa, 0.1f))
+        	{
+        	    contact->count = index;
+        		contact->normal = n;
+        		contact->points[1].p = wa;
+        		contact->points[1].r_a = spSub(wa, ba);
+        		contact->points[1].r_b = spSub(wa, bb);
+        		contact->friction = spMaterialComputeFriction(ma, mb);
+        		contact->restitution = spMaterialComputeRestitution(ma, mb);
+                contact->pen = pen;
+        	}
+            index = 1;
+        }
+        else if (index == 1)
+        {
+            if (!spAlmostEqual(contact->points[0].p, wa, 0.1f))
+        	{
+        	    contact->count = index;
+        		contact->normal = n;
+        		contact->points[0].p = wa;
+        		contact->points[0].r_a = spSub(wa, ba);
+        		contact->points[0].r_b = spSub(wa, bb);
+        		contact->friction = spMaterialComputeFriction(ma, mb);
+        		contact->restitution = spMaterialComputeRestitution(ma, mb);
+                contact->pen = pen;
+        	}
+            index = 0;
+        }
+    }
+    else if (count == 1)
+    {
+        if (!spAlmostEqual(contact->points[0].p, wa, 0.1f))
+        {
+            contact->count = 2;
+        	contact->normal = n;
+        	contact->points[1].p = wa;
+        	contact->points[1].r_a = spSub(wa, ba);
+        	contact->points[1].r_b = spSub(wa, bb);
+        	contact->friction = spMaterialComputeFriction(ma, mb);
+        	contact->restitution = spMaterialComputeRestitution(ma, mb);
+            contact->pen = pen;
+        }
+    }
+    else
+    {
+        contact->count = 1;
+        contact->normal = n;
+        contact->points[0].p = wa;
+        contact->points[0].r_a = spSub(wa, ba);
+        contact->points[0].r_b = spSub(wa, bb);
+        contact->friction = spMaterialComputeFriction(ma, mb);
+        contact->restitution = spMaterialComputeRestitution(ma, mb);
+        contact->pen = pen;
+    }
+}
+
+static void
+spEPAContactPoints2(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint* tail, const spCollisionInput& data)
+{
+    // get the polygons polygons
+    spPolygon* pa = (spPolygon*)data.shape_a;
+    spPolygon* pb = (spPolygon*)data.shape_b;
+    const spTransform* xfa = data.transform_a;
+    const spTransform* xfb = data.transform_b;
+    const spMaterial* ma = &pa->base_class.material;
+    const spMaterial* mb = &pa->base_class.material;
+
+    /// compute the lerp t bettwen the two minkowski points
+    spFloat t = spClosestT(tail->v, head->v);
     spFloat pen = spDistanceToOriginFromEdge(tail->v, head->v);
 
     /// get the points in world space
@@ -610,60 +551,60 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
     spVector n = spSkewT(v);
     spNormalize(&n);
 
-    spInt count = contact->count;
-    if (count == 2)
-    {
-        struct spRelativeVelocity
-        {
-            spVector r_a;
-            spVector r_b;
-            spFloat pen;
-        };
+    //spInt count = contact->count;
+    //if (count == 2)
+    //{
+    //    struct spRelativeVelocity
+    //    {
+    //        spVector r_a;
+    //        spVector r_b;
+    //        spFloat pen;
+    //    };
 
-        spRelativeVelocity rv[4] = {
-           { spSub(wa, ba), spSub(wa, bb), spDot(wa, n) },
-           { spSub(wb, ba), spSub(wb, bb), spDot(wb, n) },
-           { contact->points[0].r_a, contact->points[0].r_b, spDot(contact->points[0].p, n) },
-           { contact->points[1].r_a, contact->points[1].r_b, spDot(contact->points[1].p, n) } 
-        };
+    //    spRelativeVelocity rv[4] = {
+    //       { spSub(wa, ba), spSub(wa, bb), spDot(wa, n) },
+    //       { spSub(wb, ba), spSub(wb, bb), spDot(wb, n) },
+    //       { contact->points[0].r_a, contact->points[0].r_b, spDot(contact->points[0].p, n) },
+    //       { contact->points[1].r_a, contact->points[1].r_b, spDot(contact->points[1].p, n) } 
+    //    };
 
-        for (spInt i = 0; i < 4; ++i)
-        {
-            for (spInt j = i; j < 4; j++)
-            {
-                if (rv[i].pen > rv[j].pen)
-                {
-                    spRelativeVelocity tmp = rv[i];
-                    rv[i] = rv[j];
-                    rv[j] = tmp;
-                }
-            }
-        }
+    //    for (spInt i = 0; i < 4; ++i)
+    //    {
+    //        for (spInt j = i; j < 4; j++)
+    //        {
+    //            if (rv[i].pen > rv[j].pen)
+    //            {
+    //                spRelativeVelocity tmp = rv[i];
+    //                rv[i] = rv[j];
+    //                rv[j] = tmp;
+    //            }
+    //        }
+    //    }
 
-        contact->points[0].r_a = rv[0].r_a;
-        contact->points[0].r_b = rv[0].r_b;
-        contact->points[1].r_a = rv[1].r_a;
-        contact->points[1].r_b = rv[1].r_b;
-        contact->normal = n;
-        contact->pen = rv[0].pen;
-    }
-    else
-    {
-        contact->count = 2;
-        contact->normal = n;
-        contact->points[0].p = wa;
-        contact->points[1].p = wb;
-        contact->points[0].r_a = spSub(wa, ba);
-        contact->points[0].r_b = spSub(wa, bb);
-        contact->points[1].r_a = spSub(wb, ba);
-        contact->points[1].r_b = spSub(wb, bb);
-        contact->friction = spMaterialComputeFriction(ma, mb);
-        contact->restitution = spMaterialComputeRestitution(ma, mb);
-        contact->pen = spMax(spDot(wa, n), spDot(wb, n));
-    }
+    //    contact->points[0].r_a = rv[0].r_a;
+    //    contact->points[0].r_b = rv[0].r_b;
+    //    contact->points[1].r_a = rv[1].r_a;
+    //    contact->points[1].r_b = rv[1].r_b;
+    //    contact->normal = n;
+    //    contact->pen = rv[0].pen;
+    //}
+    //else
+    //{
+    //    contact->count = 2;
+    //    contact->normal = n;
+    //    contact->points[0].p = wa;
+    //    contact->points[1].p = wb;
+    //    contact->points[0].r_a = spSub(wa, ba);
+    //    contact->points[0].r_b = spSub(wa, bb);
+    //    contact->points[1].r_a = spSub(wb, ba);
+    //    contact->points[1].r_b = spSub(wb, bb);
+    //    contact->friction = spMaterialComputeFriction(ma, mb);
+    //    contact->restitution = spMaterialComputeRestitution(ma, mb);
+    //    contact->pen = spMax(spDot(wa, n), spDot(wb, n));
+    //}
 
-    contact->pen = pen;
-    return;
+    //contact->pen = pen;
+    //return;
 }
 
 static void

@@ -13,12 +13,18 @@ spBodyInit(spBody* body, spBodyType type)
     body->g_scale = 1.0f;
     body->v_damp = 0.0f;
     body->w_damp = 0.0f;
+    body->i_inv = 0.0f;
+    body->m_inv = 0.0f;
+    body->i = 0.0f;
+    body->m = 0.0f;
     body->t = 0.0f;
     body->a = 0.0f;
     body->w = 0.0f;
     body->next = NULL;
     body->prev = NULL;
     body->can_sleep = spTrue;
+    body->i = 0.0f;
+    body->m = 0.0f;
     body->shape_list = NULL;
     body->constraint_list = NULL;
     body->user_data = NULL;
@@ -74,6 +80,10 @@ void
 spBodyAddShape(spBody* body, spShape* shape)
 {
     SP_LINKED_LIST_PREPEND(spShape, shape, body->shape_list);
+    if (body->type == SP_BODY_DYNAMIC)
+    {
+        spBodyComputeShapeMassData(body);
+    }
 }
 
 void 

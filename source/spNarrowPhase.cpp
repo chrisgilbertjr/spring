@@ -17,11 +17,11 @@ spBool
 spNarrowPhaseCollide(const spNarrowPhase* narrow, spContact* contact, const spCollisionInput& data)
 {
     spCollisionMatrix matrix = narrow->collision_matrix;
-    const spShapeType type_a = data.type_a;
-    const spShapeType type_b = data.type_b;
+    const spShapeType type_a = data.shape_a->type;
+    const spShapeType type_b = data.shape_b->type;
 
     spCollisionFunc collision_func = spCollisionQueryFunc(matrix, type_a, type_b);
-    return collision_func(contact, data);
+     return collision_func(contact, data);
 }
 
 void 
@@ -43,11 +43,6 @@ spNarrowPhaseStep(spNarrowPhase* narrow, spContact*& contact_list)
         /// collide the two shapes
         if (spNarrowPhaseCollide(narrow, contact, data) == spFalse)
         {
-            /// remove the contact if age >= age limit
-            //if (contact->age >= 3)
-            //{
-            //}
-
             /// destroy the contact
             spContact* destroy = contact;
             spContact* next = contact->next;

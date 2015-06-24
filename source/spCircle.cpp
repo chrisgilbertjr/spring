@@ -36,12 +36,12 @@ spCircleAlloc()
     return (spCircle*) spMalloc(sizeof(spCircle));
 }
 
-spCircle* 
+spShape* 
 spCircleNew(spBody* body, const spCircleDef& def)
 {
     spCircle* circle = spCircleAlloc();
     spCircleInit(circle, body, def);
-    return circle;
+    return (spShape*)circle;
 }
 
 void 

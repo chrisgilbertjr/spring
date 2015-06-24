@@ -94,7 +94,8 @@ SP_TEST(circle)
         SP_SUBTEST(spCircleNew);
         spBody body;
         spBodyInit(&body, SP_BODY_DYNAMIC);
-        spCircle* circle = spCircleNew(&body, defa);
+        spShape* shape = spCircleNew(&body, defa);
+        spCircle* circle = (spCircle*)shape;
         SP_ISTRUE(circle != NULL);
         SP_VECEQ(circle->center, ca);
         SP_FLTEQ(circle->radius, ra);

@@ -24,6 +24,7 @@ struct spPolygonDef
 }; 
 
 /// TODO: document polygon
+/// TODO: ADD POLY CENTER!!!!!!!!!
 struct spPolygon
 {
     spShape base_class; ///< base shape class

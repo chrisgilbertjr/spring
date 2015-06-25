@@ -15,6 +15,7 @@ spContactPointInit(spContactPoint* point)
     point->L_bias  = 0.0f;
     point->v_bias  = 0.0f;
     point->b_bias  = 0.0f;
+    point->bias    = 0.0f;
 }
 
 void 
@@ -205,7 +206,7 @@ spContactSolve(spContact* contact)
         //spFloat Ln = -(point.b_bias + JVn) * Ein;
         /// clamp the accumulated impulses
 
-        spFloat Ln = -Ein * (JVn - point.b_bias);
+        spFloat Ln = -(JVn + point.b_bias) * Ein;
         spFloat LnOld = point.La_norm;
         point.La_norm = spMax(LnOld + Ln, 0.0f);
 
@@ -241,25 +242,24 @@ void
 spContactStabilize(spContact* contact)
 {
     /// stabilize position
-    spVector normal = contact->normal;           /// contact normal
-    spBody* body_a = contact->key.shape_a->body; /// rigid body a
-    spBody* body_b = contact->key.shape_b->body; /// rigid body b
-    spFloat mia = body_a->m_inv;                 /// inv mass of body a
-    spFloat mib = body_b->m_inv;                 /// inv mass of body b
+    //spVector normal = contact->normal;           /// contact normal
+    //spBody* body_a = contact->key.shape_a->body; /// rigid body a
+    //spBody* body_b = contact->key.shape_b->body; /// rigid body b
+    //spFloat mia = body_a->m_inv;                 /// inv mass of body a
+    //spFloat mib = body_b->m_inv;                 /// inv mass of body b
 
-    const static spFloat slop = 0.15f;
-    const static spFloat perc = 0.10f;
-    if (contact->pen < slop) return;
+    //const static spFloat slop = 0.15f;
+    //const static spFloat perc = 0.40f;
 
-    spFloat im = mia + mib;
-    if (im != 0.0f)
-    {
-        spVector P = spMult((spMax(contact->pen - slop, 0.0f) / im), spMult(normal, perc));
-    	body_a->p = spSub(body_a->p, spMult(P, mia));
-    	body_b->p = spAdd(body_b->p, spMult(P, mib));
-        __spBodyUpdateTransform(body_a);
-    	__spBodyUpdateTransform(body_b);
-    }
+    //spFloat im = mia + mib;
+    //if (im != 0.0f)
+    //{
+    //    spVector P = spMult((spMax(contact->pen - slop, 0.0f) / im), spMult(normal, perc));
+    //	body_a->p = spSub(body_a->p, spMult(P, mia));
+    //	body_b->p = spAdd(body_b->p, spMult(P, mib));
+    //    __spBodyUpdateTransform(body_a);
+    //	__spBodyUpdateTransform(body_b);
+    //}
 }
 
 void 

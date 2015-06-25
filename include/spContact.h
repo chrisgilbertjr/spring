@@ -20,6 +20,7 @@ struct spContactPoint
     spFloat L_bias; ///< impulse bias multiplier
     spFloat v_bias; ///< velocity bias
     spFloat b_bias;
+    spFloat bias;
 };
 
 struct spContact

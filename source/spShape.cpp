@@ -33,6 +33,24 @@ spShapeInit(spShape* shape, const spShapeDef& def)
     spShapeIsSane(shape);
 }
 
+spVector 
+spShapeGetCenter(const spShape* shape)
+{
+    return shape->mass_data.com;
+}
+
+spFloat 
+spShapeGetMass(const spShape* shape)
+{
+    return shape->mass_data.mass;
+}
+
+spFloat 
+spShapeGetInertia(const spShape* shape)
+{
+    return shape->mass_data.inertia;
+}
+
 void 
 spShapeSetFilter(spShape* shape, const spFilter filter)
 {
@@ -79,6 +97,34 @@ spShapesCanCollide(spShape* a, spShape* b)
     if (b->filter.type & a->filter.collide) return spTrue;
 
     return spFalse;
+}
+
+struct spCircle* 
+spShapeCastCircle(const spShape* shape)
+{
+    if (shape->type == SP_SHAPE_CIRCLE)
+    {
+        return (spCircle*)shape;
+    }
+    else
+    {
+        spAssert(spFalse, "the shape is not a circle!\n");
+        return NULL;
+    }
+}
+
+struct spPolygon* 
+spShapeCastPolygon(const spShape* shape)
+{
+    if (shape->type == SP_SHAPE_POLYGON)
+    {
+        return (spPolygon*)shape;
+    }
+    else
+    {
+        spAssert(spFalse, "the shape is not a polygon!\n");
+        return NULL;
+    }
 }
 
 spFilter 

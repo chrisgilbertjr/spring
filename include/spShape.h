@@ -82,6 +82,15 @@ void spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, s
 void spShapeInit(spShape* shape, const spShapeDef& def);
 
 /// TODO:
+spVector spShapeGetCenter(const spShape* shape);
+
+/// TODO:
+spFloat spShapeGetMass(const spShape* shape);
+
+/// TODO:
+spFloat spShapeGetInertia(const spShape* shape);
+
+/// TODO:
 void spShapeSetFilter(spShape* shape, const spFilter filter);
 
 /// sorts two shapes based on their pointer values
@@ -98,6 +107,12 @@ spBool spShapeTestPoint(spShape* shape, spVector point);
 
 /// TODO:
 spBool spShapesCanCollide(spShape* a, spShape* b);
+
+/// TODO:
+struct spCircle* spShapeCastCircle(const spShape* shape);
+
+/// TODO:
+struct spPolygon* spShapeCastPolygon(const spShape* shape);
 
 /// TODO:
 spFilter spFilterConstruct(spGroup group, spMask type, spMask collide);

@@ -127,6 +127,13 @@ inline void spSwap(spFloat* a, spFloat* b)
     *b = tmp;
 }
 
+inline void spSwap(spInt* a, spInt* b)
+{
+    spInt tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 inline spFloat spAbs(const spFloat a)
 {
     return a > 0.0f ? a : -a;

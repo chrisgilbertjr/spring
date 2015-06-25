@@ -8,13 +8,6 @@
 /// @defgroup spCollision spCollision
 /// @{
 
-/// closest points between two shapes, calculated by GJK algorithm
-struct spClosestPoints
-{
-    spVector a; /// closest point on shape a in world coords
-    spVector b; /// closest point on shape b in world coords
-};
-
 /// a point on the minkowski difference of two shapes
 struct spMinkowskiPoint
 {
@@ -53,9 +46,6 @@ struct spCollisionMatrix
 };
 
 /// 'faked' constructor for stack allocation
-spClosestPoints _spClosestPoints(const spVector* a, const spVector* b);
-
-/// 'faked' constructor for stack allocation
 spMinkowskiPoint spMinkowskiPointConstruct(spVector a, spVector b);
 
 /// 'faked' constructor for stack allocation
@@ -68,28 +58,28 @@ spCollisionMatrix _spCollisionMatrix();
 spCollisionFunc spCollisionQueryFunc(const spCollisionMatrix& matrix, spShapeType type_a, spShapeType type_b);
 
 /// collide a circle and a polygon
-spBool spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data);
+//spBool spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data);
 
-/// collide a polygon and a circle
-spBool spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data);
+///// collide a polygon and a circle
+//spBool spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data);
 
-/// collide a circle and a chain
-spBool spCollideCircleChain(spContact*& contact, const spCollisionInput& data);
+///// collide a circle and a chain
+//spBool spCollideCircleChain(spContact*& contact, const spCollisionInput& data);
 
-/// collide a chain and a circle
-spBool spCollideChainCircle(spContact*& contact, const spCollisionInput& data);
+///// collide a chain and a circle
+//spBool spCollideChainCircle(spContact*& contact, const spCollisionInput& data);
 
-/// collide a polygon and a chain
-spBool spCollidePolygonChain(spContact*& contact, const spCollisionInput& data);
+///// collide a polygon and a chain
+//spBool spCollidePolygonChain(spContact*& contact, const spCollisionInput& data);
 
-/// collide a chain and a polygon
-spBool spCollideChainPolygon(spContact*& contact, const spCollisionInput& data);
+///// collide a chain and a polygon
+//spBool spCollideChainPolygon(spContact*& contact, const spCollisionInput& data);
 
-/// collide two circles
-spBool spCollideCircles(spContact*& contact, const spCollisionInput& data);
+///// collide two circles
+//spBool spCollideCircles(spContact*& contact, const spCollisionInput& data);
 
-/// collide two polygons
-spBool spCollidePolygons(spContact*& contact, const spCollisionInput& data);
+///// collide two polygons
+//spBool spCollidePolygons(spContact*& contact, const spCollisionInput& data);
 
 /// @}
 

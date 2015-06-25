@@ -21,8 +21,7 @@ spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def)
     {
         spVector tail = vertices[i]; /// get this edge vertex
         spVector head = vertices[(i+1) % count]; /// get the next, with a wrapping index
-        spVector normal = spSkewT(spSub(head, tail));
-        spNormalize(&normal);
+        spVector normal = spNormal(spSkewT(spSub(head, tail)));
 
         poly->edges[i].vertex = tail;
         poly->edges[i].normal = normal;

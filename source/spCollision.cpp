@@ -6,12 +6,13 @@
 #include "spBody.h"
 
 static inline void
-initContact(spContact* contact, spInt index, spInt count, spVector point, spVector pointA, spVector pointB, spVector normal, const spCollisionInput& data)
+initContact(spContact* contact, spInt index, spInt count, spVector point, spVector pointA, spVector pointB, spVector normal, spFloat pen, const spCollisionInput& data)
 {
     const spMaterial* mA = &data.shape_a->material;
     const spMaterial* mB = &data.shape_b->material;
 
     contact->points[index].p = point;
+    contact->points[index].pen = pen;
     contact->points[index].r_a = spSub(point, pointA);
     contact->points[index].r_b = spSub(point, pointB);
 
@@ -25,6 +26,14 @@ static inline void
 shiftContactPoints(spContact* contact)
 {
     contact->points[0] = contact->points[1];
+}
+
+static inline void
+swapContactPoints(spContact* contact)
+{
+    spContactPoint tmp = contact->points[0];
+    contact->points[0] = contact->points[1];
+    contact->points[1] = tmp;
 }
 
 static inline spBool
@@ -199,7 +208,7 @@ spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data)
     }
 
     /// initialize the contact and return a successful collision
-    initContact(contact, 0, 1, point, cA, cB, normal, data);
+    initContact(contact, 0, 1, point, cA, cB, normal, -0.5f, data);
     return spTrue;
 }
 
@@ -278,7 +287,7 @@ spCollideCircles(spContact*& contact, const spCollisionInput& data)
     spVector normal = spNormal(spSub(cB, cA));
 
     /// initialize the contact
-    initContact(contact, 0, 1, point, cA, cB, normal, data);
+    initContact(contact, 0, 1, point, cA, cB, normal, -0.5f, data);
 
     /// successful collision
     return spTrue;
@@ -418,7 +427,7 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
         }
         else 
         {
-            index = 1;
+            index = 0;
             count = 2;
         }
     }
@@ -432,8 +441,7 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
     }
     /// if there are no contacts, the index and count are default to 0, and 1
 
-    initContact(contact, index, count, wa, ba, bb, normal, data);
-    contact->pen = pen;
+    initContact(contact, index, count, wa, ba, bb, normal, pen, data);
 }
 
 static void

@@ -11,6 +11,8 @@ spBodyInit(spBody* body, spBodyType type)
     body->f = spVectorZero();
     body->v = spVectorZero();
     body->g_scale = 1.0f;
+    body->v_bias = spVectorZero();
+    body->w_bias = 0.0f;
     body->v_damp = 0.0f;
     body->w_damp = 0.0f;
     body->i_inv = 0.0f;
@@ -198,13 +200,10 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
 
     /// integrate velocity to get new position/rotation
     body->p = spAdd(body->p, spMult(h, body->v));
-    body->a = body->a + h * body->w;
+    body->a = body->a + body->w * h;
 
     /// update the bodys' transform according to the new position/rotation
     __spBodyUpdateTransform(body);
-
-    /// reset psuedo velocities if we use them
-    /// spBodyClearPsuedoVelocities(body);
 }
 
  void _spBodyIsSane(spBody* body)

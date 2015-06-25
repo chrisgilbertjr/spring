@@ -16,6 +16,7 @@ spContactPointInit(spContactPoint* point)
     point->v_bias  = 0.0f;
     point->b_bias  = 0.0f;
     point->bias    = 0.0f;
+    point->pen     = 0.0f;
 }
 
 void 
@@ -150,6 +151,21 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
         point->b_bias = spDot(rv, normal) * -contact->restitution;
         point->L_bias = 0.0f;
+
+        spVector dp = spSub(body_b->p, body_a->p);
+        spVector dr = spSub(rb, ra);
+
+        spFloat pen = spDot(spAdd(dr, dp), contact->normal);
+        spFloat slop = -0.15f;
+        if (point->pen > slop)
+        {
+            point->bias = (-0.2f) * (point->pen + slop) / h;
+        }
+        else
+        {
+            point->bias = 0.0f;
+        }
+        point->jBias = 0.0f;
     }
 }
 
@@ -206,7 +222,7 @@ spContactSolve(spContact* contact)
         //spFloat Ln = -(point.b_bias + JVn) * Ein;
         /// clamp the accumulated impulses
 
-        spFloat Ln = -(JVn + point.b_bias) * Ein;
+        spFloat Ln = -(JVn + point.b_bias + point.bias) * Ein;
         spFloat LnOld = point.La_norm;
         point.La_norm = spMax(LnOld + Ln, 0.0f);
 
@@ -224,17 +240,11 @@ spContactSolve(spContact* contact)
         /// wA += iiA * aA;
         /// wB += iiB * aB;
 
-        spVector Pt = spMult(point.La_tang - LtOld, tangent); /// tangent impulse
-        body_a->v  = spSub(body_a->v, spMult(Pt, mia));
-        body_b->v  = spAdd(body_b->v, spMult(Pt, mib));
-        body_a->w -= iia * spCross(ra, Pt);
-        body_b->w += iib * spCross(rb, Pt);
-
-        spVector Pn = spMult(point.La_norm - LnOld, normal); /// normal impulse
-        body_a->v  = spSub(body_a->v, spMult(Pn, mia));
-        body_b->v  = spAdd(body_b->v, spMult(Pn, mib));
-        body_a->w -= iia * spCross(ra, Pn);
-        body_b->w += iib * spCross(rb, Pn);
+        spVector impulse = spRotate(normal, spVector(point.La_norm - LnOld, point.La_tang - LtOld));
+        body_a->v  = spSub(body_a->v, spMult(impulse, mia));
+        body_b->v  = spAdd(body_b->v, spMult(impulse, mib));
+        body_a->w -= iia * spCross(ra, impulse);
+        body_b->w += iib * spCross(rb, impulse);
     }
 }
 
@@ -242,24 +252,25 @@ void
 spContactStabilize(spContact* contact)
 {
     /// stabilize position
-    //spVector normal = contact->normal;           /// contact normal
-    //spBody* body_a = contact->key.shape_a->body; /// rigid body a
-    //spBody* body_b = contact->key.shape_b->body; /// rigid body b
-    //spFloat mia = body_a->m_inv;                 /// inv mass of body a
-    //spFloat mib = body_b->m_inv;                 /// inv mass of body b
+    spVector normal = contact->normal;           /// contact normal
+    spBody* body_a = contact->key.shape_a->body; /// rigid body a
+    spBody* body_b = contact->key.shape_b->body; /// rigid body b
+    spFloat mia = body_a->m_inv;                 /// inv mass of body a
+    spFloat mib = body_b->m_inv;                 /// inv mass of body b
 
-    //const static spFloat slop = 0.15f;
-    //const static spFloat perc = 0.40f;
+    const static spFloat slop = 1.5f;
+    const static spFloat perc = 0.40f;
+    if (contact->pen < slop) return;
 
-    //spFloat im = mia + mib;
-    //if (im != 0.0f)
-    //{
-    //    spVector P = spMult((spMax(contact->pen - slop, 0.0f) / im), spMult(normal, perc));
-    //	body_a->p = spSub(body_a->p, spMult(P, mia));
-    //	body_b->p = spAdd(body_b->p, spMult(P, mib));
-    //    __spBodyUpdateTransform(body_a);
-    //	__spBodyUpdateTransform(body_b);
-    //}
+    spFloat im = mia + mib;
+    if (im != 0.0f)
+    {
+        spVector P = spMult((spMax(contact->pen - slop, 0.0f) / im), spMult(normal, perc));
+    	body_a->p = spSub(body_a->p, spMult(P, mia));
+    	body_b->p = spAdd(body_b->p, spMult(P, mib));
+        __spBodyUpdateTransform(body_a);
+    	__spBodyUpdateTransform(body_b);
+    }
 }
 
 void 

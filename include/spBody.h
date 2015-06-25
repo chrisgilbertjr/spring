@@ -23,6 +23,8 @@ struct spBody
     spVector f;                    ///< force to be applied to the body during integration
     spVector v;                    ///< linear velocity
     spFloat g_scale;               ///< gravity scale on this rigid body
+    spVector v_bias;               ///< linear velocity dampening applied during integration
+    spFloat w_bias;                ///< angular velocity dampening applied during integration
     spFloat v_damp;                ///< linear velocity dampening applied during integration
     spFloat w_damp;                ///< angular velocity dampening applied during integration
     spFloat i_inv;                 ///< inverse inertia

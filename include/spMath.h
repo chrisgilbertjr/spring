@@ -150,6 +150,11 @@ inline spVector spMult(const spFloat& a, const spVector& b)
     return spMult(b, a);
 }
 
+inline spVector spRotate(const spVector a, const spVector b)
+{
+    return spVector(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
+}
+
 /// normalize a vector
 inline void spNormalize(spVector* a)
 {

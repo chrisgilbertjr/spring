@@ -110,7 +110,7 @@ spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf)
      spVector normal = contact->normal;
      for (spInt i = 0; i < contact->count; ++i)
      {
-         glColor3f(1.0f, 0.0f, 0.0f);
+         glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
          spVector pos  = contact->points[i].p;
          spVector norm = spAdd(pos, normal);
          glBegin(GL_POINTS);
@@ -143,6 +143,7 @@ spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform& xf)
      glBegin(GL_LINES);
 
      glColor4f(1.0f, 1.0f, 1.0f, alpha);
+     glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
      glVertex2f(p0.x, p0.y);
      glVertex2f(p1.x, p1.y);
 

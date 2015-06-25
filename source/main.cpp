@@ -66,14 +66,14 @@ void init_test(spApplication* app)
     spBodyAddShape(body, box);
 
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(5.0f, 100.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(5.0f, 85.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(-200.0f, 0.0f), 0.0f);
     spWorldAddBody(&app->world, body);
     spBodyAddShape(body, box);
 
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(5.0f, 100.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(5.0f, 85.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(200.0f, 0.0f), 0.0f);
     spWorldAddBody(&app->world, body);
@@ -81,10 +81,10 @@ void init_test(spApplication* app)
 
 
 
-    spInt num = 12;
+    spInt num = 8;
     spFloat w = 20.0f;
     spFloat h = 10.0f;
-    for (spInt i = 0; i < 12; ++i)
+    for (spInt i = 0; i < num; ++i)
     {
         spFloat o = w * 2.2f;
         spFloat p = (spFloat)i;
@@ -116,7 +116,7 @@ spApplication* test()
 {
     return spApplicationNew(
         "test app",
-        spViewport(800, 800), spFrustumUniform(250), 
+        spViewport(800, 800), spFrustumUniform(100), 
         spVector(0.f, -90.f), 10, 1.f/60.f, 
         init_test, default_loop, default_main_loop, NULL);
 }

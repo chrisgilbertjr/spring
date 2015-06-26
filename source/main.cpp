@@ -42,6 +42,7 @@ void init_globals()
     g_box.vertices[1] = spVector( 1.0f,-1.0f);
     g_box.vertices[2] = spVector( 1.0f, 1.0f);
     g_box.vertices[3] = spVector(-1.0f, 1.0f);
+    g_box.vertices[4] = spVector(-2.5f, 2.0f);
     g_box.material = spMaterial(0.5f, 0.3f);
     g_box.mass = 10.0f;
 }
@@ -57,23 +58,22 @@ void init_test(spApplication* app)
     spShape* box;
     spFilter filter = spFilterCollideAll;
 
-
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(1000.0f, 5.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(200.0f, 25.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(0.0f, -100.0f), 0.0f);
     spWorldAddBody(&app->world, body);
     spBodyAddShape(body, box);
 
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(5.0f, 85.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(5.0f, 75.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(-200.0f, 0.0f), 0.0f);
     spWorldAddBody(&app->world, body);
     spBodyAddShape(body, box);
 
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(5.0f, 85.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(5.0f, 75.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(200.0f, 0.0f), 0.0f);
     spWorldAddBody(&app->world, body);
@@ -81,7 +81,7 @@ void init_test(spApplication* app)
 
 
 
-    spInt num = 8;
+    spInt num = 12;
     spFloat w = 20.0f;
     spFloat h = 10.0f;
     for (spInt i = 0; i < num; ++i)
@@ -99,11 +99,11 @@ void init_test(spApplication* app)
     	spBodyAddShape(body, box);
     }
 
-    body = spBodyNewDynamic();
-    box = spCircleNew(body, circDef(40.0f, 100.0f, 0.4f, 0.5f));
-    spBodySetTransform(body, spVector(-50.0f, 200.0f), 0.0f);
-    spWorldAddBody(&app->world, body);
-    spBodyAddShape(body, box);
+    //body = spBodyNewDynamic();
+    //box = spCircleNew(body, circDef(40.0f, 100.0f, 0.4f, 0.5f));
+    //spBodySetTransform(body, spVector(-50.0f, 200.0f), 0.0f);
+    //spWorldAddBody(&app->world, body);
+    //spBodyAddShape(body, box);
 
     body = spBodyNewDynamic();
     box = spCircleNew(body, circDef(40.0f, 100.0f, 0.4f, 0.5f));
@@ -116,7 +116,7 @@ spApplication* test()
 {
     return spApplicationNew(
         "test app",
-        spViewport(800, 800), spFrustumUniform(100), 
+        spViewport(800, 800), spFrustumUniform(200), 
         spVector(0.f, -90.f), 10, 1.f/60.f, 
         init_test, default_loop, default_main_loop, NULL);
 }

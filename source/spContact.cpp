@@ -151,15 +151,10 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
         point->b_bias = spDot(rv, normal) * -contact->restitution;
         point->L_bias = 0.0f;
-
-        spVector dp = spSub(body_b->p, body_a->p);
-        spVector dr = spSub(rb, ra);
-
-        spFloat pen = spDot(spAdd(dr, dp), contact->normal);
-        spFloat slop = -0.15f;
+        spFloat slop = -0.1f;
         if (point->pen > slop)
         {
-            point->bias = (-0.2f) * (point->pen + slop) / h;
+            point->bias = (-0.1f) * (point->pen + slop) / h;
         }
         else
         {

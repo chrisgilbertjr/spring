@@ -4,7 +4,7 @@
 void 
 spDebugDrawPoint(const spVector& pos, const spColor& color)
 {
-    glPointSize(3.0f);
+    glPointSize(10.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(color.r, color.g, color.b, color.a);
@@ -31,6 +31,21 @@ spDebugDrawLine(const spVector& a, const spVector b, const spColor& color)
     glVertex2f(b.x, b.y);
     glEnd();
     glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void 
+spDebugDrawFatLine(const spVector& a, const spVector b, spFloat size, const spColor& color)
+{
+    glLineWidth(size);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(color.r, color.g, color.b, color.a);
+    glBegin(GL_LINES);
+    glVertex2f(a.x, a.y);
+    glVertex2f(b.x, b.y);
+    glEnd();
+    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+    glLineWidth(1.0f);
 }
 
 void 
@@ -104,13 +119,13 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
 void 
 spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf)
 {
-    glPointSize(5.0f);
+    glPointSize(8.0f);
     glPushMatrix();
  
      spVector normal = contact->normal;
      for (spInt i = 0; i < contact->count; ++i)
      {
-         glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
+         glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
          spVector pos  = contact->points[i].p;
          spVector norm = spAdd(pos, normal);
          glBegin(GL_POINTS);

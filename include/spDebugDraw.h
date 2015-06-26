@@ -40,6 +40,8 @@ void spDebugDrawPoint(const spFloat x, const spFloat y, const spColor& color);
 
 void spDebugDrawLine(const spVector& a, const spVector b, const spColor& color);
 
+void spDebugDrawFatLine(const spVector& a, const spVector b, spFloat size, const spColor& color);
+
 void spDebugDrawTriangle(const spVector& a, const spVector& b, const spVector& c, const spColor& color);
 
 void spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& xf);

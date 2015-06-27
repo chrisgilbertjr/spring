@@ -470,6 +470,9 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
     /// calculate the contact normal
     spVector normal = spNormal(spSkewT(v));
     spVector negate = spNegate(normal);
+    spFloat  t = spLerpRatio(tail->v, head->v);
+    spVector p = spLerp(tail->v, head->v, t);
+    spFloat dist = spDot(normal, p);
 
     Edge e1 = spExtremalQueryEdge(a, xfA, normal);
     Edge e2 = spExtremalQueryEdge(b, xfB, negate);
@@ -488,13 +491,28 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
         spInt index = 0;
         spInt count = 1;
 
+        static spBool swap = spFalse;
+
         {
             spVector pA = spLerp(e1.a, e1.b, spClamp((de2b - de1a) * e1_denom, 0.0f, 1.0f));
             spVector pB = spLerp(e2.a, e2.b, spClamp((de1a - de2a) * e2_denom, 0.0f, 1.0f));
             spFloat dist = spDot(spSub(pB, pA), n);
             if (dist <= 0.0f)
             {
-                initContact(contact, index++, count++, pA, ba, bb, n, -dist, data);
+                const spMaterial* mA = &data.shape_a->material;
+                const spMaterial* mB = &data.shape_b->material;
+
+    			contact->points[index].p = pB;
+    			contact->points[index].pen = -dist;
+    			contact->points[index].r_a = spSub(pA, shapeA->body->p);
+    			contact->points[index].r_b = spSub(pB, shapeB->body->p);
+
+    			contact->count = count;
+    			contact->normal = normal;
+    			contact->friction = spMaterialComputeFriction(mA, mB);
+    			contact->restitution = spMaterialComputeRestitution(mA, mB);
+                index++;
+                count++;
             }
         }
         {
@@ -503,7 +521,25 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
             spFloat dist = spDot(spSub(pB, pA), n);
             if (dist <= 0.0f)
             {
-                initContact(contact++, index++, count, pB, ba, bb, n, -dist, data);
+                const spMaterial* mA = &data.shape_a->material;
+                const spMaterial* mB = &data.shape_b->material;
+
+    			contact->points[index].p = pB;
+    			contact->points[index].pen = -dist;
+    			contact->points[index].r_a = spSub(pA, shapeA->body->p);
+    			contact->points[index].r_b = spSub(pB, shapeB->body->p);
+
+    			contact->count = count;
+    			contact->normal = normal;
+    			contact->friction = spMaterialComputeFriction(mA, mB);
+    			contact->restitution = spMaterialComputeRestitution(mA, mB);
+                //initContact(contact++, index++, count, pB, ba, bb, n, -dist, data);
+
+                /// improves numeric stability of persisting contacts
+                /// sometimes contacts cause something to drift to one side,
+                /// this keeps them from drifting
+                swap = swap ? spFalse : spTrue;
+                if (swap) swapContactPoints(contact);
             }
         }
     }
@@ -619,7 +655,7 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
             if (spEqual(hull[i].v, m.v))
             {
                 /// the point is already on the hull, init the contact points
-                spEPAContactPoints2(contact, &head, &tail, data);
+                spEPAContactPoints(contact, &head, &tail, data);
                 return;
             }
         }

@@ -115,7 +115,7 @@ void spWorldDraw(spWorld* world)
     }
     for_each_contact(contact, world->contact_list)
     {
-        spDebugDrawContact(0, contact, contact->key.shape_b->body->xf);
+        //spDebugDrawContact(0, contact, contact->key.shape_b->body->xf);
     }
     spLog("\n");
 #endif

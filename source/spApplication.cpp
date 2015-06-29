@@ -100,9 +100,7 @@ default_main_loop(spApplication* app)
         spFloat l = app->frustum.left;
         spFloat r = app->frustum.right;
         spFloat b = app->frustum.bottom;
-        spFloat t = app->frustum.top;
-        spFloat n = app->frustum.near;
-        spFloat f = app->frustum.far;
+        spFloat t = app->frustum.top; spFloat n = app->frustum.near; spFloat f = app->frustum.far;
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();

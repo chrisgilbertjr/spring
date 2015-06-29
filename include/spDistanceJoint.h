@@ -8,8 +8,8 @@
 struct spDistanceJoint
 {
     spConstraint base_class;
-    spVector anchor_a;
-    spVector anchor_b;
+    spVector anchorA;
+    spVector anchorB;
     spVector rA;
     spVector rB;
     spVector n;
@@ -18,11 +18,11 @@ struct spDistanceJoint
     spFloat jAccum;
 };
 
-void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchor_a, spVector anchor_b, spFloat distance);
+void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 spDistanceJoint* spDistanceConstraintAlloc();
 
-spDistanceJoint* spDistanceConstraintNew(spBody* a, spBody* b, spVector anchor_a, spVector anchor_b, spFloat distance);
+spDistanceJoint* spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 void spDistanceJointFree(spDistanceJoint** Joint);
 

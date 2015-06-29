@@ -280,3 +280,16 @@ spBodyApplyTorque(spBody* body, spFloat torque)
 {
     body->t += torque;
 }
+
+void 
+spBodyApplyImpulseAtPoint(spBody* body, spVector point, spVector impulse)
+{
+    spBodyApplyImpulse(body, impulse, spSub(point, body->p));
+}
+
+void 
+spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse)
+{
+    body->v  = spAdd(body->v, spMult(impulse, body->m_inv));
+    body->w += body->i_inv * spCross(relVelocity, impulse);
+}

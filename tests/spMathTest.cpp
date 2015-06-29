@@ -99,13 +99,13 @@ SP_TEST(vector)
 
     {
         SP_SUBTEST(spLengthSquared);
-        spFloat lensqr_aa =  0.0304827f;
-        spFloat lensqr_bb =  3.0483113f;
+        spFloat lensqrAa =  0.0304827f;
+        spFloat lensqrBb =  3.0483113f;
         spFloat lensqr_cc = 11.0044105f;
         spFloat lensqr_dd = 23.8987801f;
 
-        SP_FLTEQ(lensqr_aa, spLengthSquared(aa));
-        SP_FLTEQ(lensqr_bb, spLengthSquared(bb));
+        SP_FLTEQ(lensqrAa, spLengthSquared(aa));
+        SP_FLTEQ(lensqrBb, spLengthSquared(bb));
         SP_FLTEQ(lensqr_cc, spLengthSquared(cc));
         SP_FLTEQ(lensqr_dd, spLengthSquared(dd));
         SP_SUBTEST_RESULT();
@@ -213,10 +213,10 @@ SP_TEST(vector)
 
     {
         SP_SUBTEST(spDistanceSquared);
-        spFloat distsqr_aa_bb = 2.4691353f;
+        spFloat distsqrAa_bb = 2.4691353f;
         spFloat distsqr_dd_cc = 2.4691353f;
 
-        SP_FLTEQ(distsqr_aa_bb, spDistanceSquared(aa, bb));
+        SP_FLTEQ(distsqrAa_bb, spDistanceSquared(aa, bb));
         SP_FLTEQ(distsqr_dd_cc, spDistanceSquared(dd, cc));
         SP_SUBTEST_RESULT();
     }

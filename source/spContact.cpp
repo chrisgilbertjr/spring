@@ -6,17 +6,17 @@
 void 
 spContactPointInit(spContactPoint* point)
 {
-    point->r_a     = spVectorZero();
-    point->r_b     = spVectorZero();
-    point->m_norm  = 0.0f;
-    point->m_tang  = 0.0f;
-    point->La_norm = 0.0f;
-    point->La_tang = 0.0f;
-    point->L_bias  = 0.0f;
-    point->v_bias  = 0.0f;
-    point->b_bias  = 0.0f;
-    point->bias    = 0.0f;
-    point->pen     = 0.0f;
+    point->rA = spVectorZero();
+    point->rB = spVectorZero();
+    point->lambdaAccumNorm = 0.0f;
+    point->lambdaAccumTang = 0.0f;
+    point->eMassNorm = 0.0f;
+    point->eMassTang = 0.0f;
+    point->L_bias = 0.0f;
+    point->v_bias = 0.0f;
+    point->bounce = 0.0f;
+    point->bias   = 0.0f;
+    point->pen    = 0.0f;
 }
 
 void 
@@ -26,7 +26,6 @@ spContactInit(spContact* contact, const spContactKey& key)
     {
         spContactPointInit(contact->points + i);
     }
-    spContactPointInit(contact->points);
     contact->key.shape_a = key.shape_a;
     contact->key.shape_b = key.shape_b;
     contact->next        = NULL;
@@ -127,119 +126,106 @@ spContactRemove(spContact* contact, spContact*& list)
 void 
 spContactPreStep(spContact* contact, const spFloat h)
 {
-    spInt point_count = contact->count; /// number of contact points
-    spVector normal = contact->normal;  /// normal of the contact
-    spBody* body_a = contact->key.shape_a->body;   /// rigid body a
-    spFloat ima = body_a->m_inv;        /// inverse mass of body a
-    spFloat iia = body_a->i_inv;        /// inverse inertia of body a
-    spBody* body_b = contact->key.shape_b->body;   /// rigid body b
-    spFloat imb = body_b->m_inv;        /// inverse mass of body b
-    spFloat iib = body_b->i_inv;        /// inverse inertia of body b
+    spBody* a = contact->key.shape_a->body;   /// rigid body a
+    spBody* b = contact->key.shape_b->body;   /// rigid body b
 
-    for (spInt i = 0; i < point_count; ++i)
+    spInt    points  = contact->count;
+    spVector normal  = contact->normal;
+    spVector tangent = spSkew(normal);
+
+    for (spInt i = 0; i < points; ++i)
     {
         spContactPoint* point = &contact->points[i];
-        spVector ra = point->r_a;
-        spVector rb = point->r_b;
+        spFloat invMass = a->m_inv + b->m_inv;
 
-        /// TODO: optimize
-        point->m_norm = spContactEffectiveMass(ima, imb, iia, iib, ra, rb, normal);
-        point->m_tang = spContactEffectiveMass(ima, imb, iia, iib, ra, rb, spSkew(normal));
-        point->m_norm = point->m_norm ? 1.0f / point->m_norm : 0.0f;
-        point->m_tang = point->m_tang ? 1.0f / point->m_tang : 0.0f;
+        {
+            /// compute non penetration effective mass
+            spFloat cA = spCross(point->rA, normal);
+            spFloat cB = spCross(point->rB, normal);
+            point->eMassNorm = invMass + a->i_inv * cA * cA + b->i_inv * cB * cB;
+            point->eMassNorm = point->eMassNorm ? 1.0f / point->eMassNorm : 0.0f;
+        }{
+            /// compute friction effective mass
+            spFloat cA = spCross(point->rA, tangent);
+            spFloat cB = spCross(point->rB, tangent);
+            point->eMassTang = invMass + a->i_inv * cA * cA + b->i_inv * cB * cB;
+            point->eMassTang = point->eMassTang ? 1.0f / point->eMassTang : 0.0f;
+        }
 
-        spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
-        point->b_bias = spDot(rv, normal) * -contact->restitution;
-        point->L_bias = 0.0f;
-        spFloat slop = -0.15f;
-        if (point->pen > slop)
-        {
-            point->bias = (-0.2f) * (point->pen + slop) / h;
-        }
-        else
-        {
-            point->bias = 0.0f;
-        }
-        point->jBias = 0.0f;
+        /// compute relative velocity
+        spVector rvA = spAdd(a->v, spCross(a->w, point->rA));
+        spVector rvB = spAdd(b->v, spCross(b->w, point->rB));
+        spVector relVelocity = spSub(rvB, rvA);
+
+        static const spFloat slop = -0.15f;
+
+        /// compute bounce bias and velocity bias
+        point->bounce = spDot(relVelocity, normal) * -contact->restitution;
+        point->bias = (point->pen > slop) ? (-0.2f * (point->pen + slop) / h) : 0.0f;
+
+        /// reset accumulated multipliers
+        point->lambdaAccumNorm = 0.0f;
+        point->lambdaAccumTang = 0.0f;
     }
 }
 
 void 
 spContactSolve(spContact* contact)
 {
-    /// @see spConstraint
-    spInt contact_points = contact->count; /// number of contact points
-    spVector normal = contact->normal;     /// contact normal
-    spVector tangent = spSkew(normal);     /// contact tangent
-    spBody* body_a = contact->key.shape_a->body;      /// rigid body a
-    spFloat mia = body_a->m_inv;           /// inv mass of body a
-    spFloat iia = body_a->i_inv;           /// inv inertia of body a
-    spBody* body_b = contact->key.shape_b->body;      /// rigid body b
-    spFloat mib = body_b->m_inv;           /// inv mass of body b
-    spFloat iib = body_b->i_inv;           /// inv inertia of body b
+    spBody* a = contact->key.shape_a->body;
+    spBody* b = contact->key.shape_b->body;
 
-    /// ** friction constraint **
-    /// .
-    /// C = dot(vpB - vpA, t)
-    /// J = [ -t, -rA x t, t, rB x t ]
-    /// rA = center of mass of bodyA to the contact point
-    /// rB = center of mass of bodyB to the contact point
-    /// t = contact tangent
-    ///
-    /// ** non-penetration constraint **
-    /// .
-    /// C = dot(vpB - vpA, n)
-    /// J = [ -n, -rA x n, n, rB x n ]
-    /// rA = center of mass of bodyA to the contact point
-    /// rB = center of mass of bodyB to the contact point
-    /// n = contact normal
-    for (spInt i = 0; i < contact_points; ++i)
+    spInt    points  = contact->count;
+    spVector normal  = contact->normal;
+    spVector tangent = spSkew(normal);
+
+    for (spInt i = 0; i < points; ++i)
     {
-        spContactPoint point = contact->points[i]; /// contact point
-        spVector ra = point.r_a;
-        spVector rb = point.r_b;
+        spContactPoint* point = &contact->points[i];
 
-        /// get the precomputed effective normal mass
-        /// E = J*Mi*Jt
-        /// Ei = 1 / E
-        spFloat Ein = point.m_norm;
-        spFloat Eit = point.m_tang;
+        /// compute relative velocity between the two bodies
+        spVector rvA = spAdd(a->v, spCross(a->w, point->rA));
+        spVector rvB = spAdd(b->v, spCross(b->w, point->rB));
+        spVector relVelocity = spSub(rvB, rvA);
 
-        /// compute J*V
-        /// This can be simplified to:
-        /// J*V = dot(vB + cross(wB, rB) - vA - cross(wA, rA), normal);
-        spVector rv = spRelativeVelocity(body_a->v, body_b->v, body_a->w, body_b->w, ra, rb);
-        spFloat JVn = spDot(rv, normal);
-        spFloat JVt = spDot(rv, tangent);
+        /// lagrange multipliers used to compute the impulse
+        spFloat impulseNorm, impulseTang;
 
-        /// compute the lagrange multiplier
-        /// L = -(J*V-b) / E
-        //spFloat Ln = -(point.b_bias + JVn) * Ein;
-        /// clamp the accumulated impulses
+        {
+            /// solve non-penetration constraint
+            /// get effective mass and solve the velocity constraint
+            spFloat eMass = point->eMassNorm;
+        	spFloat Cdot  = spDot(relVelocity, normal);
 
-        spFloat Ln = -(JVn + point.b_bias + point.bias) * Ein;
-        spFloat LnOld = point.La_norm;
-        point.La_norm = spMax(LnOld + Ln, 0.0f);
+            /// compute lagrange multiplier
+        	spFloat lambdaOld = point->lambdaAccumNorm;
+        	spFloat lambda    = -(Cdot + point->bounce + point->bias) * eMass;
 
-        spFloat Lt = -(JVt) * Eit; /// tangent constraint has no velocity bias
-        spFloat LtMax = contact->friction * point.La_norm;
-        spFloat LtOld = point.La_tang;
-        point.La_tang = spClamp(LtOld + Lt, -LtMax, LtMax);
+            /// accumulate the multiplier and compute the impulse
+        	point->lambdaAccumNorm = spMax(lambdaOld + lambda, 0.0f);
+            impulseNorm = point->lambdaAccumNorm - lambdaOld;
+        } {
+            /// solve friction constraint
+            /// get effective mass and solve the velocity constraint
+            spFloat eMass = point->eMassTang;
+        	spFloat Cdot  = spDot(relVelocity, tangent);
 
-        /// calculate the constraint force and apply the impulse
-        /// F = L * Jt
-        /// V += Mi * F
-        ///
-        /// vA += miA * lA;
-        /// vB += miB * lB;
-        /// wA += iiA * aA;
-        /// wB += iiB * aB;
+            /// compute lagrange multiplier
+        	spFloat lambdaMax = contact->friction * point->lambdaAccumNorm;
+        	spFloat lambdaOld = point->lambdaAccumTang;
+        	spFloat lambda    = -Cdot * eMass;
 
-        spVector impulse = spRotate(normal, spVector(point.La_norm - LnOld, point.La_tang - LtOld));
-        body_a->v  = spSub(body_a->v, spMult(impulse, mia));
-        body_b->v  = spAdd(body_b->v, spMult(impulse, mib));
-        body_a->w -= iia * spCross(ra, impulse);
-        body_b->w += iib * spCross(rb, impulse);
+            /// accumulate the multiplier and compute the impulse
+        	point->lambdaAccumTang = spClamp(lambdaOld + lambda, -lambdaMax, lambdaMax);
+            impulseTang = point->lambdaAccumTang - lambdaOld;
+        }
+
+        /// compute the body impulses
+        spVector impulseB = spRotate(normal, spVector(impulseNorm, impulseTang));
+        spVector impulseA = spNegate(impulseB);
+
+        spBodyApplyImpulse(a, point->rA, impulseA);
+        spBodyApplyImpulse(b, point->rB, impulseB);
     }
 }
 

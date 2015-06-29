@@ -114,6 +114,12 @@ void spBodyComputeShapeMassData(spBody* body);
 /// TODO:
 void spBodyApplyTorque(spBody* body, spFloat torque);
 
+/// TODO:
+void spBodyApplyImpulseAtPoint(spBody* body, spVector point, spVector impulse);
+
+/// TODO:
+void spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse);
+
 /// sanity check
 #ifdef SP_DEBUG
  #define spBodyIsSane(body) _spBodyIsSane(body)

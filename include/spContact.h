@@ -11,15 +11,15 @@
 struct spContactPoint
 {
     spVector p;     ///< used for drawing contact points
-    spVector r_a;   ///< relative velocity from body a com
-    spVector r_b;   ///< relative velocity from body b com
-    spFloat m_norm; ///< effective normal mass
-    spFloat m_tang; ///< effective tangent mass
-    spFloat La_norm;///< accumulated normal impulse multiplier
-    spFloat La_tang;///< accumulated tangent impulse multiplier
+    spVector rA;   ///< relative velocity from body a com
+    spVector rB;   ///< relative velocity from body b com
+    spFloat eMassNorm; ///< effective normal mass
+    spFloat eMassTang; ///< effective tangent mass
+    spFloat lambdaAccumNorm;///< accumulated normal impulse multiplier
+    spFloat lambdaAccumTang;///< accumulated tangent impulse multiplier
     spFloat L_bias; ///< impulse bias multiplier
     spFloat v_bias; ///< velocity bias
-    spFloat b_bias;
+    spFloat bounce;
     spFloat bias;
     spFloat jBias;
     spFloat pen;

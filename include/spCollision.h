@@ -27,6 +27,15 @@ struct spCollisionInput
     const spTransform* transform_b;
 };
 
+struct spCollisionResult
+{
+    spBool colliding;
+    spVector normal;
+    spVector rA[2];
+    spVector rB[2];
+    spInt count;
+};
+
 /// function pointer for collision functions
 typedef spBool (*spCollisionFunc)(spContact*& contact, const spCollisionInput& data);
 

@@ -14,6 +14,8 @@ struct spNarrowPhase
     spContact** contact_list;
 };
 
+struct 
+
 /// 'faked' constructor for stack allocation
 spNarrowPhase _spNarrowPhase(spContact* contact_list);
 

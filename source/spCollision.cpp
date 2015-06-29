@@ -5,6 +5,63 @@
 #include <stdio.h>
 #include "spBody.h"
 
+struct Edge
+{
+    spVector a;
+    spVector b;
+};
+
+struct MinkowskiEdge
+{
+    spMinkowskiPoint head;
+    spMinkowskiPoint tail;
+    spVector normal;
+    spFloat distance;
+};
+
+static inline spFloat
+spLerpRatio(spVector t, spVector h)
+{
+    /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
+    spVector M = spSub(h, t);
+    return spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
+}
+
+static inline struct MinkowskiEdge
+MinkowskiEdgeConstruct(spMinkowskiPoint* head, spMinkowskiPoint* tail)
+{
+    /// get the closest minkowski point
+    spFloat t = spLerpRatio(tail->v, head->v);
+    spVector point = spLerp(tail->v, head->v, t);
+    spVector delta = spSub(head->v, tail->v);
+
+    /// calculate the contact normal and penetration distance
+    spVector normal = spNormal(spSkewT(delta));
+    spFloat distance = spDot(normal, point);
+
+    MinkowskiEdge edge;
+    edge.head = *head;
+    edge.tail = *tail;
+    edge.normal = normal;
+    edge.distance = distance;
+    return edge;
+}
+static inline void
+initContact2(spContact* contact, spInt index, spInt count, spVector rA, spVector rB, spVector normal, spFloat pen, const spCollisionInput& data)
+{
+    const spMaterial* mA = &data.shape_a->material;
+    const spMaterial* mB = &data.shape_b->material;
+
+    contact->points[index].pen = pen;
+    contact->points[index].rA = rA;
+    contact->points[index].rB = rB;
+
+    contact->count = count;
+    contact->normal = normal;
+    contact->friction = spMaterialComputeFriction(mA, mB);
+    contact->restitution = spMaterialComputeRestitution(mA, mB);
+}
+
 static inline void
 initContact(spContact* contact, spInt index, spInt count, spVector point, spVector pointA, spVector pointB, spVector normal, spFloat pen, const spCollisionInput& data)
 {
@@ -13,8 +70,8 @@ initContact(spContact* contact, spInt index, spInt count, spVector point, spVect
 
     contact->points[index].p = point;
     contact->points[index].pen = pen;
-    contact->points[index].r_a = spSub(point, pointA);
-    contact->points[index].r_b = spSub(point, pointB);
+    contact->points[index].rA = spSub(point, pointA);
+    contact->points[index].rB = spSub(point, pointB);
 
     contact->count = count;
     contact->normal = normal;
@@ -52,9 +109,9 @@ invertContact(spContact* contact)
 {
     /// swap the normal and relative velocities
     spNegate(&contact->normal);
-    spVector tmp = contact->points[0].r_a;
-    contact->points[0].r_a = contact->points[0].r_b;
-    contact->points[0].r_b = tmp;
+    spVector tmp = contact->points[0].rA;
+    contact->points[0].rA = contact->points[0].rB;
+    contact->points[0].rB = tmp;
 }
 
 spCollisionFunc 
@@ -341,12 +398,6 @@ spExtremalQuery(const spPolygon* poly, const spTransform* xf, const spVector& no
     return maxVec;
 }
 
-struct Edge
-{
-    spVector a;
-    spVector b;
-};
-
 static Edge
 spExtremalQueryEdge(const spPolygon* poly, const spTransform* xf, const spVector& normal)
 {
@@ -408,14 +459,6 @@ spOriginToRight(spVector a, spVector b)
     return (a.x - b.x) * (a.y + b.y) > (a.y - b.y) * (a.x + b.x);
 }
 
-static inline spFloat
-spLerpRatio(spVector t, spVector h)
-{
-    /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
-    spVector M = spSub(h, t);
-    return spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
-}
-
 static inline spVector
 spClosestPointToOrigin(spVector t, spVector h)
 {
@@ -443,6 +486,68 @@ spDistToOrigin(spVector t, spVector h)
     /// h = vector head
     /// edge = sub(head, tail)
     return spLength(spClosestPointToOrigin(t, h));
+}
+
+static void
+clipEdges(spContact* contact, const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge* edge, const spCollisionInput& data)
+{
+    // get the shape pointers and bodies
+    const spShape* shapeA = data.shape_a;
+    const spShape* shapeB = data.shape_b;
+    const spBody*  bodyA  = shapeA->body;
+    const spBody*  bodyB  = shapeB->body;
+
+    spVector normal = edge->normal;
+
+    /// distance of points along perp axis of the normal
+    spFloat distAa = spCross(a->a, normal); spFloat distAb = spCross(a->b, normal);
+    spFloat distBa = spCross(b->a, normal); spFloat distBb = spCross(b->b, normal);
+
+    /// distance of edges a and b
+    spFloat distA = distAb - distAa;
+    spFloat distB = distBb - distBa;
+
+    /// inverse distances used to normalize lerp ratio between [0:1]
+    spFloat invDistA = distA ? 1.0f / distA : 0.0f;
+    spFloat invDistB = distB ? 1.0f / distB : 0.0f;
+
+    spInt index = 0;
+    spInt count = 1;
+
+    {
+        /// get lerp ratios of the clipped points
+        spFloat tA = spClamp((distBb - distAa) * invDistA, 0.f, 1.f);
+        spFloat tB = spClamp((distAa - distBa) * invDistB, 0.f, 1.f);
+
+        /// compute the points in world space
+        spVector pointA = spLerp(a->a, a->b, tA);
+        spVector pointB = spLerp(b->a, b->b, tB);
+
+        /// compute the penetration to see if they are in contact
+        spFloat penetration = -spDot(spSub(pointB, pointA), normal);
+        if (penetration >= 0.0f)
+        {
+            initContact2(contact, index, count, spSub(pointA, bodyA->p), spSub(pointB, bodyB->p), normal, penetration, data);
+            index++;
+            count++;
+        }
+    }
+    {
+        /// get lerp ratios of the clipped points
+        spFloat tA = spClamp((distBa - distAa) * invDistA, 0.f, 1.f);
+        spFloat tB = spClamp((distAb - distBa) * invDistB, 0.f, 1.f);
+
+        /// compute the points in world space
+        spVector pointA = spLerp(a->a, a->b, tA);
+        spVector pointB = spLerp(b->a, b->b, tB);
+
+        /// compute the penetration to see if they are in contact
+        spFloat penetration = -spDot(spSub(pointB, pointA), normal);
+        if (penetration >= 0.0f)
+        {
+            initContact2(contact, index, count, spSub(pointA, bodyA->p), spSub(pointB, bodyB->p), normal, penetration, data);
+        }
+    }
 }
 
 static void
@@ -504,8 +609,8 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
 
     			contact->points[index].p = pB;
     			contact->points[index].pen = -dist;
-    			contact->points[index].r_a = spSub(pA, shapeA->body->p);
-    			contact->points[index].r_b = spSub(pB, shapeB->body->p);
+    			contact->points[index].rA = spSub(pA, shapeA->body->p);
+    			contact->points[index].rB = spSub(pB, shapeB->body->p);
 
     			contact->count = count;
     			contact->normal = normal;
@@ -526,8 +631,8 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
 
     			contact->points[index].p = pB;
     			contact->points[index].pen = -dist;
-    			contact->points[index].r_a = spSub(pA, shapeA->body->p);
-    			contact->points[index].r_b = spSub(pB, shapeB->body->p);
+    			contact->points[index].rA = spSub(pA, shapeA->body->p);
+    			contact->points[index].rB = spSub(pB, shapeB->body->p);
 
     			contact->count = count;
     			contact->normal = normal;
@@ -546,58 +651,8 @@ spEPAContactPoints(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint
 
 }
 
-static void
-spEPAContactPoints2(spContact*& contact, spMinkowskiPoint* head, spMinkowskiPoint* tail, const spCollisionInput& data)
-{
-    // get the shape pointers
-    const spShape* shapeA = data.shape_a;
-    const spShape* shapeB = data.shape_b;
-
-    /// get the transforms
-    const spTransform* xfA = data.transform_a;
-    const spTransform* xfB = data.transform_b;
-
-    // get the polygons polygons
-    spPolygon* a = spShapeCastPolygon(shapeA);
-    spPolygon* b = spShapeCastPolygon(shapeB);
-
-    /// compute the lerp t bettwen the two minkowski points
-    spFloat t = spLerpRatio(tail->v, head->v);
-    spFloat pen = spDistToOrigin(tail->v, head->v);
-
-    /// get the points in world space
-    spVector wa = spLerp(tail->a, head->a, t); 
-    spVector wb = spLerp(tail->b, head->b, t);
-    spVector ba = spMult(*xfA, spShapeGetCenter(shapeA));
-    spVector bb = spMult(*xfB, spShapeGetCenter(shapeB));
-
-    /// get the vector of the two world points
-    spVector v = spSub(head->v, tail->v);
-
-    /// calculate the contact normal
-    spVector normal = spNormal(spSkewT(v));
-
-    spInt index = 0;
-    spInt count = 1;
-
-    if (contact->count == 2)
-    {
-        shiftContactPoints(contact);
-    }
-    else if (contact->count == 1)
-    {
-        if (!withinSlop(contact, 0, wa, 0.05f))
-        {
-            index = 1; 
-            count = 2;
-        }
-    }
-
-    initContact(contact, index, count, wa, ba, bb, normal, pen, data);
-}
-
-static void
-spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkowskiPoint* m2, const spCollisionInput& data)
+static MinkowskiEdge
+EPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkowskiPoint* m2, const spCollisionInput& data)
 {
     /// cast the shapes into polys
     const spPolygon* a = spShapeCastPolygon(data.shape_a);
@@ -625,9 +680,9 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
     /// iterate through EPA algorithm
     for (spInt iter = 0; iter < max_iters; ++iter)
     {
+        spFloat min_dist = SP_MAX_FLT; /// min distance to an edge
         spInt ti = 0;                  /// tail index
         spInt hi = 0;                  /// head index
-        spFloat min_dist = SP_MAX_FLT; /// min distance to an edge
 
         for (spInt t = count-1, h = 0; h < count; t = h, h++)
         {
@@ -655,8 +710,7 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
             if (spEqual(hull[i].v, m.v))
             {
                 /// the point is already on the hull, init the contact points
-                spEPAContactPoints(contact, &head, &tail, data);
-                return;
+                return MinkowskiEdgeConstruct(&head, &tail);
             }
         }
 
@@ -678,10 +732,11 @@ spEPA(spContact*& contact, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkows
         }
         hull = hull_new;
     }
+    spAssert(false, "increase EPA iters, or remove poly's with large amounts of vertices\n");
 }
 
-static spBool 
-spGJK(spContact*& contact, const spCollisionInput& data)
+static struct MinkowskiEdge 
+GJK(spContact*& contact, const spCollisionInput& data)
 {
     /// TODO: update the algorithm to pass in function pointers for
     ///       support points so it can support any convex shape
@@ -728,15 +783,14 @@ spGJK(spContact*& contact, const spCollisionInput& data)
         if (spOriginToLeft(m1.v, m2.v) && spOriginToLeft(m2.v, m0.v) || spEqual(m2.v, spVectorZero()))
         {
             /// the origin is in the simplex, pass the 3-simplex to EPA and generate contact info
-            spEPA(contact, &m0, &m2, &m1, data);
-            return spTrue;
+            return EPA(contact, &m0, &m2, &m1, data);
         }
         else
         {
             /// check if this is the closest edge to the origin.
             if (spMax(spDot(m0.v, dir), spDot(m1.v, dir)) >= spDot(m2.v, dir))
             {
-                return spFalse;
+                return MinkowskiEdgeConstruct(&m1, &m0);
             }
             else
             {
@@ -750,13 +804,23 @@ spGJK(spContact*& contact, const spCollisionInput& data)
     }
 
     /// GJK terminated without converging and without an intersection.
-    return spFalse;
+    return MinkowskiEdgeConstruct(&m1, &m0);
 }
 
 spBool 
 spCollidePolygons(spContact*& contact, const spCollisionInput& data)
 {
-    return spGJK(contact, data);
+    struct MinkowskiEdge minkowskiEdge = GJK(contact, data);
+
+    if (minkowskiEdge.distance >= 0.0f)
+    {
+        spVector n = minkowskiEdge.normal;
+        Edge edgeA = spExtremalQueryEdge(spShapeCastPolygon(data.shape_a), data.transform_a, n);
+        Edge edgeB = spExtremalQueryEdge(spShapeCastPolygon(data.shape_b), data.transform_b, spNegate(n));
+        clipEdges(contact, &edgeA, &edgeB, &minkowskiEdge, data);
+        return spTrue;
+    }
+    return spFalse;
 }
 
 spCollisionMatrix 

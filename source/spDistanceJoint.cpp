@@ -5,11 +5,11 @@
 #include "spSolver.h"
 
 void 
-spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchor_a, spVector anchor_b, spFloat distance)
+spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
 {
     joint->base_class = spConstraintConstruct(a, b, SP_DISTANCE_JOINT);
-    joint->anchor_a = anchor_a;
-    joint->anchor_b = anchor_b;
+    joint->anchorA = anchorA;
+    joint->anchorB = anchorB;
     joint->distance = distance;
 }
 
@@ -20,10 +20,10 @@ spDistanceConstraintAlloc()
 }
 
 spDistanceJoint* 
-spDistanceConstraintNew(spBody* a, spBody* b, spVector anchor_a, spVector anchor_b, spFloat distance)
+spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
 {
     spDistanceJoint* joint = spDistanceConstraintAlloc();
-    spDistanceJointInit(joint, a, b, anchor_a, anchor_b, distance);
+    spDistanceJointInit(joint, a, b, anchorA, anchorB, distance);
     return joint;
 }
 
@@ -40,8 +40,8 @@ spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
 {
     spBody* bA = joint->base_class.body_a;
     spBody* bB = joint->base_class.body_b;
-    spVector pA = spMult(bA->xf, joint->anchor_a);
-    spVector pB = spMult(bB->xf, joint->anchor_b);
+    spVector pA = spMult(bA->xf, joint->anchorA);
+    spVector pB = spMult(bB->xf, joint->anchorB);
 
     joint->rA = spSub(pA, bA->p);
     joint->rB = spSub(pB, bB->p);
@@ -78,8 +78,8 @@ spDistanceJointStabilize(spDistanceJoint* joint)
 {
     spBody* bA = joint->base_class.body_a;
     spBody* bB = joint->base_class.body_b;
-    spVector pA = spMult(bA->xf, joint->anchor_a);
-    spVector pB = spMult(bB->xf, joint->anchor_b);
+    spVector pA = spMult(bA->xf, joint->anchorA);
+    spVector pB = spMult(bB->xf, joint->anchorB);
     spVector n = spSub(pA, pB);
     spFloat length = spLength(n);
     spFloat C = length - joint->distance;

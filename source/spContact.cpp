@@ -132,6 +132,7 @@ spContactPreStep(spContact* contact, const spFloat h)
     spInt    points  = contact->count;
     spVector normal  = contact->normal;
     spVector tangent = spSkew(normal);
+    spVector delta = spSub(b->p, a->p);
 
     for (spInt i = 0; i < points; ++i)
     {
@@ -157,7 +158,7 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rvB = spAdd(b->v, spCross(b->w, point->rB));
         spVector relVelocity = spSub(rvB, rvA);
 
-        static const spFloat slop = -0.15f;
+        static const spFloat slop = -0.55f;
 
         /// compute bounce bias and velocity bias
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;

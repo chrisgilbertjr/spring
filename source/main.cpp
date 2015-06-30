@@ -79,7 +79,7 @@ void init_test(spApplication* app)
     spWorldAddBody(&app->world, body);
     spBodyAddShape(body, box);
 
-    spInt num = 12;
+    spInt num = 1;
     spFloat w = 20.0f;
     spFloat h = 10.0f;
     for (spInt i = 0; i < num; ++i)

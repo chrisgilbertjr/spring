@@ -2,6 +2,7 @@
 #ifndef SP_COLLISION_H
 #define SP_COLLISION_H
 
+
 #include "spPolygon.h"
 #include "spCircle.h"
 
@@ -31,13 +32,14 @@ struct spCollisionResult
 {
     spBool colliding;
     spVector normal;
-    spVector rA[2];
-    spVector rB[2];
+    spVector pointA[2];
+    spVector pointB[2];
     spInt count;
 };
 
 /// function pointer for collision functions
-typedef spBool (*spCollisionFunc)(spContact*& contact, const spCollisionInput& data);
+typedef struct spCollisionResult (*spCollisionFunc)(const spShape* shapeA, const spShape* shapeB);
+typedef struct spSupportPoint (*SupportPointFunc)(const spShape* shapeA, const spVector normal);
 
 /// A collision matrix for selecting which collision function to use based on a shape type
 ///    
@@ -65,30 +67,6 @@ spCollisionMatrix _spCollisionMatrix();
 
 /// query the collision function from the collision matrix based on shape types
 spCollisionFunc spCollisionQueryFunc(const spCollisionMatrix& matrix, spShapeType type_a, spShapeType type_b);
-
-/// collide a circle and a polygon
-//spBool spCollideCirclePolygon(spContact*& contact, const spCollisionInput& data);
-
-///// collide a polygon and a circle
-//spBool spCollidePolygonCircle(spContact*& contact, const spCollisionInput& data);
-
-///// collide a circle and a chain
-//spBool spCollideCircleChain(spContact*& contact, const spCollisionInput& data);
-
-///// collide a chain and a circle
-//spBool spCollideChainCircle(spContact*& contact, const spCollisionInput& data);
-
-///// collide a polygon and a chain
-//spBool spCollidePolygonChain(spContact*& contact, const spCollisionInput& data);
-
-///// collide a chain and a polygon
-//spBool spCollideChainPolygon(spContact*& contact, const spCollisionInput& data);
-
-///// collide two circles
-//spBool spCollideCircles(spContact*& contact, const spCollisionInput& data);
-
-///// collide two polygons
-//spBool spCollidePolygons(spContact*& contact, const spCollisionInput& data);
 
 /// @}
 

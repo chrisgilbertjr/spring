@@ -14,13 +14,11 @@ struct spNarrowPhase
     spContact** contact_list;
 };
 
-struct 
-
 /// 'faked' constructor for stack allocation
 spNarrowPhase _spNarrowPhase(spContact* contact_list);
 
 /// collide two shapes
-spBool spNarrowPhaseCollide(const spNarrowPhase* narrow, spContact* contact, const spCollisionInput& data);
+spCollisionResult spNarrowPhaseCollide(const spNarrowPhase* narrow, const spShape* shapeA, const spShape* shapeB);
 
 /// simulate one timestep of narrow phase collision detection
 void spNarrowPhaseStep(spNarrowPhase* narrow, spContact*& contact_list);

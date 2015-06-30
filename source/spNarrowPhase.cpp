@@ -19,8 +19,6 @@ void initContact(spCollisionResult* result, spContact* contact, spShape* shapeA,
 
 	for (spInt i = 0; i < contact->count; i++)
 	{
-        /// TODO: eliminate pen
-        contact->points[i].pen = -spDot(spSub(result->pointB[i], result->pointA[i]), result->normal);
         contact->points[i].rA = spSub(result->pointA[i], bodyA->p);
         contact->points[i].rB = spSub(result->pointB[i], bodyB->p);
 	}

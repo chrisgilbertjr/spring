@@ -132,7 +132,6 @@ spContactPreStep(spContact* contact, const spFloat h)
     spInt    points  = contact->count;
     spVector normal  = contact->normal;
     spVector tangent = spSkew(normal);
-    spVector delta = spSub(b->p, a->p);
 
     for (spInt i = 0; i < points; ++i)
     {
@@ -158,11 +157,13 @@ spContactPreStep(spContact* contact, const spFloat h)
         spVector rvB = spAdd(b->v, spCross(b->w, point->rB));
         spVector relVelocity = spSub(rvB, rvA);
 
+        /// compute penetration and set position slop
+        spFloat pen = -spDot(spAdd(spSub(point->rB, point->rA), spSub(b->p, a->p)), normal);
         static const spFloat slop = -0.55f;
 
         /// compute bounce bias and velocity bias
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;
-        point->bias = (point->pen > slop) ? (-0.2f * (point->pen + slop) / h) : 0.0f;
+        point->bias = (pen > slop) ? (-0.2f * (pen + slop) / h) : 0.0f;
 
         /// reset accumulated multipliers
         point->lambdaAccumNorm = 0.0f;

@@ -4,7 +4,7 @@
 void 
 spDebugDrawPoint(const spVector& pos, const spColor& color)
 {
-    glPointSize(10.0f);
+    glPointSize(8.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(color.r, color.g, color.b, color.a);
@@ -158,7 +158,7 @@ spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform& xf)
      glBegin(GL_LINES);
 
      glColor4f(1.0f, 1.0f, 1.0f, alpha);
-     glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+     glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
      glVertex2f(p0.x, p0.y);
      glVertex2f(p1.x, p1.y);
 

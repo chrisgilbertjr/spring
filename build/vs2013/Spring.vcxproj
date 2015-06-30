@@ -28,6 +28,7 @@
     <ClInclude Include="..\..\include\spCore.h" />
     <ClInclude Include="..\..\include\spMouseJoint.h" />
     <ClInclude Include="..\..\include\spPointJoint.h" />
+    <ClInclude Include="..\..\include\spSegment.h" />
     <ClInclude Include="..\..\include\spSpringJoint.h" />
     <ClInclude Include="..\..\include\spDebugDraw.h" />
     <ClInclude Include="..\..\include\spDistanceJoint.h" />
@@ -59,6 +60,7 @@
     <ClCompile Include="..\..\source\spMotorJoint.cpp" />
     <ClCompile Include="..\..\source\spMouseJoint.cpp" />
     <ClCompile Include="..\..\source\spPointJoint.cpp" />
+    <ClCompile Include="..\..\source\spSegment.cpp" />
     <ClCompile Include="..\..\source\spSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spDebugDraw.cpp" />
     <ClCompile Include="..\..\source\spDistanceJoint.cpp" />

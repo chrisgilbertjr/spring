@@ -129,7 +129,7 @@ spPolygonComputeInertia(spPolygon* poly, spFloat mass)
         N += A * B;
         D += B;
     }
-    //return (SP_DEG_TO_RAD * mass * N) / (6.0f * D);
+
     return ((mass * N) / (6.0f * D)) * SP_DEG_TO_RAD;
 }
 

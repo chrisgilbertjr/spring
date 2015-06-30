@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include "spBody.h"
 
+#define logFloat(a) spLog("%.7f\n", a)
+
 struct spSupportPoint
 {
     spVector point;
@@ -22,7 +24,9 @@ struct MinkowskiEdge
     spMinkowskiPoint head;
     spMinkowskiPoint tail;
     spVector normal;
+    spVector point;
     spFloat distance;
+    spFloat t;
 };
 
 struct SupportPointContext
@@ -54,10 +58,13 @@ MinkowskiEdgeConstruct(spMinkowskiPoint* head, spMinkowskiPoint* tail)
     spFloat distance = spDot(normal, point);
 
     MinkowskiEdge edge;
+    edge.distance = distance;
+    edge.normal = normal;
+    edge.point = point;
     edge.head = *head;
     edge.tail = *tail;
-    edge.normal = normal;
-    edge.distance = distance;
+    edge.t = t;
+
     return edge;
 }
 
@@ -74,6 +81,29 @@ spCollisionResultConstruct()
     result.count     = 0.0f;
 
     return result;
+}
+
+static void
+addContact(spCollisionResult* result, const spVector pointA, const spVector pointB)
+{
+    spAssert(result->count <= 2, "cannot add more than 2 contacts!");
+
+    result->colliding = spTrue;
+	result->pointA[result->count] = pointA;
+	result->pointB[result->count] = pointB;
+	result->count++;
+}
+
+static void
+invertContacts(spCollisionResult* result)
+{
+    for (spInt i = 0; i < result->count; ++i)
+    {
+        spVector tmp = result->pointA[i];
+		result->pointA[i] = result->pointB[i];
+		result->pointB[i] = tmp;
+    }
+    result->normal = spNegate(result->normal);
 }
 
 spCollisionFunc 
@@ -114,193 +144,17 @@ spMinkowskiPointConstruct(spVector a, spVector b)
     return m;
 }
 
-static spCollisionResult 
-spCollidePolygonCircle(const spPolygon* poly, const spCircle* circle)
+static spVector
+extremalPointCircle(const spCircle* circle, const spVector normal)
 {
-    spCollisionResult result;
-    result.colliding = spFalse;
-    return result;
-    /// get the shapes
-    //const spShape* polyShape   = data.shape_a;
-    //const spShape* circleShape = data.shape_b;
-
-    //const spPolygon* poly   = spShapeCastPolygon(polyShape);
-    //const spCircle*  circle = spShapeCastCircle(circleShape);
-
-    ///// get the shapes transforms
-    //const spTransform* xfA = data.transform_a;
-    //const spTransform* xfB = data.transform_b;
-
-    ///// get local centers
-    //spVector lcA = spShapeGetCenter(polyShape);
-    //spVector lcB = spShapeGetCenter(circleShape);
-
-    ///// compute centers in world space
-    //spVector cA = spMult(*xfA, lcA);
-    //spVector cB = spMult(*xfB, lcB);
-
-    ///// get circle radius, and radius^2
-    //spFloat radius  = circle->radius;
-    //spFloat radius2 = radius * radius;
-
-    ///// get local center b in a's local space
-    //spVector center = spTMult(*xfA, cB);
-
-    //spInt iSep = 0;
-    //spInt count = poly->count;
-    //spEdge* edges = poly->edges;
-    //spFloat maxSep = -SP_MAX_FLT;
-
-    ///// find the closest poly edge from the circle
-    //for (spInt i = 0; i < count; ++i)
-    //{
-    //    spFloat edgeSep = spDot(edges[i].normal, spSub(center, edges[i].vertex));
-
-    //    /// the separation is > radius, they are not colliding
-    //    if (edgeSep > radius)
-    //    {
-    //        return spFalse;
-    //    }
-
-    //    if (edgeSep > maxSep)
-    //    {
-    //        maxSep = edgeSep;
-    //        iSep = i;
-    //    }
-    //}
-
-    ///// get the indices of the closest edge vertices
-    //spInt i0 = iSep;
-    //spInt i1 = (i0 + 1) % count;
-
-    ///// get the edge vertices
-    //spVector v0 = edges[i0].vertex;
-    //spVector v1 = edges[i1].vertex;
-
-    ///// collision normal and point
-    //spVector normal, point;
-    //spFloat penetration;
-
-    ///// the circles center is inside of the polygon
-    ///// TODO:
-    //if (maxSep < SP_FLT_EPSILON)
-    //{
-    //    normal = spMult(xfA->q, edges[i0].normal);
-    //    point = spAdd(cA, spMult(spNegate(normal), radius));
-    //    penetration = radius;
-
-    //    initContact(contact, 0, 1, point, cA, cB, normal, penetration, data);
-    //    return spTrue;
-    //}
-
-    ///// compute contact penetration
-    ////penetration = radius - maxSep;
-
-    ///// compute voronoi regions
-    //spFloat voronoi0 = spDot(spSub(center, v0), spSub(v1, v0));
-    //spFloat voronoi1 = spDot(spSub(center, v1), spSub(v0, v1));
-    //spFloat pen2 = radius - maxSep;
-
-    ///// the point is to the left and in v0's voronoi region
-    //if (voronoi0 <= 0.0f)
-    //{
-    //    spFloat distance2 = spDistanceSquared(center, v0);
-
-    //    /// check if the point is inside of the circle
-    //    if (distance2 > radius2) return spFalse;
-
-    //    /// compute the point and normal
-    //    penetration = radius - spsqrt(distance2);
-    //    normal = spNormal(spMult(xfA->q, spSub(center, v0)));
-    //    point  = spMult(*xfA, v0);
-    //}
-
-    ///// the point is to the right and in v1's voronoi region
-    //else if (voronoi1 <= 0.0f)
-    //{
-    //    spFloat distance2 = spDistanceSquared(center, v1);
-
-    //    /// check if the point is inside of the circle
-    //    if (distance2 > radius2) return spFalse;
-
-    //    penetration = radius - spsqrt(distance2);
-    //    normal = spNormal(spMult(xfA->q, spSub(center, v1)));
-    //    point  = spMult(*xfA, v1);
-    //}
-    
-    ///// the point is in between v1 and v2, its on the edges voronoi region
-    //else
-    //{
-    //    /// check if the point is inside of the circle
-    //    if (spDot(spSub(center, v0), edges[i0].normal) > radius) return spFalse;
-
-    //    penetration = radius - maxSep;
-    //    normal = spNormal(spMult(xfA->q, edges[i0].normal));
-    //    point  = spAdd(spMult(spNegate(normal), radius), data.shape_b->body->p);
-    //}
-
-
-    ///// initialize the contact and return a successful collision
-    //initContact(contact, 0, 1, point, cA, cB, normal, penetration, data);
-    //return spTrue;
+    spTransform* xf = &circle->base_class.body->xf;
+    return spMult(*xf, circle->center);
 }
 
-static spCollisionResult 
-spCollideCirclePolygon(const spCircle* circle, const spPolygon* poly)
-{
-    /// swap the collision data, and do the collision
-    spCollisionResult result = spCollidePolygonCircle(poly, circle);
-
-    /// swap the normal and relative velocities
-    /// invertResult;
-
-    /// return the result
-    return result;
-}
-
-static spCollisionResult 
-spCollideCircles(const spCircle* circleA, const spCircle* circleB)
-{
-    spCollisionResult result;
-    result.colliding = spFalse;
-    return result;
-    /// get the circles
-    //const spCircle* a = spShapeCastCircle(data.shape_a);
-    //const spCircle* b = spShapeCastCircle(data.shape_b);
-
-    ///// get the transforms
-    //const spTransform* xfA = data.transform_a;
-    //const spTransform* xfB = data.transform_b;
-
-    ///// compute world centers
-    //spVector cA = spMult(*xfA, a->center);
-    //spVector cB = spMult(*xfB, b->center);
-
-    ///// compute distance and distance^2 between the two centers
-    //spVector distance = spSub(cB, cA);
-    //spFloat distance2 = spDot(distance, distance);
-
-    ///// get the combined radius and radius^2 of the two circle
-    //spFloat radius    = a->radius + b->radius;
-    //spFloat radius2   = radius * radius;
-
-    ///// the circle arent colliding
-    //if (distance2 > radius2)
-    //{
-    //    return spFalse;
-    //}
-
-    ///// compute point and normal, and penetration
-    //spFloat penetration = radius - spsqrt(distance2);
-    //spVector point  = spLerp(cA, cB, a->radius / radius);
-    //spVector normal = spNormal(distance);
-
-    ///// initialize the contact
-    //initContact(contact, 0, 1, point, cA, cB, normal, penetration, data);
-
-    ///// successful collision
-    //return spTrue;
-}
+//static spVector
+//extremalPointSegment(const spSegment* segment, const spVector normal)
+//{
+//}
 
 static spVector
 extremalPointPoly(const spPolygon* poly, const spVector normal)
@@ -311,8 +165,8 @@ extremalPointPoly(const spPolygon* poly, const spVector normal)
     spEdge* edges = poly->edges;
     spInt count   = poly->count;
 
-    spFloat maxProj = -SP_MAX_FLT;    /// largest projection
-    spVector maxVec = spVectorZero(); /// most extreme point
+    spFloat maxProj = -SP_MAX_FLT;
+    spVector maxVec = spVectorZero();
 
     /// find the most extreme point along a direction
     for (spInt i = 0; i < count; ++i)
@@ -357,8 +211,8 @@ extremalEdgePoly(const spPolygon* poly, const spVector& normal)
         {
             if (i != 0)
             {
-            e.a = e.b;
-            A = B;
+                e.a = e.b;
+            	A = B;
             }
 
             e.b = v;
@@ -454,10 +308,7 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
-            result.colliding = spTrue;
-            result.pointA[result.count] = pointA;
-            result.pointB[result.count] = pointB;
-            result.count++;
+            addContact(&result, pointA, pointB);
         }
     } {
         /// get lerp ratios of the clipped points
@@ -472,10 +323,7 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
-            result.colliding = spTrue;
-            result.pointA[result.count] = pointA;
-            result.pointB[result.count] = pointB;
-            result.count++;
+            addContact(&result, pointA, pointB);
         }
     }
     return result;
@@ -531,6 +379,7 @@ EPA(const struct SupportPointContext* context, spMinkowskiPoint* m0, spMinkowski
         {
             if (spEqual(hull[i].v, m.v))
             {
+                spLog("EPA %d\n", iter);
                 /// the point is already on the hull, return the minkowski edge
                 return MinkowskiEdgeConstruct(&head, &tail);
             }
@@ -609,6 +458,7 @@ GJK(const struct SupportPointContext* context)
             /// check if this is the closest edge to the origin.
             if (spMax(spDot(m0.v, dir), spDot(m1.v, dir)) >= spDot(m2.v, dir))
             {
+                spLog("GJK\n");
                 return MinkowskiEdgeConstruct(&m1, &m0);
             }
             else
@@ -624,6 +474,79 @@ GJK(const struct SupportPointContext* context)
 
     /// GJK terminated without converging and without an intersection.
     return MinkowskiEdgeConstruct(&m1, &m0);
+}
+
+/// Collision functions
+
+static spCollisionResult 
+spCollideCircles(const spCircle* circleA, const spCircle* circleB)
+{
+    return spCollisionResultConstruct();
+}
+
+static spCollisionResult 
+spCollidePolygonCircle(const spPolygon* poly, const spCircle* circle)
+{
+    struct SupportPointContext context = { 
+        (spShape*)poly, 
+        (spShape*)circle, 
+        (SupportPointFunc)extremalPointPoly, 
+        (SupportPointFunc)extremalPointCircle };
+
+    struct MinkowskiEdge minkowskiEdge = GJK(&context);
+
+    spCollisionResult result = spCollisionResultConstruct();
+
+    /// check if they are potentially colliding
+    if (minkowskiEdge.distance + circle->radius >= 0.0f)
+    {
+        /// get the two minkowski points on the edge
+        spMinkowskiPoint* head = &minkowskiEdge.head;
+        spMinkowskiPoint* tail = &minkowskiEdge.tail;
+
+        /// get the lerp value and normal of the edge
+        spFloat t = minkowskiEdge.t;
+        spVector normal = result.normal = minkowskiEdge.normal;
+
+        /// compute the two world space points of each body given the lerp value and edge vertices
+        spVector pointA = spLerp(tail->a, head->a, t);
+        spVector pointB = spLerp(tail->b, head->b, t);
+
+        /// vertex/vertex collisions need their normal adjusted
+        if (t == 1.0f || t == 0.0f)
+        {
+            /// compute the new normal
+            normal = result.normal = spNormal(spSub(pointB, pointA));
+
+            /// compute the distance between the two vertices
+            spFloat distance = spDot(normal, minkowskiEdge.point);
+
+            /// check if they are colliding
+            if (distance + circle->radius < 0.0f)
+        	{
+                /// they are too far apart, they cant be colliding
+                result.colliding = spFalse;
+                return result;
+        	}
+        }
+
+        /// compute the circles world space point since we test it as a point
+        pointB = spAdd(pointB, spMult(circle->radius, spNegate(normal)));;
+
+        /// add the contact to the collision result
+        addContact(&result, pointA, pointB);
+    }
+
+    /// return the collision result
+    return result;
+}
+
+static spCollisionResult 
+spCollideCirclePolygon(const spCircle* circle, const spPolygon* poly)
+{
+    spCollisionResult result = spCollidePolygonCircle(poly, circle);
+    invertContacts(&result);
+    return result;
 }
 
 static spCollisionResult
@@ -644,12 +567,8 @@ spCollidePolygons(const spPolygon* polyA, const spPolygon* polyB)
 
         return clipEdges(&edgeA, &edgeB, &minkowskiEdge);
     }
-    else
-    {
-        spCollisionResult result;
-    	result.colliding = spFalse;
-    	return result;
-    }
+
+    return spCollisionResultConstruct();
 }
 
 spCollisionMatrix 

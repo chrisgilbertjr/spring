@@ -86,18 +86,13 @@ spWorldStep(spWorld* world, const spFloat h)
         spConstraintStabilize(joint);
     }
 
-    /// correct positions to keep things stable
-    for_each_contact(contact, world->contact_list)
-    {
-        spContactStabilize(contact);
-    }
     spWorldDraw(world);
 }
 
 void spWorldDraw(spWorld* world)
 {
-    spBody* body_list = world->body_list;
 #ifdef SP_DEBUG_DRAW
+    spBody* body_list = world->body_list;
     for_each_body(body, body_list)
     {
         for_each_shape(shape, body->shape_list)
@@ -110,6 +105,10 @@ void spWorldDraw(spWorld* world)
             if (shape->type == SP_SHAPE_POLYGON)
             {
                 spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
+            }
+            if (shape->type == SP_SHAPE_SEGMENT)
+            {
+                spDebugDrawSegment(0, (spSegment*)shape);
             }
         }
     }

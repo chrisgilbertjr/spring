@@ -16,6 +16,7 @@
 #include "spGearJoint.h"
 #include "spPointJoint.h"
 #include "spMouseJoint.h"
+#include "spSegment.h"
 
 /// @defgroup spWorld spWorld
 /// @{

@@ -3,6 +3,7 @@
 #define SP_DEBUG_DRAW_H
 
 #include "spContact.h"
+#include "spSegment.h"
 #include "spPolygon.h"
 #include "spCircle.h"
 #include "spBound.h"
@@ -47,6 +48,8 @@ void spDebugDrawTriangle(const spVector& a, const spVector& b, const spVector& c
 void spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& xf);
 
 void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTransform& xf);
+
+void spDebugDrawSegment(spDebugDraw* draw, const spSegment* segment);
 
 void spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf);
 

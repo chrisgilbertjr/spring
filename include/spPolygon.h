@@ -60,26 +60,8 @@ spBool spPolygonTestPoint(spPolygon* poly, spVector point);
 
 /// sanity checks
 #ifdef SP_DEBUG
- #define spEdgeIsSane(edge) _spEdgeIsSane(edge)
- #define spEdgesAreSane(edge, count) _spEdgesAreSane(edge, count)
  #define spPolygonDefIsSane(poly) _spPolygonDefIsSane(poly)
  #define spPolygonIsSane(poly) _spPolygonIsSane(poly)
-
- /// edge sanity check
- inline void _spEdgeIsSane(const spEdge* edge)
- {
-     //spAssert(spAlmostEqual(spLength(edge->normal), 1.0f, SP_EPSILON), "edge normal is not of length 1");
- }
-
- /// sanity check for all edges
- inline void _spEdgesAreSane(const spEdge* edges, spInt count)
- {
-     spInt i = 0;
-     for (const spEdge* edge = edges; i < count; edges++, i++)
-     {
-         _spEdgeIsSane(edge);
-     }
- }
 
  /// polygon def sanity check
  inline void _spPolygonDefIsSane(const spPolygonDef& def)
@@ -94,7 +76,6 @@ spBool spPolygonTestPoint(spPolygon* poly, spVector point);
  inline void _spPolygonIsSane(const spPolygon* poly)
  {
      spAssert(poly->count > 2, "a polygon must have at least 3 vertices");
-     spEdgesAreSane(poly->edges, poly->count);
      spShapeIsSane(&poly->base_class);
  }
 #else

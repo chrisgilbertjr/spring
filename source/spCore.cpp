@@ -14,3 +14,8 @@ void _spAssert(spBool condition, const char* msg, ...)
         assert(false);
     }
 }
+
+void spSane(spFloat val)
+{
+    spAssert(val == val, "NaN!\n");
+}

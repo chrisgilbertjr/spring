@@ -13,7 +13,7 @@ enum spShapeType
 {
     SP_SHAPE_CIRCLE  = 0,
     SP_SHAPE_POLYGON = 1,
-    SP_SHAPE_CHAIN   = 2,
+    SP_SHAPE_SEGMENT = 2,
     SP_SHAPE_COUNT
 };
 
@@ -80,6 +80,8 @@ void spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, s
 
 /// initialize a shape with mass properties, a material, and a type
 void spShapeInit(spShape* shape, const spShapeDef& def);
+
+void spShapeInit2(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
 
 /// TODO:
 spVector spShapeGetCenter(const spShape* shape);

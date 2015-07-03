@@ -33,6 +33,18 @@ spShapeInit(spShape* shape, const spShapeDef& def)
     spShapeIsSane(shape);
 }
 
+void spShapeInit2(spShape* shape, spMassData* data, spBound* bound, spShapeType type)
+{
+    shape->mass_data = *data;
+    shape->material = spMaterial(0.6f, 0.2f);
+    shape->bound = *bound;
+    shape->type = type;
+    shape->body = NULL;
+    shape->next = NULL;
+    shape->prev = NULL;
+    shape->filter = spFilterCollideAll;
+}
+
 spVector 
 spShapeGetCenter(const spShape* shape)
 {

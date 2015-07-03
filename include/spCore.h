@@ -219,6 +219,8 @@ inline void _spLog(const char* msg, ...)
     SP_LOG(stdout, msg);
 }
 
+void spSane(spFloat val);
+
 #ifdef SP_DEBUG
   #define spAssert  _spAssert
   #define spWarning _spWarning

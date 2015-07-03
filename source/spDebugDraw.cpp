@@ -1,5 +1,6 @@
 
 #include "spDebugDraw.h"
+#include "spBody.h"
 
 void 
 spDebugDrawPoint(const spVector& pos, const spColor& color)
@@ -114,6 +115,36 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
      }
      glEnd();
     glPopMatrix();
+}
+
+void 
+spDebugDrawSegment(spDebugDraw* draw, const spSegment* segment)
+{
+    spBody* body = segment->shape.body;
+    spTransform* xf = &body->xf;
+    spVector a = spMult(*xf, segment->pointA);
+    spVector b = spMult(*xf, segment->pointB);
+    spVector n = segment->normal;
+    spFloat  r = segment->radius;
+
+     glBegin(GL_LINE_LOOP);
+     spFloat iters = 32.0f;
+     for (spFloat i = 0.f; i < iters; i += 1.0f)
+     {
+         spFloat s = i / iters * SP_PI * 2.0f;
+         spFloat c = i / iters * SP_PI * 2.0f;
+     }
+     glEnd();
+
+    spVector c = spNormal(spSkewT(n));
+    spVector h = spMult(c, segment->radius);
+    spVector v = spMult(n, segment->radius);
+    spVector p0 = spAdd(b, h); 
+    spVector p1 = spSub(a, h);
+    spDebugDrawLine(p0, p1, spRed(1.0f)); p0 = spAdd(a, v); p1 = spSub(a, v);
+    spDebugDrawLine(p0, p1, spRed(1.0f)); p0 = spAdd(b, v); p1 = spSub(b, v);
+    spDebugDrawLine(p0, p1, spRed(1.0f));
+    spDebugDrawLine(a, b, spGreen(1.0f));
 }
 
 void 

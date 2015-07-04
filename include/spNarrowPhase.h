@@ -18,7 +18,7 @@ struct spNarrowPhase
 spNarrowPhase _spNarrowPhase(spContact* contact_list);
 
 /// collide two shapes
-spCollisionResult spNarrowPhaseCollide(const spNarrowPhase* narrow, const spShape* shapeA, const spShape* shapeB);
+spCollisionResult spNarrowPhaseCollide(const spNarrowPhase* narrow, const spShape* shapeA, const spShape* shapeB, spContact* contact);
 
 /// simulate one timestep of narrow phase collision detection
 void spNarrowPhaseStep(spNarrowPhase* narrow, spContact*& contact_list);

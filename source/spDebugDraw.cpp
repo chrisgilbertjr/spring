@@ -157,7 +157,7 @@ spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf)
      for (spInt i = 0; i < contact->count; ++i)
      {
          glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-         spVector pos  = contact->points[i].p;
+         spVector pos  = spVectorZero();
          spVector norm = spAdd(pos, normal);
          glBegin(GL_POINTS);
          glVertex2f(pos.x, pos.y);

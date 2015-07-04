@@ -12,6 +12,9 @@
     <Filter Include="unit_tests">
       <UniqueIdentifier>{4e65499f-906e-4947-bb29-7ac107720d4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="demo">
+      <UniqueIdentifier>{ab3015ea-1dd3-49cd-a4fc-bdd71c697973}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\spArray.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\spSegment.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\demo\spDebugDraw.h">
+      <Filter>demo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

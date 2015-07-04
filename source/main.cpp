@@ -59,7 +59,7 @@ void init_test(spApplication* app)
     spFilter filter = spFilterCollideAll;
 
     body = spBodyNewStatic();
-    box = spPolygonNew(body, boxDef(spVector(50.0f, 25.0f), 25.0f, 0.2f, 0.8f));
+    box = spPolygonNew(body, boxDef(spVector(250.0f, 25.0f), 25.0f, 0.2f, 0.8f));
     spShapeSetFilter(box, filter);
     spBodySetTransform(body, spVector(0.0f, -100.0f), 0.0f);
     spWorldAddBody(&app->world, body);
@@ -82,7 +82,7 @@ void init_test(spApplication* app)
     	spBodyAddShape(body, box);
     }
     body = spBodyNewStatic();
-    box = spSegmentNew(spVector(-10.0f, 0.0f), spVector(10.0f, 0.0f), 3.0f, 10.0f);
+    box = spSegmentNew(spVector(-10.0f, 0.0f), spVector(10.0f, 0.0f), 5.0f, 10.0f);
     box->body = body;
     spBodySetTransform(body, spVector(150.0f, 50.0f), 0.0f);
     spWorldAddBody(&app->world, body);
@@ -95,7 +95,7 @@ void init_test(spApplication* app)
     spBodyAddShape(body, box);
 
     body = spBodyNewStatic();
-    box = spSegmentNew(spVector(-20.0f, 0.0f), spVector(20.0f, 0.0f), 40.0f, 10.0f);
+    box = spSegmentNew(spVector(-20.0f, 0.0f), spVector(20.0f, 0.0f), 10.0f, 10.0f);
     box->body = body;
     spBodySetTransform(body, spVector(0.0f, 50.0f), 0.0f);
     spWorldAddBody(&app->world, body);

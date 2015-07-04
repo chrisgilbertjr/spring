@@ -15,6 +15,7 @@ spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def)
 
     poly->count = count;
     poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
+    poly->radius = 0.55f;
 
     /// initialize vertices and normals
     for (spInt i = 0; i < count; ++i)

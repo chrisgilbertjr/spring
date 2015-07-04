@@ -10,25 +10,19 @@
 
 struct spContactPoint
 {
-    spVector p;     ///< used for drawing contact points
     spVector rA;   ///< relative velocity from body a com
     spVector rB;   ///< relative velocity from body b com
     spFloat eMassNorm; ///< effective normal mass
     spFloat eMassTang; ///< effective tangent mass
     spFloat lambdaAccumNorm;///< accumulated normal impulse multiplier
     spFloat lambdaAccumTang;///< accumulated tangent impulse multiplier
-    spFloat L_bias; ///< impulse bias multiplier
-    spFloat v_bias; ///< velocity bias
     spFloat bounce;
     spFloat bias;
-    spFloat jBias;
-    spFloat pen;
 };
 
 struct spContact
 {
-    static const spInt SP_MAX_CONTACT_POINTS = 2; ///< max contact points per contact
-    spContactPoint points[SP_MAX_CONTACT_POINTS]; ///< contact points
+    spContactPoint points[2]; ///< contact points
     spContactKey key;
     spContact* next; ///< next contact in the doubly linked list
     spContact* prev; ///< previous contact in the doubly linked list

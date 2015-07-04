@@ -12,20 +12,15 @@ spContactPointInit(spContactPoint* point)
     point->lambdaAccumTang = 0.0f;
     point->eMassNorm = 0.0f;
     point->eMassTang = 0.0f;
-    point->L_bias = 0.0f;
-    point->v_bias = 0.0f;
     point->bounce = 0.0f;
     point->bias   = 0.0f;
-    point->pen    = 0.0f;
 }
 
 void 
 spContactInit(spContact* contact, const spContactKey& key)
 {
-    for (spInt i = 0; i < spContact::SP_MAX_CONTACT_POINTS; ++i)
-    {
-        spContactPointInit(contact->points + i);
-    }
+    spContactPointInit(contact->points+0);
+    spContactPointInit(contact->points+1);
     contact->key.shape_a = key.shape_a;
     contact->key.shape_b = key.shape_b;
     contact->next        = NULL;

@@ -196,8 +196,6 @@ extremalEdgeSegment(const spSegment* segment, const spVector normal)
         edge.a = pointA;
         edge.b = pointB;
     }
-        edge.a = pointA;
-        edge.b = pointB;
 
     return edge;
 }
@@ -289,13 +287,11 @@ extremalEdgePoly(const spPolygon* poly, const spVector& normal)
     {
         e.a = v0;
         e.b = v1;
-        spDebugDrawFatLine(v0, v1, 5.0f, spGreen(1.0f));
     }
     else
     {
         e.a = v1;
         e.b = v2;
-        spDebugDrawFatLine(v1, v2, 5.0f, spGreen(1.0f));
     }
     return e;
 }
@@ -400,6 +396,19 @@ vertexVertexCorrection(MinkowskiEdge* edge, struct ClosestPoints points)
 	edge->distance = spDot(edge->normal, edge->point);
 }
 
+static spBool
+edgesCanClip(const struct Edge* a, const struct Edge* b, spVector normal)
+{
+    spVector tangentA = spSkew(normal);
+    spVector tangentB = spNegate(tangentA);
+
+    spFloat minDistA = spMin(spDot(a->a, tangentA), spDot(a->b, tangentA));
+    spFloat minDistB = spMin(spDot(a->a, tangentB), spDot(a->b, tangentB));
+
+    return (spDot(b->a, tangentA) > minDistA && spDot(b->b, tangentA) > minDistA) ||
+           (spDot(b->a, tangentB) > minDistB && spDot(b->b, tangentB) > minDistB);
+}
+
 static spCollisionResult
 clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge* edge, spFloat radiusA, spFloat radiusB)
 {
@@ -426,18 +435,12 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         /// compute the points in world space, include their radius
         spVector pointA = spAdd(spMult(normal,  radiusA), spLerp(a->a, a->b, tA));
         spVector pointB = spAdd(spMult(normal, -radiusB), spLerp(b->a, b->b, tB));
-        spVector pointA2 = spLerp(a->a, a->b, tA);
-        spVector pointB2 = spLerp(b->a, b->b, tB);
 
         /// compute the penetration to see if they are in contact
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
-            //spDebugDrawPoint(pointB, spYellow(1.0f));
-            spDebugDrawPoint(pointA2, spBlue(1.0f));
-            spDebugDrawPoint(pointB2, spGreen(1.0f));
-            spDebugDrawPoint(pointB, spYellow(1.0f));
-            //addContact(&result, pointA, pointB);
+            addContact(&result, pointA, pointB);
         }
     } {
         /// get lerp ratios of the clipped points
@@ -447,18 +450,12 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         /// compute the points in world space, include their radius
         spVector pointA = spAdd(spMult(normal,  radiusA), spLerp(a->a, a->b, tA));
         spVector pointB = spAdd(spMult(normal, -radiusB), spLerp(b->a, b->b, tB));
-        spVector pointA2 = spLerp(a->a, a->b, tA);
-        spVector pointB2 = spLerp(b->a, b->b, tB);
 
         /// compute the penetration to see if they are in contact
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
-            spDebugDrawPoint(pointA2, spBlue(1.0f));
-            spDebugDrawPoint(pointB2, spGreen(1.0f));
-            spDebugDrawPoint(pointB, spYellow(1.0f));
-            //spDebugDrawPoint(pointB, spGreen(1.0f));
-            //addContact(&result, pointA, pointB);
+            addContact(&result, pointA, pointB);
         }
     }
     return result;
@@ -640,13 +637,13 @@ spCollidePolygonCircle(const spPolygon* poly, const spCircle* circle)
     }
 
     /// check if they are potentially colliding
-    if (mEdge.distance + circle->radius >= 0.0f)
+    if (mEdge.distance + circle->radius + poly->radius >= 0.0f)
     {
         /// get the contact normal
         spVector normal = result.normal = mEdge.normal;
 
         /// compute the contact points
-        spVector pointA = points.a;
+        spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
         spVector pointB = spAdd(points.b, spMult(circle->radius, spNegate(normal)));;
 
         /// add the contact to the collision result
@@ -676,7 +673,7 @@ spCollidePolygons(const spPolygon* polyA, const spPolygon* polyB)
 
     struct MinkowskiEdge mEdge = GJK(&context);
 
-    if (mEdge.distance >= 0.0f)
+    if (mEdge.distance + polyA->radius + polyB->radius >= 0.0f)
     {
         spVector normal = mEdge.normal;
         spVector negate = spNegate(normal);
@@ -684,7 +681,7 @@ spCollidePolygons(const spPolygon* polyA, const spPolygon* polyB)
         Edge edgeA = extremalEdgePoly(polyA,  normal);
         Edge edgeB = extremalEdgePoly(polyB,  negate);
 
-        return clipEdges(&edgeA, &edgeB, &mEdge, 0.0f, 0.0f);
+        return clipEdges(&edgeA, &edgeB, &mEdge, polyA->radius, polyB->radius);
     }
     else
     {
@@ -742,40 +739,6 @@ spCollideCircleSegment(const spCircle* circle, const spSegment* segment)
 }
 
 static spCollisionResult
-spCollideSegmentPolygon(const spSegment* segment, const spPolygon* poly)
-{
-    struct SupportPointContext context = { 
-        (spShape*)segment, 
-        (spShape*)poly, 
-        (SupportPointFunc)extremalPointSegment, 
-        (SupportPointFunc)extremalPointPoly };
-
-    struct MinkowskiEdge mEdge = GJK(&context);
-
-    /// vertex/vertex collisions need their normals adjusted
-    if (mEdge.t == 1.0f || mEdge.t == 0.0f)
-    {
-        mEdge.distance = spLength(mEdge.point);
-        mEdge.normal = spMult(mEdge.point, 1.0f / (mEdge.distance + SP_FLT_EPSILON));
-    }
-
-    if (mEdge.distance + segment->radius >= 0.0f)
-    {
-        spVector normal = mEdge.normal;
-        spVector negate = spNegate(normal);
-
-        Edge edgeA = extremalEdgeSegment(segment, normal);
-        Edge edgeB = extremalEdgePoly(poly, negate);
-
-        return clipEdges(&edgeA, &edgeB, &mEdge, segment->radius, 0.0f);
-    }
-    else
-    {
-        return spCollisionResultConstruct();
-    }
-}
-
-static spCollisionResult
 spCollidePolygonSegment(const spPolygon* poly, const spSegment* segment)
 {
     struct SupportPointContext context = { 
@@ -788,13 +751,9 @@ spCollidePolygonSegment(const spPolygon* poly, const spSegment* segment)
 
     ClosestPoints points = MinkowskiEdgeComputePoints(&mEdge);
 
-    ///// vertex/vertex collisions need their normals adjusted
-    //if (mEdge.t > 0.9f || mEdge.t < 0.1f)
-    //{
     vertexVertexCorrection(&mEdge, points);
-//    }
 
-    if (mEdge.distance + segment->radius >= 0.0f)
+    if (mEdge.distance + segment->radius + poly->radius >= 0.0f)
     {
         spVector normal = mEdge.normal;
         spVector negate = spNegate(normal);
@@ -802,16 +761,37 @@ spCollidePolygonSegment(const spPolygon* poly, const spSegment* segment)
         Edge edgeA = extremalEdgePoly(poly, normal);
         Edge edgeB = extremalEdgeSegment(segment, negate);
 
-        return clipEdges(&edgeA, &edgeB, &mEdge, 0.0f, segment->radius);
+        spVector segNormal = spMult(segment->shape.body->xf.q, segment->normal);
+
+        if (edgesCanClip(&edgeA, &edgeB, segNormal))
+        {
+            return clipEdges(&edgeA, &edgeB, &mEdge, poly->radius, segment->radius);
+        }
+        else
+        {
+            spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
+        	spVector pointB = spAdd(points.b, spMult(segment->radius, spNegate(normal)));;
+
+            spCollisionResult result = spCollisionResultConstruct();
+            result.normal = normal;
+
+        	/// add the contact to the collision result
+        	addContact(&result, pointA, pointB);
+            return result;
+        }
     }
     else
     {
         return spCollisionResultConstruct();
     }
+}
 
-    //spCollisionResult result = spCollideSegmentPolygon(segment, poly);
-    //if (result.colliding) invertContacts(&result);
-    //return result;
+static spCollisionResult
+spCollideSegmentPolygon(const spSegment* segment, const spPolygon* poly)
+{
+    spCollisionResult result = spCollidePolygonSegment(poly, segment);
+    invertContacts(&result);
+    return result;
 }
 
 static spCollisionResult

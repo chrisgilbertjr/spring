@@ -2,7 +2,7 @@
 #ifndef SP_COLLISION_H
 #define SP_COLLISION_H
 
-
+#include "spContact.h"
 #include "spPolygon.h"
 #include "spCircle.h"
 
@@ -57,7 +57,7 @@ struct spCollisionMatrix
 };
 
 /// 'faked' constructor for stack allocation
-spMinkowskiPoint spMinkowskiPointConstruct(spVector a, spVector b);
+//spMinkowskiPoint spMinkowskiPointConstruct(spVector a, spVector b);
 
 /// 'faked' constructor for stack allocation
 spCollisionInput _spCollisionInput(const spShape* sa, const spShape* sb, const spTransform* xfa, const spTransform* xfb);

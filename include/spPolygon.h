@@ -28,6 +28,7 @@ struct spPolygon
 {
     spShape base_class; ///< base shape class
     spEdge* edges;      ///< array of edges. each edge contains a vertex and a normal
+    spFloat radius;     ///< small radius added to polygon vertices
     spInt count;        ///< number of edges
 };
 

@@ -56,6 +56,8 @@
     #define SP_INFINITY 1e1000
 #endif
 
+
+
 #define SP_IGNORE(x) ((void)x)
 #define spRealloc realloc
 #define spMalloc malloc
@@ -80,9 +82,6 @@
 #define spWorld(g)                      _spWorld(g)
 #define spContactKey(a, b)              _spContactKey(a, b)
 #define spBodyDef()                     _spBodyDef()
-#define spBroadPhase(a)                 _spBroadPhase(a)
-#define spNarrowPhase(c)                _spNarrowPhase(c)
-#define spMaterial(f, r)                _spMaterial(f, r)
 
 /// for each iters
 #define for_each_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)
@@ -91,17 +90,17 @@
 #define for_each_body(body, initializer) for (spBody* body = initializer; body; body = body->next)
 
 /// spring data types
-typedef char spInt8;
-typedef short spInt16;
-typedef int spInt;
-typedef int spSize;
-typedef unsigned char spUint8;
+typedef char           spInt8;
+typedef short          spInt16;
+typedef int            spInt;
+typedef int            spSize;
+typedef unsigned char  spUint8;
 typedef unsigned short spUint16;
-typedef unsigned int spUint;
-typedef unsigned int spMask;
-typedef unsigned int spBool;
-typedef unsigned int spGroup;
-typedef void* spLazyPointer;
+typedef unsigned int   spUint;
+typedef unsigned int   spMask;
+typedef unsigned int   spBool;
+typedef unsigned int   spGroup;
+typedef void*          spLazyPointer;
 
 /// struct typedefs for convenience
 typedef struct spContactPoint spContactPoint;
@@ -113,7 +112,6 @@ typedef struct spContact spContact;
 typedef struct spCluster spCluster;
 typedef struct spVector spVector;
 typedef struct spMatrix spMatrix;
-typedef struct spChain spChain;
 typedef struct spWorld spWorld;
 typedef struct spShape spShape;
 typedef struct spBody spBody;
@@ -184,51 +182,30 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
 /// @defgroup spDebug spDebug
 /// @{
 
-#define spNewline spLog("\n");
-#define SP_LOG(file, msg)     \
-    va_list args;             \
-    va_start(args, msg);      \
-    spDoLog(file, msg, args); \
-    va_end(args);
-
-///
-void spDoLog(FILE* file, const char* msg, va_list args);
-//{
-//    vfprintf(file, msg, args);
-//}
-
-///
-void _spAssert(spBool condition, const char* msg, ...);
-//{
-//    if (condition == spFalse)
-//    {
-//        SP_LOG(stderr, msg);
-//        assert(false);
-//    }
-//}
-
-///
-inline void _spWarning(spBool condition, const char* msg, ...)
-{
-    SP_LOG(stderr, msg);
-}
-
-///
-inline void _spLog(const char* msg, ...)
-{
-    SP_LOG(stdout, msg);
-}
-
-void spSane(spFloat val);
-
 #ifdef SP_DEBUG
-  #define spAssert  _spAssert
-  #define spWarning _spWarning
-  #define spLog     _spLog
+    #define NULLCHECK(ptr) spAssert(ptr != NULL, "pointer is NULL!\n")
+    #define NANCHECK (val) spAssert(val == val,  "value is NaN!\n");
+    #define spAssert  DEBUGAssert
+    #define spWarning DEBUGWarning
+    #define spLog     DEBUGLog
+
+    /// TODO:
+	void DEBUGDoLog(FILE* file, const char* msg, va_list args);
+
+	/// TODO:
+	void DEBUGAssert(spBool condition, const char* msg, ...);
+
+	/// TODO:
+	void DEBUGWarning(spBool condition, const char* msg, ...);
+
+	/// TODO:
+	void DEBUGLog(const char* msg, ...);
 #else
-  #define spAssert  
-  #define spWarning 
-  #define spLog     
+    #define NULLCHECK(ptr)
+    #define NANCHECK(val)
+    #define spAssert  
+    #define spWarning 
+    #define spLog     
 #endif
 
 /// @}

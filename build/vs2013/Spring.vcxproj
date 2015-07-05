@@ -71,7 +71,6 @@
     <ClCompile Include="..\..\source\spWorld.cpp" />
     <ClCompile Include="..\..\tests\spBoundTest.cpp" />
     <ClCompile Include="..\..\tests\spChainTest.cpp" />
-    <ClCompile Include="..\..\tests\spCircleTest.cpp" />
     <ClCompile Include="..\..\tests\spMathTest.cpp" />
     <ClCompile Include="..\..\tests\spPolygonTest.cpp" />
     <ClCompile Include="..\..\tests\spShapeTest.cpp" />

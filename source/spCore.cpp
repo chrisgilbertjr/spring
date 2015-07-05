@@ -1,21 +1,34 @@
 
 #include "spCore.h"
 
-void spDoLog(FILE* file, const char* msg, va_list args)
-{
-    vfprintf(file, msg, args);
-}
+#ifdef SP_DEBUG
+    #define SP_LOG(file, msg)        \
+        va_list args;                \
+        va_start(args, msg);         \
+        DEBUGDoLog(file, msg, args); \
+        va_end(args);
 
-void _spAssert(spBool condition, const char* msg, ...)
-{
-    if (condition == spFalse)
+    void DEBUGDoLog(FILE* file, const char* msg, va_list args)
+    {
+        vfprintf(file, msg, args);
+    }
+
+    void DEBUGAssert(spBool condition, const char* msg, ...)
+    {
+        if (condition == spFalse)
+        {
+            SP_LOG(stderr, msg);
+            assert(false);
+        }
+    }
+
+    void DEBUGWarning(spBool condition, const char* msg, ...)
     {
         SP_LOG(stderr, msg);
-        assert(false);
     }
-}
 
-void spSane(spFloat val)
-{
-    spAssert(val == val, "NaN!\n");
-}
+    void DEBUGLog(const char* msg, ...)
+    {
+        SP_LOG(stdout, msg);
+    }
+#endif

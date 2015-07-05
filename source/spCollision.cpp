@@ -202,7 +202,7 @@ static spVector
 extremalPointCircle(const spCircle* circle, const spVector normal)
 {
     /// circles are tested as points with a radius, return the world center
-    return spMult(circle->base_class.body->xf, circle->center);
+    return spMult(circle->shape.body->xf, circle->center);
 }
 
 static spVector
@@ -243,7 +243,7 @@ extremalEdgeSegment(const spSegment* segment, const spVector normal)
 static spInt
 extremalIndexPoly(const spPolygon* poly, const spVector normal)
 {
-    spTransform* xf = &poly->base_class.body->xf;
+    spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
     spEdge* edges = poly->edges;
@@ -274,7 +274,7 @@ extremalIndexPoly(const spPolygon* poly, const spVector normal)
 static spVector
 extremalPointPoly(const spPolygon* poly, const spVector normal)
 {
-    spTransform* xf = &poly->base_class.body->xf;
+    spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
     spEdge* edges = poly->edges;
@@ -305,7 +305,7 @@ extremalPointPoly(const spPolygon* poly, const spVector normal)
 static Edge
 extremalEdgePoly(const spPolygon* poly, const spVector& normal)
 {
-    spTransform* xf = &poly->base_class.body->xf;
+    spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
     spEdge* edges = poly->edges;
@@ -524,8 +524,8 @@ GJK(const struct SupportPointContext* context)
     const spTransform* xfB = &shapeB->body->xf;
 
     /// generate an initial axis direction for support points
-    spVector cA = spMult(*xfA, spShapeGetCenter(shapeA));
-    spVector cB = spMult(*xfB, spShapeGetCenter(shapeB));
+    spVector cA = spMult(*xfA, spShapeGetCOM(shapeA));
+    spVector cB = spMult(*xfB, spShapeGetCOM(shapeB));
 
     /// calculate normal directions for support points
     spVector normal = spSkew(spSub(cA, cB));
@@ -589,8 +589,8 @@ CircleToCircle(const spCircle* circleA, const spCircle* circleB)
     spCollisionResult result = spCollisionResultConstruct();
 
     /// get the shapes transforms
-    spTransform* xfA = &circleA->base_class.body->xf;
-    spTransform* xfB = &circleB->base_class.body->xf;
+    spTransform* xfA = &circleA->shape.body->xf;
+    spTransform* xfB = &circleB->shape.body->xf;
 
     /// compute the centers in world space, and difference between the two vectors
     spVector centerA = spMult(*xfA, circleA->center);

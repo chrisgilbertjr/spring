@@ -58,35 +58,9 @@ spShape* spWorldTestPoint(spWorld* world, spVector point);
 /// TODO:
 void spWorldAddBody(spWorld* world, spBody* body);
 
-/// TODO:
-void spWorldAddDistanceJoint(spWorld* world, spDistanceJoint* joint);
+void spWorldAddConstraint(spWorld* world, spConstraint* constraint);
 
-/// TODO:
-void spWorldAddRopeJoint(spWorld* world, spRopeJoint* joint);
-
-// TODO:
-void spWorldAddMotorJoint(spWorld* world, spMotorJoint* joint);
-
-/// TODO:
-void spWorldAddSpringJoint(spWorld* world, spSpringJoint* joint);
-
-/// TODO:
-void spWorldAddAngularSpringJoint(spWorld* world, spAngularSpringJoint* joint);
-
-/// TODO:
-void spWorldAddWheelJoint(spWorld* world, spWheelJoint* joint);
-
-/// TODO:
-void spWorldAddGearJoint(spWorld* world, spGearJoint* joint);
-
-/// TODO:
-void spWorldAddPointJoint(spWorld* world, spPointJoint* joint);
-
-/// TODO:
-void spWorldAddMouseJoint(spWorld* world, spMouseJoint* joint);
-
-/// TODO:
-void spWorldRemoveMouseJoint(spWorld* world, spMouseJoint* joint);
+void spWorldRemoveConstraint(spWorld* world, spConstraint* constraint);
 
 void spWorldDraw(spWorld* world);
 

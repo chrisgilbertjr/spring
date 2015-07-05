@@ -19,10 +19,7 @@ spSegmentInit(spSegment* segment, spVector pointA, spVector pointB, spFloat radi
     /// init the shape base class
     spSegmentComputeMassData(segment, &massData, mass);
     spSegmentComputeBound(segment, &bound);
-    spShapeInit2(shape, &massData, &bound, SP_SHAPE_SEGMENT);
-
-    /// check if everything is init correctly
-    spSegmentIsSane(segment);
+    spShapeInit(shape, &massData, &bound, SP_SHAPE_SEGMENT);
 }
 
 spSegment* 
@@ -98,12 +95,3 @@ spSegmentTestPoint(spSegment* segment, const spVector point)
 {
     return spFalse;
 }
-
-#ifdef SP_DEBUG
-void __spSegmentIsSane(spSegment* segment)
-{
-    spSane(segment->pointA);
-    spSane(segment->pointB);
-    spSane(segment->radius);
-}
-#endif

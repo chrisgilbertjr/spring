@@ -3,54 +3,7 @@
 #include "spCircle.h"
 #include "spBody.h"
 
-void 
-spCircleInit(spCircle* circle, spBody* body, const spCircleDef& def)
-{
-    spCircleDefIsSane(def);
-
-    const spMaterial* material = &def.material;
-    spShapeDef shape_def;
-    spMassData mass_data;
-    spBound    bound;
-
-    circle->center = def.center;
-    circle->radius = def.radius;
-
-    spCircleComputeMassData(circle, &mass_data, def.mass);
-    spCircleComputeBound(circle, &bound);
-
-    shape_def.type = SP_SHAPE_CIRCLE;
-    shape_def.mass_data = &mass_data;
-    shape_def.material = material;
-    shape_def.body = body;
-    shape_def.bound = &bound;
-
-    spShapeInit(&circle->base_class, shape_def);
-
-    spCircleIsSane(circle);
-}
-
-spCircle* 
-spCircleAlloc()
-{
-    return (spCircle*) spMalloc(sizeof(spCircle));
-}
-
-spShape* 
-spCircleNew(spBody* body, const spCircleDef& def)
-{
-    spCircle* circle = spCircleAlloc();
-    spCircleInit(circle, body, def);
-    return (spShape*)circle;
-}
-
-void 
-spCircleFree(spCircle** circle)
-{
-    spFree(circle);
-}
-
-spFloat
+static spFloat
 spCircleComputeInertia(spCircle* circle, spFloat mass)
 {
     spAssert(circle != NULL, "the circle is null while computing mass data");
@@ -60,7 +13,7 @@ spCircleComputeInertia(spCircle* circle, spFloat mass)
     return mass * circle->radius * circle->radius * 0.5f * SP_DEG_TO_RAD;
 }
 
-void 
+static void 
 spCircleComputeBound(spCircle* circle, spBound* bound)
 {
     spAssert(circle != NULL, "the circle is null while computing mass data");
@@ -70,11 +23,9 @@ spCircleComputeBound(spCircle* circle, spBound* bound)
     bound->center = circle->center;
     bound->radius = radius;
     bound->half_width = spVector(radius, radius);
-
-    spBoundIsSane(*bound);
 }
 
-void 
+static void 
 spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass)
 {
     spAssert(circle != NULL, "the circle is null while computing mass data");
@@ -83,9 +34,62 @@ spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass)
     spMassDataInit(data, circle->center, spCircleComputeInertia(circle, mass), mass);
 }
 
+void 
+spCircleInit(spCircle* circle, spVector center, spFloat radius, spFloat mass)
+{
+    circle->center = center;
+    circle->radius = radius;
+
+    spMassData mass_data;
+    spBound    bound;
+
+    spCircleComputeMassData(circle, &mass_data, mass);
+    spCircleComputeBound(circle, &bound);
+
+    spShapeInit(&circle->shape, &mass_data, &bound, SP_SHAPE_CIRCLE);
+}
+
+spCircle* 
+spCircleAlloc()
+{
+    return (spCircle*) spMalloc(sizeof(spCircle));
+}
+
+spShape* 
+spCircleNew(spVector center, spFloat radius, spFloat mass)
+{
+    spCircle* circle = spCircleAlloc();
+    spCircleInit(circle, center, radius, mass);
+    return (spShape*)circle;
+}
+
+void 
+spCircleFree(spCircle** circle)
+{
+    spFree(circle);
+}
+
 spBool 
 spCircleTestPoint(spCircle* circle, spVector point)
 {
-    spVector center = spMult(circle->base_class.body->xf, circle->center);
-    return spLength(spSub(point, center)) < circle->radius;
+    spVector center = spCircleGetWorldCenter(circle);
+    return spLength(spSub(point, center)) <= circle->radius;
+}
+
+spVector 
+spCircleGetLocalCenter(spCircle* circle)
+{
+    return circle->center;
+}
+
+spVector 
+spCircleGetWorldCenter(spCircle* circle)
+{
+    return spMult(circle->shape.body->xf, circle->center);
+}
+
+spFloat 
+spCircleGetRadius(spCircle* circle)
+{
+    return circle->radius;
 }

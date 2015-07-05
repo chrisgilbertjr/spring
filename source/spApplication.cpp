@@ -161,7 +161,7 @@ default_loop(spApplication* app)
             if (shape != NULL && shape->body->type == SP_BODY_DYNAMIC)
             {
                 spMouseJointStart(app->mouse, shape->body, pos);
-                spWorldAddMouseJoint(&app->world, app->mouse);
+                spWorldAddConstraint(&app->world, (spConstraint*)app->mouse);
                 app->mouse->constraint.body_a = shape->body;
                 app->mouseShape = shape;
             }
@@ -176,7 +176,7 @@ default_loop(spApplication* app)
         if (app->mouseShape != NULL)
         {
             spMouseJointEnd(app->mouse);
-            spWorldRemoveMouseJoint(&app->world, app->mouse);
+            spWorldRemoveConstraint(&app->world, (spConstraint*)app->mouse);
         }
         app->mouseShape = NULL;
     }

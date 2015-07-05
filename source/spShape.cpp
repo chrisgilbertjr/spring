@@ -3,40 +3,29 @@
 #include "spCircle.h"
 #include "spShape.h"
 
-extern const spMask spCollideAll = ~(spMask)0;
-extern const spMask spCollideNone = (spMask)0;
+/// common collision filters and a default material
+extern const spMask spCollideAll   = ~(spMask)0;
+extern const spMask spCollideNone  =  (spMask)0;
 const spFilter spFilterCollideNone = {  (spMask)0,  (spMask)0,  (spMask)0 };
 const spFilter spFilterCollideAll  = { ~(spMask)0, ~(spMask)0, ~(spMask)0 };
+const spMaterial spDefaultMaterial = { 0.6f, 0.2f };
 
 void 
-spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, spFloat mass)
+spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass)
 {
+    NULLCHECK(data);
     data->inertia = inertia;
     data->mass = mass;
     data->com = center;
-
-    spMassDataIsSane(*data);
 }
 
-void 
-spShapeInit(spShape* shape, const spShapeDef& def)
+void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type)
 {
-    shape->mass_data = *def.mass_data;
-    shape->material = *def.material;
-    shape->bound = *def.bound;
-    shape->body = def.body;
-    shape->type = def.type;
-    shape->next = NULL;
-    shape->prev = NULL;
-    shape->filter = spFilterCollideAll;
-
-    spShapeIsSane(shape);
-}
-
-void spShapeInit2(spShape* shape, spMassData* data, spBound* bound, spShapeType type)
-{
+    NULLCHECK(shape);
+    NULLCHECK(data);
+    NULLCHECK(bound);
     shape->mass_data = *data;
-    shape->material = spMaterial(0.6f, 0.2f);
+    shape->material = spDefaultMaterial;
     shape->bound = *bound;
     shape->type = type;
     shape->body = NULL;
@@ -45,51 +34,18 @@ void spShapeInit2(spShape* shape, spMassData* data, spBound* bound, spShapeType 
     shape->filter = spFilterCollideAll;
 }
 
-spVector 
-spShapeGetCenter(const spShape* shape)
-{
-    return shape->mass_data.com;
-}
-
-spFloat 
-spShapeGetMass(const spShape* shape)
-{
-    return shape->mass_data.mass;
-}
-
-spFloat 
-spShapeGetInertia(const spShape* shape)
-{
-    return shape->mass_data.inertia;
-}
-
-void 
-spShapeSetFilter(spShape* shape, const spFilter filter)
-{
-    shape->filter = filter;
-}
-
 spBool 
 spShapeLessThan(const spShape* a, const spShape* b)
 {
+    NULLCHECK(a); 
+    NULLCHECK(b);
     return a < b ? spTrue : spFalse;
-}
-
-void 
-spShapeAdd(spShape* shape, spShape*& shapes)
-{
-    SP_LINKED_LIST_PREPEND(spShape, shape, shapes);
-}
-
-void 
-spShapeRemove(spShape* shape, spShape* shapes)
-{
-    SP_LINKED_LIST_REMOVE(spShape, shape, shapes);
 }
 
 spBool 
 spShapeTestPoint(spShape* shape, spVector point)
 {
+    NULLCHECK(shape);
     switch (shape->type)
     {
     case SP_SHAPE_CIRCLE:
@@ -103,6 +59,7 @@ spShapeTestPoint(spShape* shape, spVector point)
 spBool 
 spShapesCanCollide(spShape* a, spShape* b)
 {
+    NULLCHECK(a); NULLCHECK(b);
     if (a->filter.group == spCollideAll && b->filter.group == spCollideAll) return spTrue;
     if (a->filter.group == b->filter.group) return spFalse;
     if (a->filter.type & b->filter.collide) return spTrue;
@@ -114,6 +71,7 @@ spShapesCanCollide(spShape* a, spShape* b)
 struct spCircle* 
 spShapeCastCircle(const spShape* shape)
 {
+    NULLCHECK(shape);
     if (shape->type == SP_SHAPE_CIRCLE)
     {
         return (spCircle*)shape;
@@ -128,6 +86,7 @@ spShapeCastCircle(const spShape* shape)
 struct spPolygon* 
 spShapeCastPolygon(const spShape* shape)
 {
+    NULLCHECK(shape);
     if (shape->type == SP_SHAPE_POLYGON)
     {
         return (spPolygon*)shape;
@@ -139,31 +98,122 @@ spShapeCastPolygon(const spShape* shape)
     }
 }
 
+struct spSegment* 
+spShapeCastSegment(const spShape* shape)
+{
+    NULLCHECK(shape);
+    if (shape->type == SP_SHAPE_SEGMENT)
+    {
+        return (spSegment*)shape;
+    }
+    else
+    {
+        spAssert(spFalse, "the shape is not a segment!\n");
+        return NULL;
+    }
+}
+
+spShapeType 
+spShapeGetType(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->type;
+}
+
+spMassData 
+spShapeGetMassData(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->mass_data;
+}
+
+spVector 
+spShapeGetCOM(const spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->mass_data.com;
+}
+
+spFloat 
+spShapeGetMass(const spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->mass_data.mass;
+}
+
+spFloat 
+spShapeGetInertia(const spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->mass_data.inertia;
+}
+
+spMaterial 
+spShapeGetMaterial(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->material;
+}
+
+spFilter 
+spShapeGetFilter(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->filter;
+}
+
+spBound 
+spShapeGetBound(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->bound;
+}
+
+spBody* 
+spShapeGetBody(spShape* shape)
+{
+    NULLCHECK(shape);
+    return shape->body;
+}
+
+void 
+spShapeSetMaterial(spShape* shape, spFloat restitution, spFloat friction)
+{
+    NULLCHECK(shape);
+    shape->material = { restitution, friction };
+}
+
+void 
+spShapeSetNewMaterial(spShape* shape, spMaterial material)
+{
+    NULLCHECK(shape);
+    shape->material = material;
+}
+
+void 
+spShapeSetFriction(spShape* shape, spFloat friction)
+{
+    NULLCHECK(shape);
+    shape->material.friction = friction;
+}
+
+void 
+spShapeSetRestitution(spShape* shape, spFloat restitution)
+{
+    NULLCHECK(shape);
+    shape->material.restitution = restitution;
+}
+
+void 
+spShapeSetFilter(spShape* shape, const spFilter filter)
+{
+    NULLCHECK(shape);
+    shape->filter = filter;
+}
+
 spFilter 
 spFilterConstruct(spGroup group, spMask type, spMask collide)
 {
     spFilter filter = { group, type, collide };
     return filter;
-}
-
-spMaterial 
-_spMaterial(const spFloat friction, const spFloat restitution)
-{
-    spMaterial material;
-    material.friction = friction;
-    material.restitution = restitution;
-    spMaterialIsSane(material);
-    return material;
-}
-
-spFloat 
-spMaterialComputeFriction(const spMaterial* ma, const spMaterial* mb)
-{
-    return spsqrt(ma->friction * mb->friction);
-}
-
-spFloat 
-spMaterialComputeRestitution(const spMaterial* ma, const spMaterial* mb)
-{
-    return spMax(ma->restitution, mb->restitution);
 }

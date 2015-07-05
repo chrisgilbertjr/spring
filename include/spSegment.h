@@ -43,14 +43,6 @@ void spSegmentComputeMassData(spSegment* segment, spMassData* data, spFloat mass
 /// TODO:
 spBool spSegmentTestPoint(spSegment* segment, const spVector point);
 
-/// TODO: sanity checks
-#ifdef SP_DEBUG
-    #define spSegmentIsSane(segment) __spSegmentIsSane(segment);
-    void __spSegmentIsSane(spSegment* segment);
-#else
-    #define spSegmentIsSane(segment)
-#endif
-
 /// @}
 
 #endif

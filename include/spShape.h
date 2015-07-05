@@ -28,11 +28,11 @@ struct spMassData
 /// describes the friction and bounciness of a shape
 struct spMaterial
 {
-    spFloat restitution; ///< 'bounciness' of a shape
+    spFloat restitution; ///< bounciness of a shape
     spFloat friction;    ///< friction of a shape
 };
 
-/// collision filter
+/// collision filtering via bitmasks/groups
 struct spFilter
 {
     spGroup group;   ///< objects in similar groups will not collide with one another
@@ -40,127 +40,95 @@ struct spFilter
     spMask  collide; ///< bitmask that describes which types to collide with
 };
 
-/// TODO:
-extern const spMask spCollideAll;
-extern const spMask spCollideNone;
-extern const spFilter spFilterCollideNone;
-extern const spFilter spFilterCollideAll;
-
-/// used to create shapes
-struct spShapeDef
-{
-    spBody* body;
-    spShapeType type;
-    const spMassData* mass_data;
-    const spMaterial* material;
-    const spBound* bound;
-};
-
-/// TODO: document this better
-/// a shape describes convex objects and are the base for collision primitives.
-/// shapes describe the physical portion of a rigid body, and multiple may be attached to a single body.
-/// each shape has mass properties, a material, a bound, and its type.
-/// each body contains a linked list of shapes.
-/// shapes must be created, but are released when a body is destroyed.
-/// only destroy a shape if you want to remove it from a rigid body, otherwise let the body manage the shape.
+/// shapes define geometry that will collide with other geometry
+/// shapes need to be attached to rigid bodies, and added to the world
 struct spShape
 {
-    spShapeType type;     ///< INTERNAL: type of shape
-    spMassData mass_data; ///<         : mass data of the shape (center of mass, mass, inertia)
-    spMaterial material;  ///<         : the shapes material (restitution, friction)
-    spFilter filter;      ///<         : used for collision filtering
-    spShape* next;        ///< INTERNAL: next shape in the doubly linked list
-    spShape* prev;        ///< INTERNAL: previous shape in the doubly linked list
-    spBound  bound;       ///< INTERNAL: bounding volume of the shape
-    spBody*  body;        ///< INTERNAL: the body the shape is attached to
+    spShapeType type;     ///< type of shape
+    spMassData mass_data; ///< mass data of the shape (center of mass, mass, inertia)
+    spMaterial material;  ///< the shapes material (restitution, friction)
+    spFilter filter;      ///< used for collision filtering
+    spShape* next;        ///< next shape in the doubly linked list
+    spShape* prev;        ///< previous shape in the doubly linked list
+    spBound  bound;       ///< bounding volume of the shape
+    spBody*  body;        ///< the body the shape is attached to
 };
 
 /// initialize mass data with a mass, inertia, and center of mass
-void spMassDataInit(spMassData* data, const spVector& center, spFloat inertia, spFloat mass);
+void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass);
 
-/// initialize a shape with mass properties, a material, and a type
-void spShapeInit(spShape* shape, const spShapeDef& def);
-
-void spShapeInit2(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
-
-/// TODO:
-spVector spShapeGetCenter(const spShape* shape);
-
-/// TODO:
-spFloat spShapeGetMass(const spShape* shape);
-
-/// TODO:
-spFloat spShapeGetInertia(const spShape* shape);
-
-/// TODO:
-void spShapeSetFilter(spShape* shape, const spFilter filter);
+/// initializes a shape with mass data, a bounding box, and a shape type
+void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
 
 /// sorts two shapes based on their pointer values
 spBool spShapeLessThan(const spShape* a, const spShape* b);
 
-/// add a shape to a linked list
-void spShapeAdd(spShape* shape, spShape*& shapes);
-
-/// remove a shape from a linked list
-void spShapeRemove(spShape* shape, spShape* shapes);
-
-/// TODO:
+/// tests a point to see if it is inside of a shape
 spBool spShapeTestPoint(spShape* shape, spVector point);
 
-/// TODO:
+/// check if two shapes can collide via collision filtering
 spBool spShapesCanCollide(spShape* a, spShape* b);
 
-/// TODO:
+/// casts a shape into a circle pointer (if it is a circle shape)
 struct spCircle* spShapeCastCircle(const spShape* shape);
 
-/// TODO:
+/// casts a shape into a polygon pointer (if it is a polygon shape)
 struct spPolygon* spShapeCastPolygon(const spShape* shape);
 
-/// TODO:
+/// casts a shape into a segment pointer (if it is a segment shape)
+struct spSegment* spShapeCastSegment(const spShape* shape);
+
+/// get the shapes type
+spShapeType spShapeGetType(spShape* shape);
+
+/// get the shapes mass data
+spMassData spShapeGetMassData(spShape* shape);
+
+/// get the shapes center of mass
+spVector spShapeGetCOM(const spShape* shape);
+
+/// get the shapes mass
+spFloat spShapeGetMass(const spShape* shape);
+
+/// get the shapes moment of inertia
+spFloat spShapeGetInertia(const spShape* shape);
+
+/// get the shapes material
+spMaterial spShapeGetMaterial(spShape* shape);
+
+/// get the shapes collision filter
+spFilter spShapeGetFilter(spShape* shape);
+
+/// get the shapes bound
+spBound spShapeGetBound(spShape* shape);
+
+/// get the shapes body
+spBody* spShapeGetBody(spShape* shape);
+
+/// set the shapes material given restitution and a friction value
+void spShapeSetMaterial(spShape* shape, spFloat restitution, spFloat friction);
+
+/// set the shapes material given a new material
+void spShapeSetNewMaterial(spShape* shape, spMaterial material);
+
+/// set the shapes material friction
+void spShapeSetFriction(spShape* shape, spFloat friction);
+
+/// set the shapes material restitution
+void spShapeSetRestitution(spShape* shape, spFloat restitution);
+
+/// set the shapes collision filter
+void spShapeSetFilter(spShape* shape, const spFilter filter);
+
+/// creates a new collision filter on the stack
 spFilter spFilterConstruct(spGroup group, spMask type, spMask collide);
 
-/// 'faked' constructor for stack allocation
-spMaterial _spMaterial(const spFloat friction, const spFloat restitution);
-
-/// compute the mixed friction of two materials
-spFloat spMaterialComputeFriction(const spMaterial* ma, const spMaterial* mb);
-
-/// compute the mixed restitution of two materials
-spFloat spMaterialComputeRestitution(const spMaterial* ma, const spMaterial* mb);
-
-/// sanity checks
-#ifdef SP_DEBUG
- #define spMassDataIsSane(mass) _spMassDataIsSane(mass)
- #define spMaterialIsSane(material) _spMaterialIsSane(material)
- #define spShapeIsSane(shape) _spShapeIsSane(shape)
-
- /// mass data sanity check
- inline void _spMassDataIsSane(const spMassData& data)
- {
-     spAssert(data.mass >= 0.0f, "mass is < zero in sanity check");
-     spAssert(data.inertia >= 0.0f, "inertia is < zero in sanity check");
- }
-
- /// material sanity check
- inline void _spMaterialIsSane(const spMaterial& material)
- {
-     spAssert(material.friction >= 0.0f, "friction is negative in sanity check");
-     spAssert(material.restitution >= 0.0f, "restitution is negative in sanity check");
- }
-
- /// shape sanity check
- inline void _spShapeIsSane(const spShape* shape)
- {
-     spMassDataIsSane(shape->mass_data);
-     spMaterialIsSane(shape->material);
-     spBoundIsSane(shape->bound);
-     //spAssert(shape->body != NULL, "the shapes body is NULL in its sanity check");
- }
-#else
- #define spMassDataIsSane(mass)
- #define spMaterialIsSane(material)
- #define spShapeIsSane(shape)
-#endif
+/// common collision filters and a default material
+extern const spMask spCollideAll;
+extern const spMask spCollideNone;
+extern const spFilter spFilterCollideNone;
+extern const spFilter spFilterCollideAll; 
+extern const spMaterial spDefaultMaterial;
 
 /// @}
 

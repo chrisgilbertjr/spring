@@ -1,75 +1,8 @@
 
-#include "spDebugDraw.h"
 #include "spPolygon.h"
 #include "spBody.h"
 
-void 
-spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def)
-{
-    spPolygonDefIsSane(def);
-
-    const spMaterial* material = &def.material;
-    spVector* vertices = def.vertices;
-    spInt count = def.vertex_count;
-    spFloat mass = def.mass;
-
-    poly->count = count;
-    poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
-    poly->radius = 0.55f;
-
-    /// initialize vertices and normals
-    for (spInt i = 0; i < count; ++i)
-    {
-        spVector tail = vertices[i]; /// get this edge vertex
-        spVector head = vertices[(i+1) % count]; /// get the next, with a wrapping index
-        spVector normal = spNormal(spSkewT(spSub(head, tail)));
-
-        poly->edges[i].vertex = tail;
-        poly->edges[i].normal = normal;
-    }
-
-    spShapeDef shape_def;
-    spMassData mass_data;
-    spBound    bound;
-
-    spPolygonComputeMassData(poly, &mass_data, mass);
-    spPolygonComputeBound(poly, &bound, mass_data.com);
-
-    shape_def.body = body;
-    shape_def.type = SP_SHAPE_POLYGON;
-    shape_def.mass_data = &mass_data;
-    shape_def.material = material;
-    shape_def.bound = &bound;
-
-    spShapeInit(&poly->base_class, shape_def);
-
-    spPolygonIsSane(poly);
-}
-
-spShape* 
-spPolygonNew(spBody* body, const spPolygonDef& def)
-{
-    spPolygon* poly = spPolygonAlloc();
-    spPolygonInit(poly, body, def);
-    return (spShape*)poly;
-}
-
-spPolygon* 
-spPolygonAlloc()
-{
-    return (spPolygon*) spMalloc(sizeof(spPolygon));
-}
-
-void 
-spPolygonFree(spPolygon** poly)
-{
-    spPolygon* polygon = *poly;
-    spEdge** edges = &polygon->edges;
-    spFree(edges);
-    spFree(poly);
-}
-
-spVector 
+static spVector 
 spPolygonComputeCenterOfMass(spPolygon* poly)
 {
     /// http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon 
@@ -100,7 +33,7 @@ spPolygonComputeCenterOfMass(spPolygon* poly)
     return spMult(N, 1.0f/(D*3.0f));
 }
 
-spFloat
+static spFloat
 spPolygonComputeInertia(spPolygon* poly, spFloat mass)
 {
     spAssert(poly != NULL, "the polygon is null while computing the moment of inertia");
@@ -135,7 +68,7 @@ spPolygonComputeInertia(spPolygon* poly, spFloat mass)
     return ((mass * N) / (6.0f * D)) * SP_DEG_TO_RAD;
 }
 
-void 
+static void 
 spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& center)
 {
     spAssert(poly  != NULL, "the polygon is null while computing a bounding volume");
@@ -163,7 +96,7 @@ spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& center)
     spBoundInit(bound, center, max);
 }
 
-void 
+static void 
 spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
 {
     spAssert(poly != NULL, "the polygon is null while computing mass data");
@@ -178,10 +111,64 @@ spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
         mass);
 }
 
+void 
+spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
+{
+    spAssert(vertices != NULL, "vertices are null in spPolygonInit\n");
+    spAssert(count > 2, "less than 3 vertices in spPolygonInit\n");
+    spMaterial material = { 0.6f, 0.2f };
+
+    poly->count = count;
+    poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
+    poly->radius = 0.55f;
+
+    /// initialize vertices and normals
+    for (spInt i = 0; i < count; ++i)
+    {
+        spVector tail = vertices[i]; /// get this edge vertex
+        spVector head = vertices[(i+1) % count]; /// get the next, with a wrapping index
+        spVector normal = spNormal(spSkewT(spSub(head, tail)));
+
+        poly->edges[i].vertex = tail;
+        poly->edges[i].normal = normal;
+    }
+
+    spMassData mass_data;
+    spBound    bound;
+
+    spPolygonComputeMassData(poly, &mass_data, mass);
+    spPolygonComputeBound(poly, &bound, mass_data.com);
+
+    spShapeInit(&poly->shape, &mass_data, &bound, SP_SHAPE_POLYGON);
+}
+
+spShape* 
+spPolygonNew(spVector* vertices, spInt count, spFloat mass)
+{
+    spPolygon* poly = spPolygonAlloc();
+    spPolygonInit(poly, vertices, count, mass);
+    return (spShape*)poly;
+}
+
+spPolygon* 
+spPolygonAlloc()
+{
+    return (spPolygon*) spMalloc(sizeof(spPolygon));
+}
+
+void 
+spPolygonFree(spPolygon** poly)
+{
+    spPolygon* polygon = *poly;
+    spEdge** edges = &polygon->edges;
+    spFree(edges);
+    spFree(poly);
+}
+
 spBool 
 spPolygonTestPoint(spPolygon* poly, spVector point)
 {
-    spTransform* xf = &poly->base_class.body->xf;
+    spTransform* xf = &poly->shape.body->xf;
     spVector v0 = spTMult(*xf, point);
 
     spInt count = poly->count;

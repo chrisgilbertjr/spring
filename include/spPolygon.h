@@ -14,77 +14,31 @@ struct spEdge
     spVector normal; ///< a polygon normal
 };
 
-/// used to create polygon shapes
-struct spPolygonDef
-{
-    spMaterial material; ///< the material of the polygon
-    spVector* vertices;  ///< pointer to an array of vertices. these should be allocated on the stack
-    spInt vertex_count;  ///< number of vertices in the polygon
-    spFloat mass;        ///< the mass of the polygon
-}; 
-
-/// TODO: document polygon
+/// a polygon is represented by 3 or more points, defined in CCW order.
+/// a polygon can be attached to body shapes, and the vertices must 
+/// form a convex shape in order to work correctly
 struct spPolygon
 {
-    spShape base_class; ///< base shape class
-    spEdge* edges;      ///< array of edges. each edge contains a vertex and a normal
-    spFloat radius;     ///< small radius added to polygon vertices
-    spInt count;        ///< number of edges
+    spShape shape;  ///< base shape class
+    spFloat radius; ///< small radius added to polygon vertices
+    spEdge* edges;  ///< array of edges. each edge contains a vertex and a normal
+    spInt count;    ///< number of edges
 };
 
 /// initialize a polygon
-void spPolygonInit(spPolygon* poly, spBody* body, const spPolygonDef& def);
+void spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass);
 
 /// allocate space for a polygon on the heap
 spPolygon* spPolygonAlloc();
 
 /// allocate and init a new polygon on the heap
-spShape* spPolygonNew(spBody* body, const spPolygonDef& def);
+spShape* spPolygonNew(spVector* vertices, spInt count, spFloat mass);
 
 /// free allocated memory for a polygon from the heap
 void spPolygonFree(spPolygon** poly);
 
-/// compute the centroid of a polygon
-spVector spPolygonComputeCenterOfMass(spPolygon* poly);
-
-/// compute the moment of inertia for a polygon given a mass
-spFloat spPolygonComputeInertia(spPolygon* poly, spFloat mass);
-
-/// compute the bounding volume of a polygon
-void spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& com);
-
-/// compute the mass, inertia, and center of gravity of mass for the shape
-void spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass);
-
 /// TODO:
 spBool spPolygonTestPoint(spPolygon* poly, spVector point);
-
-/// sanity checks
-#ifdef SP_DEBUG
- #define spPolygonDefIsSane(poly) _spPolygonDefIsSane(poly)
- #define spPolygonIsSane(poly) _spPolygonIsSane(poly)
-
- /// polygon def sanity check
- inline void _spPolygonDefIsSane(const spPolygonDef& def)
- {
-     spMaterialIsSane(def.material);
-     spAssert(def.vertices != NULL, "vertices is null in polygon def sanity check");
-     spAssert(def.vertex_count > 2, "a polygon must have at least 3 vertices in polygon def sanity check");
-     spAssert(def.mass > 0.0f, "mass must be positive in polygon def sanity check");
- }
-
- /// polygon sanity check
- inline void _spPolygonIsSane(const spPolygon* poly)
- {
-     spAssert(poly->count > 2, "a polygon must have at least 3 vertices");
-     spShapeIsSane(&poly->base_class);
- }
-#else
- #define spEdgeIsSane(edge)
- #define spEdgesAreSane(edge, count)
- #define spPolygonDefIsSane(poly)
- #define spPolygonIsSane(poly)
-#endif
 
 /// @}
 

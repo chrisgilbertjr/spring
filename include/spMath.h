@@ -216,12 +216,6 @@ inline void spVectorLog(spVector* vector, spInt8* msg = "")
     spLog("%0.7f, %0.7f, %s \n", vector->x, vector->y, msg);
 }
 
-inline void spSane(spVector vec)
-{
-    spSane(vec.x);
-    spSane(vec.y);
-}
-
 /// @}
 
 /// @ingroup spMatrix

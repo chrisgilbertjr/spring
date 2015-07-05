@@ -154,9 +154,6 @@
     <ClCompile Include="..\..\tests\spChainTest.cpp">
       <Filter>unit_tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tests\spCircleTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\tests\spMathTest.cpp">
       <Filter>unit_tests</Filter>
     </ClCompile>

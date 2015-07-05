@@ -26,9 +26,6 @@
     <ClInclude Include="..\..\include\spBound.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\spBroadPhase.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spChain.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -57,9 +54,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\spMath.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\spNarrowPhase.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\spPolygon.h">
@@ -124,9 +118,6 @@
     <ClCompile Include="..\..\source\spBody.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\spBroadPhase.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\spCircle.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -140,9 +131,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spDebugDraw.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\spNarrowPhase.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spPolygon.cpp">

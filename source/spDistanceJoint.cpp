@@ -49,7 +49,7 @@ spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
 
     spFloat nrA = spCross(joint->n, joint->rA);
     spFloat nrB = spCross(joint->n, joint->rB);
-    joint->eMass =  1.0f / (bA->m_inv + bB->m_inv + bA->i_inv * nrA * nrA + bB->i_inv * nrB * nrB);
+    joint->eMass =  1.0f / (bA->mInv + bB->mInv + bA->iInv * nrA * nrA + bB->iInv * nrB * nrB);
     joint->jAccum = 0.0f;
 }
 
@@ -67,32 +67,10 @@ spDistanceJointSolve(spDistanceJoint* joint)
     joint->jAccum = jPrev + lambda;
     spFloat  j = joint->jAccum - jPrev;
     spVector P = spMult(joint->n, j);
-    bA->v  = spSub(bA->v, spMult(P, bA->m_inv));
-    bB->v  = spAdd(bB->v, spMult(P, bB->m_inv));
-    bA->w -= bA->i_inv * spCross(joint->rA, P);
-    bB->w += bB->i_inv * spCross(joint->rB, P);
-}
-
-void 
-spDistanceJointStabilize(spDistanceJoint* joint)
-{
-    spBody* bA = joint->base_class.body_a;
-    spBody* bB = joint->base_class.body_b;
-    spVector pA = spMult(bA->xf, joint->anchorA);
-    spVector pB = spMult(bB->xf, joint->anchorB);
-    spVector n = spSub(pA, pB);
-    spFloat length = spLength(n);
-    spFloat C = length - joint->distance;
-    spVector P = spMult(C, spMult(n, 1.0f / (length + SP_FLT_EPSILON)));
-    bA->p = spSub(bA->p, spMult(P, bA->m_inv));
-    bB->p = spAdd(bB->p, spMult(P, bB->m_inv));
-    bA->a -= bA->i_inv * spCross(joint->rA, P);
-    bB->a += bB->i_inv * spCross(joint->rB, P);
-    __spBodyUpdateTransform(bA);
-    __spBodyUpdateTransform(bB);
-
-    spDebugDrawLine(pA, pB, spGreen(1.0f));
-    spLog("%.7f\n", length);
+    bA->v  = spSub(bA->v, spMult(P, bA->mInv));
+    bB->v  = spAdd(bB->v, spMult(P, bB->mInv));
+    bA->w -= bA->iInv * spCross(joint->rA, P);
+    bB->w += bB->iInv * spCross(joint->rB, P);
 }
 
 spFloat 

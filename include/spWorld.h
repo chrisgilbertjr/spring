@@ -4,8 +4,6 @@
 
 #include "spConstraint.h"
 #include "spContact.h"
-#include "spNarrowPhase.h"
-#include "spBroadPhase.h"
 #include "spBody.h"
 #include "spDistanceJoint.h"
 #include "spRopeJoint.h"
@@ -17,14 +15,13 @@
 #include "spPointJoint.h"
 #include "spMouseJoint.h"
 #include "spSegment.h"
+#include "spCollision.h"
 
 /// @defgroup spWorld spWorld
 /// @{
 
 struct spWorld
 {
-    spBroadPhase broad_phase;
-    spNarrowPhase narrow_phase;
     spConstraint* joint_list;
     spContact* contact_list;
     spBody* body_list;
@@ -36,10 +33,16 @@ struct spWorld
 void spWorldInit(spWorld* world, const spVector& gravity);
 
 /// construct and initialize a world
-spWorld _spWorld(const spVector& gravity);
+spWorld spWorldConstruct(const spVector& gravity);
 
 /// step through the simulation.
 void spWorldStep(spWorld* world, const spFloat dt);
+
+// do broad phase collision detection
+void spWorldBroadPhase(spWorld* world);
+
+/// do narrow phase collision detection
+void spWorldNarrowPhase(spWorld* world);
 
 /// gives a brief log of the world
 void spWorldLogBrief(spWorld* world);
@@ -50,7 +53,7 @@ void spWorldLogBriefBodies(spWorld* world);
 /// gives a detailed log of the world
 void spWorldLogDetail(spWorld* world);
 
-spShape* spWorldTestPointAgainstShapes(spWorld* world, spVector point);
+spShape* spWorldTestPoint(spWorld* world, spVector point);
 
 /// TODO:
 void spWorldAddBody(spWorld* world, spBody* body);
@@ -86,17 +89,6 @@ void spWorldAddMouseJoint(spWorld* world, spMouseJoint* joint);
 void spWorldRemoveMouseJoint(spWorld* world, spMouseJoint* joint);
 
 void spWorldDraw(spWorld* world);
-
-/// sanity check
-#ifdef SP_DEBUG
- inline void _spWorldIsSane(spWorld* world)
- {
-     spAssert(world != NULL, "world is null in sanity check!");
- }
- #define spWorldIsSane(world) _spWorldIsSane(world)
-#else
- #define spWorldIsSane(world)
-#endif
 
 /// @}
 

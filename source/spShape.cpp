@@ -76,15 +76,15 @@ spShapeLessThan(const spShape* a, const spShape* b)
 }
 
 void 
-spShapeAdd(spShape* shape, spShape*& shape_list)
+spShapeAdd(spShape* shape, spShape*& shapes)
 {
-    SP_LINKED_LIST_PREPEND(spShape, shape, shape_list);
+    SP_LINKED_LIST_PREPEND(spShape, shape, shapes);
 }
 
 void 
-spShapeRemove(spShape* shape, spShape* shape_list)
+spShapeRemove(spShape* shape, spShape* shapes)
 {
-    SP_LINKED_LIST_REMOVE(spShape, shape, shape_list);
+    SP_LINKED_LIST_REMOVE(spShape, shape, shapes);
 }
 
 spBool 

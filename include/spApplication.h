@@ -78,7 +78,7 @@ spApplication* spApplicationNew(
     spLazyPointer*    data);
 
 /// free an applications memory
-inline void spAplicationFree(spApplication*& app)
+inline void spAplicationFree(spApplication** app)
 {
     spFree(app);
 }

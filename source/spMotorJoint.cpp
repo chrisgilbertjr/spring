@@ -36,7 +36,7 @@ spMotorJointFree(spMotorJoint** joint)
 void 
 spMotorJointPreStep(spMotorJoint* joint, const spFloat h)
 {
-    joint->inertia = 1.0f / (joint->constraint.body_a->i_inv + joint->constraint.body_b->i_inv);
+    joint->inertia = 1.0f / (joint->constraint.body_a->iInv + joint->constraint.body_b->iInv);
 }
 
 void 
@@ -51,6 +51,6 @@ spMotorJointSolve(spMotorJoint* joint)
     joint->lambdaAccum = lambdaPrev + lambda;
     spFloat impulse = joint->lambdaAccum - lambdaPrev;
 
-    a->w -= impulse * a->i_inv;
-    b->w += impulse * b->i_inv;
+    a->w -= impulse * a->iInv;
+    b->w += impulse * b->iInv;
 }

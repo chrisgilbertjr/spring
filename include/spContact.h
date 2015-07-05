@@ -10,28 +10,26 @@
 
 struct spContactPoint
 {
-    spVector rA;   ///< relative velocity from body a com
-    spVector rB;   ///< relative velocity from body b com
-    spFloat eMassNorm; ///< effective normal mass
-    spFloat eMassTang; ///< effective tangent mass
-    spFloat lambdaAccumNorm;///< accumulated normal impulse multiplier
-    spFloat lambdaAccumTang;///< accumulated tangent impulse multiplier
-    spFloat bounce;
-    spFloat bias;
+    spVector rA;             ///< relative velocity from body a com
+    spVector rB;             ///< relative velocity from body b com
+    spFloat eMassNorm;       ///< effective normal mass
+    spFloat eMassTang;       ///< effective tangent mass
+    spFloat lambdaAccumNorm; ///< accumulated normal impulse multiplier
+    spFloat lambdaAccumTang; ///< accumulated tangent impulse multiplier
+    spFloat bounce;          ///< bounce bias based on restitution
+    spFloat bias;            ///< baumgarte velocity bias
 };
 
 struct spContact
 {
     spContactPoint points[2]; ///< contact points
-    spContactKey key;
-    spContact* next; ///< next contact in the doubly linked list
-    spContact* prev; ///< previous contact in the doubly linked list
-    spVector normal; ///< shared contact normal
-    spFloat restitution; ///< 'bounciness' of the contact
-    spFloat friction; ///< friction of the contact
-    spFloat pen; ///<
-    spInt count; ///< number of contact points
-    spInt age;   ///< number of steps this contact has been alive after being out of contact
+    spContactKey key;         ///< contact key containing bodies
+    spContact* next;          ///< next contact in the doubly linked list
+    spContact* prev;          ///< previous contact in the doubly linked list
+    spVector normal;          ///< shared contact normal
+    spFloat restitution;      ///< 'bounciness' of the contact
+    spFloat friction;         ///< friction of the contact
+    spInt count;              ///< number of contact points
 };
 
 /// initialize a contact point
@@ -47,7 +45,7 @@ spContact* spContactAlloc();
 spContact* spContactNew(const spContactKey& key);
 
 /// release the memory of a contact
-void spContactFree(spContact* contact);
+void spContactFree(spContact** contact);
 
 /// insert a contact into the contact list
 void spContactAdd(spContact* contact, spContact*& list);
@@ -56,45 +54,13 @@ void spContactAdd(spContact* contact, spContact*& list);
 void spContactRemove(spContact* contact, spContact*& list);
 
 /// initialize a constraint for use in the impulse solver
-void spContactPreStep(spContact* contact, const spFloat h);
+void spContactPreSolve(spContact* contact, const spFloat h);
+
+/// warm start contacts from last frame
+void spContactApplyCachedImpulse(spContact* contact, const spFloat h);
 
 /// calculate and apply an impulse to each body in the contact
 void spContactSolve(spContact* contact);
-
-/// position correction to keep things more stable
-void spContactStabilize(spContact* contact);
-
-/// log contact list
-void spContactLog(spContact* contact_list);
-
-/// compute the effective mass of a contact constraint (E = J*Mi*Jt)
-/// @see spConstraint.h
-spFloat spContactEffectiveMass(
-    const spFloat mass_invA,
-    const spFloat mass_invB,
-    const spFloat inertia_invA,
-    const spFloat inertia_invB,
-    const spVector rA,
-    const spVector rB,
-    const spVector norm);
-
-#ifdef SP_DEBUG
- #define spContactPointIsSane(contact_point) _spContactPointIsSane(contact_point)
- #define spContactIsSane(contact) _spContactIsSane(contact)
-
- inline void _spContactPointIsSane(spContactPoint* point)
- {
-     /// TODO:
- }
-
- inline void _spContactIsSane(spContact* contact)
- {
-     /// TODO:
- }
-#else
- #define spContactPointIsSane(contact_point)
- #define spContactIsSane(contact) 
-#endif
 
 /// @}
 

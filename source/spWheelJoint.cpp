@@ -72,8 +72,8 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
         joint->sAy = spCross(spAdd(dir, rA), joint->tWorld);
         joint->sBy = spCross(rB, joint->tWorld);
 
-        spFloat rvA = bA->m_inv + bA->i_inv * joint->sAy * joint->sAy;
-        spFloat rvB = bB->m_inv + bB->i_inv * joint->sBy * joint->sBy;
+        spFloat rvA = bA->mInv + bA->iInv * joint->sAy * joint->sAy;
+        spFloat rvB = bB->mInv + bB->iInv * joint->sBy * joint->sBy;
         joint->eMassLine = rvA + rvB;
         joint->eMassLine = joint->eMassLine ? 1.0f / joint->eMassLine : 0.0f;
     }
@@ -88,8 +88,8 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
         joint->sAx = spCross(spAdd(dir, rA), joint->nWorld);
         joint->sBx = spCross(rB, joint->nWorld);
 
-        spFloat iMassA = bA->m_inv + bA->i_inv * joint->sAx * joint->sAx;
-        spFloat iMassB = bB->m_inv + bB->i_inv * joint->sBx * joint->sBx;
+        spFloat iMassA = bA->mInv + bA->iInv * joint->sAx * joint->sAx;
+        spFloat iMassB = bB->mInv + bB->iInv * joint->sBx * joint->sBx;
         spFloat iMass = iMassA + iMassB;
 
         if (iMass > 0.0f)
@@ -110,7 +110,7 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
     /// pre solve the motor constraint
     if (joint->enableMotor)
     {
-        joint->eMassMotor = bA->i_inv + bB->i_inv;
+        joint->eMassMotor = bA->iInv + bB->iInv;
         joint->eMassMotor = joint->eMassMotor ? 1.0f / joint->eMassMotor : 0.0f;
     }
     else
@@ -139,10 +139,10 @@ spWheelJointSolve(spWheelJoint* joint)
         spFloat impulseA = lambda * joint->sAx;
         spFloat impulseB = lambda * joint->sBx;
 
-        bA->v = spSub(bA->v, spMult(bA->m_inv, impulse));
-        bB->v = spAdd(bB->v, spMult(bB->m_inv, impulse));
-        bA->w -= bA->i_inv * impulseA;
-        bB->w += bB->i_inv * impulseB;
+        bA->v = spSub(bA->v, spMult(bA->mInv, impulse));
+        bB->v = spAdd(bB->v, spMult(bB->mInv, impulse));
+        bA->w -= bA->iInv * impulseA;
+        bB->w += bB->iInv * impulseB;
     }
 
     /// solve motor constraint
@@ -154,8 +154,8 @@ spWheelJointSolve(spWheelJoint* joint)
         joint->lambdaAccumMotor = spClamp(joint->lambdaAccumMotor + lambda, -lambdaMax, lambdaMax);
         spFloat impulse = joint->lambdaAccumMotor - lambdaOld;
 
-        bA->w -= bA->i_inv * impulse;
-        bB->w += bB->i_inv * impulse;
+        bA->w -= bA->iInv * impulse;
+        bB->w += bB->iInv * impulse;
     }
 
     /// solve point/line constraint
@@ -168,9 +168,9 @@ spWheelJointSolve(spWheelJoint* joint)
         spFloat impulseA = joint->sAy * lambda;
         spFloat impulseB = joint->sBy * lambda;
 
-        bA->v = spSub(bA->v, spMult(bA->m_inv, impulse));
-        bB->v = spAdd(bB->v, spMult(bB->m_inv, impulse));
-        bA->w -= bA->i_inv * impulseA;
-        bB->w += bB->i_inv * impulseB;
+        bA->v = spSub(bA->v, spMult(bA->mInv, impulse));
+        bB->v = spAdd(bB->v, spMult(bB->mInv, impulse));
+        bA->w -= bA->iInv * impulseA;
+        bB->w += bB->iInv * impulseB;
     }
 }

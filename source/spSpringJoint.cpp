@@ -100,7 +100,7 @@ spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
     /// compute inverse mass
     spFloat rcnA = spCross(joint->rA, joint->n);
     spFloat rcnB = spCross(joint->rB, joint->n);
-    spFloat iMass = bA->m_inv + bA->i_inv * rcnA * rcnA + bB->m_inv + bB->i_inv * rcnB * rcnB;
+    spFloat iMass = bA->mInv + bA->iInv * rcnA * rcnA + bB->mInv + bB->iInv * rcnB * rcnB;
     spFloat mass = 1.0f / (iMass + SP_FLT_EPSILON);
 
     /// compute position error
@@ -142,8 +142,8 @@ spSpringJointSolve(spSpringJoint* joint)
 
     /// apply the impulse
     spVector impulse = spMult(joint->n, lambda);
-    bA->v  = spSub(bA->v, spMult(impulse, bA->m_inv));
-    bB->v  = spAdd(bB->v, spMult(impulse, bB->m_inv));
-    bA->w -= bA->i_inv * spCross(joint->rA, impulse);
-    bB->w += bB->i_inv * spCross(joint->rB, impulse);
+    bA->v  = spSub(bA->v, spMult(impulse, bA->mInv));
+    bB->v  = spAdd(bB->v, spMult(impulse, bB->mInv));
+    bA->w -= bA->iInv * spCross(joint->rA, impulse);
+    bB->w += bB->iInv * spCross(joint->rB, impulse);
 }

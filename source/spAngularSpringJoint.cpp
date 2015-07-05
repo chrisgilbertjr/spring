@@ -44,7 +44,7 @@ spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
     spBody* bA = joint->constraint.body_a;
     spBody* bB = joint->constraint.body_b;
 
-    spFloat iMass = bA->i_inv + bB->i_inv;
+    spFloat iMass = bA->iInv + bB->iInv;
     spFloat mass = iMass != 0.0f ? 1.0f / iMass : 0.0f;
     spFloat C;
     if (joint->inverse)
@@ -78,15 +78,15 @@ spAngularSpringJointSolve(spAngularSpringJoint* joint)
         spFloat Cdot = bA->w - bB->w;
         spFloat lambda = -joint->eMass * (Cdot + joint->beta + joint->gamma * joint->lambdaAccum);
         joint->lambdaAccum += lambda;
-        bA->w += lambda * bA->i_inv;
-        bB->w -= lambda * bB->i_inv;
+        bA->w += lambda * bA->iInv;
+        bB->w -= lambda * bB->iInv;
     }
     else
     {
         spFloat Cdot = bB->w + bA->w;
         spFloat lambda = -joint->eMass * (Cdot + joint->beta + joint->gamma * joint->lambdaAccum);
         joint->lambdaAccum += lambda;
-        bA->w +=  lambda * bA->i_inv;
-        bB->w -= -lambda * bB->i_inv;
+        bA->w +=  lambda * bA->iInv;
+        bB->w -= -lambda * bB->iInv;
     }
 }

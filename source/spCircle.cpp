@@ -45,7 +45,7 @@ spCircleNew(spBody* body, const spCircleDef& def)
 }
 
 void 
-spCircleFree(spCircle*& circle)
+spCircleFree(spCircle** circle)
 {
     spFree(circle);
 }

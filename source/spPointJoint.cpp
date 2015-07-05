@@ -54,9 +54,9 @@ spPointJointPreSolve(spPointJoint* joint, const spFloat h)
     spDebugDrawPoint(pB, spYellow(1.0f));
 
     /// compute the effective mass matrix
-    spFloat iiA = bA->i_inv;
-    spFloat iiB = bB->i_inv;
-    spFloat iMass = bA->m_inv + bB->m_inv;
+    spFloat iiA = bA->iInv;
+    spFloat iiB = bB->iInv;
+    spFloat iMass = bA->mInv + bB->mInv;
 
     spMatrix K = spMatrix(iMass, 0.0f, 0.0f, iMass);
 
@@ -90,8 +90,8 @@ spPointJointSolve(spPointJoint* joint)
     joint->lambdaAccum = spAdd(joint->lambdaAccum, lambda);
     spVector impulse = spSub(joint->lambdaAccum, lambdaOld);
 
-    bA->v  = spSub(bA->v, spMult(impulse, bA->m_inv));
-    bB->v  = spAdd(bB->v, spMult(impulse, bB->m_inv));
-    bA->w -= bA->i_inv * spCross(joint->rA, impulse);
-    bB->w += bB->i_inv * spCross(joint->rB, impulse);
+    bA->v  = spSub(bA->v, spMult(impulse, bA->mInv));
+    bB->v  = spAdd(bB->v, spMult(impulse, bB->mInv));
+    bA->w -= bA->iInv * spCross(joint->rA, impulse);
+    bB->w += bB->iInv * spCross(joint->rB, impulse);
 }

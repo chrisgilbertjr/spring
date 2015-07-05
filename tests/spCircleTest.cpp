@@ -86,7 +86,7 @@ SP_TEST(circle)
         SP_ISTRUE(circle != NULL);
         SP_VECEQ(circle->center, ca);
         SP_FLTEQ(circle->radius, ra);
-        spFree(circle);
+        spFree(&circle);
         SP_SUBTEST_RESULT();
     }
 
@@ -99,7 +99,7 @@ SP_TEST(circle)
         SP_ISTRUE(circle != NULL);
         SP_VECEQ(circle->center, ca);
         SP_FLTEQ(circle->radius, ra);
-        spFree(circle);
+        spFree(&circle);
         SP_SUBTEST_RESULT();
     }
 
@@ -107,7 +107,7 @@ SP_TEST(circle)
         SP_SUBTEST(spCircleFree);
         spCircle* circle = spCircleAlloc();
         SP_ISFALSE(circle == NULL);
-        spFree(circle);
+        spFree(&circle);
         SP_ISTRUE(circle == NULL);
         SP_SUBTEST_RESULT();
     }

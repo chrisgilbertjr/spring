@@ -34,7 +34,7 @@ spCircle* spCircleAlloc();
 spShape* spCircleNew(spBody* body, const spCircleDef& def);
 
 /// free a circle from the heap
-void spCircleFree(spCircle*& circle);
+void spCircleFree(spCircle** circle);
 
 /// compute the moment of inertia for a circle
 spFloat spCircleComputeInertia(spCircle* circle, spFloat mass);

@@ -10,8 +10,8 @@
 spFloat spConstraintMass(
     const spFloat mass_inv1,
     const spFloat mass_inv2,
-    const spFloat i_inv1,
-    const spFloat i_inv2,
+    const spFloat iInv1,
+    const spFloat iInv2,
     const spVector r1,
     const spVector r2,
     const spVector norm);

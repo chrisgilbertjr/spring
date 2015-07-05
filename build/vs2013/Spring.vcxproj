@@ -19,7 +19,6 @@
     <ClInclude Include="..\..\include\spArray.h" />
     <ClInclude Include="..\..\include\spBody.h" />
     <ClInclude Include="..\..\include\spBound.h" />
-    <ClInclude Include="..\..\include\spBroadPhase.h" />
     <ClInclude Include="..\..\include\spChain.h" />
     <ClInclude Include="..\..\include\spCircle.h" />
     <ClInclude Include="..\..\include\spCollision.h" />
@@ -35,7 +34,6 @@
     <ClInclude Include="..\..\include\spDistanceJoint.h" />
     <ClInclude Include="..\..\include\spLinkedList.h" />
     <ClInclude Include="..\..\include\spMath.h" />
-    <ClInclude Include="..\..\include\spNarrowPhase.h" />
     <ClInclude Include="..\..\include\spPolygon.h" />
     <ClInclude Include="..\..\include\spring.h" />
     <ClInclude Include="..\..\include\spRopeJoint.h" />
@@ -50,7 +48,6 @@
     <ClCompile Include="..\..\source\spAngularSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />
     <ClCompile Include="..\..\source\spBody.cpp" />
-    <ClCompile Include="..\..\source\spBroadPhase.cpp" />
     <ClCompile Include="..\..\source\spCircle.cpp" />
     <ClCompile Include="..\..\source\spCollision.cpp" />
     <ClCompile Include="..\..\source\spConstraint.cpp" />
@@ -65,7 +62,6 @@
     <ClCompile Include="..\..\source\spSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spDebugDraw.cpp" />
     <ClCompile Include="..\..\source\spDistanceJoint.cpp" />
-    <ClCompile Include="..\..\source\spNarrowPhase.cpp" />
     <ClCompile Include="..\..\source\spPolygon.cpp" />
     <ClCompile Include="..\..\source\spring.cpp" />
     <ClCompile Include="..\..\source\spRopeJoint.cpp" />

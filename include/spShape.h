@@ -99,10 +99,10 @@ void spShapeSetFilter(spShape* shape, const spFilter filter);
 spBool spShapeLessThan(const spShape* a, const spShape* b);
 
 /// add a shape to a linked list
-void spShapeAdd(spShape* shape, spShape*& shape_list);
+void spShapeAdd(spShape* shape, spShape*& shapes);
 
 /// remove a shape from a linked list
-void spShapeRemove(spShape* shape, spShape* shape_list);
+void spShapeRemove(spShape* shape, spShape* shapes);
 
 /// TODO:
 spBool spShapeTestPoint(spShape* shape, spVector point);

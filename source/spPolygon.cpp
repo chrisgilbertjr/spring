@@ -61,10 +61,11 @@ spPolygonAlloc()
 }
 
 void 
-spPolygonFree(spPolygon*& poly)
+spPolygonFree(spPolygon** poly)
 {
-    spAssert(poly->edges != NULL, "the polygon edges are NULL while freeing memory!");
-    spFree(poly->edges);
+    spPolygon* polygon = *poly;
+    spEdge** edges = &polygon->edges;
+    spFree(edges);
     spFree(poly);
 }
 

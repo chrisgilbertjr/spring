@@ -42,7 +42,7 @@ spGearJointPreSolve(spGearJoint* joint, const spFloat h)
     spBody* bA = joint->constraint.body_a;
     spBody* bB = joint->constraint.body_b;
 
-    spFloat iMass = bA->i_inv*joint->ratioInv + bB->i_inv*joint->ratio;
+    spFloat iMass = bA->iInv*joint->ratioInv + bB->iInv*joint->ratio;
     joint->eMass = iMass ? 1.0f / iMass : 0.0f;
 
     spFloat C = bA->a * joint->ratio - bB->a - joint->phase;
@@ -62,6 +62,6 @@ spGearJointSolve(spGearJoint* joint)
     joint->lambdaAccum += lambda;
     spFloat impulse = joint->lambdaAccum - lambdaOld;;
 
-    bA->w -= impulse * bA->i_inv * joint->ratioInv;
-    bB->w += impulse * bB->i_inv;
+    bA->w -= impulse * bA->iInv * joint->ratioInv;
+    bB->w += impulse * bB->iInv;
 }

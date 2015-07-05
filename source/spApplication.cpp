@@ -24,7 +24,7 @@ spApplicationInit(
     app->name = name;
     app->viewport = viewport;
     app->frustum = frustum;
-    app->world = spWorld(gravity);
+    app->world = spWorldConstruct(gravity);
     app->world.iterations = iterations;
     app->timestep = timestep;
     app->init = init;
@@ -156,7 +156,7 @@ default_loop(spApplication* app)
     {
         if (app->mouseShape == NULL)
         {
-            spShape* shape = spWorldTestPointAgainstShapes(&app->world, pos);
+            spShape* shape = spWorldTestPoint(&app->world, pos);
 
             if (shape != NULL && shape->body->type == SP_BODY_DYNAMIC)
             {
@@ -191,6 +191,6 @@ run(spApplication* app)
     if (init_glfw(app) == spFalse) return -1;
     app->init(app);
     app->main(app); 
-    spAplicationFree(app);
+    spAplicationFree(&app);
     return 0;
 }

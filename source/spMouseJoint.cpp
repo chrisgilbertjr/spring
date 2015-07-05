@@ -59,9 +59,9 @@ spMouseJointPreSolve(spMouseJoint* joint, const spFloat h)
 
     spMatrix K = spMatrixZero();
 
-    K.b = K.c = -a->i_inv * joint->rA.x * joint->rA.y;
-    K.a = a->m_inv + a->i_inv * joint->rA.y * joint->rA.y + joint->gamma;
-    K.d = a->m_inv + a->i_inv * joint->rA.x * joint->rA.x + joint->gamma;
+    K.b = K.c = -a->iInv * joint->rA.x * joint->rA.y;
+    K.a = a->mInv + a->iInv * joint->rA.y * joint->rA.y + joint->gamma;
+    K.d = a->mInv + a->iInv * joint->rA.x * joint->rA.x + joint->gamma;
 
     joint->eMass = spInverse(K);
 
@@ -90,6 +90,6 @@ spMouseJointSolve(spMouseJoint* joint)
     joint->lambdaAccum = spAdd(joint->lambdaAccum, lambda);
     spVector impulse = spSub(joint->lambdaAccum, lambdaOld);
 
-    a->v  = spAdd(a->v, spMult(a->m_inv, impulse));
-    a->w += a->i_inv * spCross(joint->rA, impulse);
+    a->v  = spAdd(a->v, spMult(a->mInv, impulse));
+    a->w += a->iInv * spCross(joint->rA, impulse);
 }

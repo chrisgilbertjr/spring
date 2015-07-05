@@ -60,7 +60,7 @@
 #define spRealloc realloc
 #define spMalloc malloc
 #define spCalloc calloc
-#define spFree(pointer) free(pointer); pointer = 0;
+#define spFree(pointer) free(*pointer); *pointer = NULL;
 #define spFalse 0u
 #define spTrue 1u
 

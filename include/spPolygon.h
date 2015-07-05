@@ -42,7 +42,7 @@ spPolygon* spPolygonAlloc();
 spShape* spPolygonNew(spBody* body, const spPolygonDef& def);
 
 /// free allocated memory for a polygon from the heap
-void spPolygonFree(spPolygon*& poly);
+void spPolygonFree(spPolygon** poly);
 
 /// compute the centroid of a polygon
 spVector spPolygonComputeCenterOfMass(spPolygon* poly);

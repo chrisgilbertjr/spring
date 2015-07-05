@@ -26,7 +26,7 @@
 //spAddCircle(spCircle* circle, spBody* body)
 //{
 //    spShape* base_shape_pointer = (spShape*)circle;
-//    spShapeAdd(base_shape_pointer, body->shape_list);
+//    spShapeAdd(base_shape_pointer, body->shapes);
 //    spBodyComputeShapeMassData(body);
 //}
 
@@ -35,9 +35,9 @@
 //{
 //    spBody* body = circle->base_class.body;
 //    spAssert(body != NULL, "body is NULL in spRemoveCircle!\n");
-//    spShape* shape_list = body->shape_list;
+//    spShape* shapes = body->shapes;
 //    spShape* base_shape_pointer = (spShape*)circle;
-//    spShapeRemove(base_shape_pointer, shape_list);
+//    spShapeRemove(base_shape_pointer, shapes);
 //}
 
 //spCircle* 
@@ -102,7 +102,7 @@
 //spAddPolygon(spPolygon* poly, spBody* body)
 //{
 //    spShape* base_shape_pointer = (spShape*) poly;
-//    spShapeAdd(base_shape_pointer, body->shape_list);
+//    spShapeAdd(base_shape_pointer, body->shapes);
 //    spBodyComputeShapeMassData(body);
 //}
 
@@ -111,9 +111,9 @@
 //{
 //    spBody* body = poly->base_class.body;
 //    spAssert(body != NULL, "body is NULL in spRemovePolygon!\n");
-//    spShape* shape_list = body->shape_list;
+//    spShape* shapes = body->shapes;
 //    spShape* base_shape_pointer = (spShape*)poly;
-//    spShapeRemove(base_shape_pointer, shape_list);;
+//    spShapeRemove(base_shape_pointer, shapes);;
 //}
 
 //spPolygon* 

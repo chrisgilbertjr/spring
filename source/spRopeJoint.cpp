@@ -140,10 +140,10 @@ spRopeJointApplyCachedImpulse(spRopeJoint* joint, const spFloat h)
     spVector impulse = spMult(joint->n, joint->lambdaAccum);
 
     /// apply the impulse
-    a->v = spSub(a->v, spMult(impulse, a->m_inv));
-    b->v = spAdd(b->v, spMult(impulse, b->m_inv));
-    a->w -= a->i_inv * spCross(joint->rA, impulse);
-    b->w += b->i_inv * spCross(joint->rB, impulse);
+    a->v = spSub(a->v, spMult(impulse, a->mInv));
+    b->v = spAdd(b->v, spMult(impulse, b->mInv));
+    a->w -= a->iInv * spCross(joint->rA, impulse);
+    b->w += b->iInv * spCross(joint->rB, impulse);
 }
 
 void 
@@ -166,7 +166,7 @@ spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
     /// compute the effective mass
     spFloat nrA = spCross(joint->n, joint->rA);
     spFloat nrB = spCross(joint->n, joint->rB);
-    joint->eMass = a->m_inv + b->m_inv + a->i_inv * nrA * nrA + b->i_inv * nrB * nrB;
+    joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
     joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
 
     /// compute the position constraint, and compute baumgarte stabilization bias
@@ -194,8 +194,8 @@ spRopeJointSolve(spRopeJoint* joint)
     spVector impulse = spMult(joint->n, joint->lambdaAccum - lambdaOld);
 
     /// apply the impulse
-    a->v = spSub(a->v, spMult(impulse, a->m_inv));
-    b->v = spAdd(b->v, spMult(impulse, b->m_inv));
-    a->w -= a->i_inv * spCross(joint->rA, impulse);
-    b->w += b->i_inv * spCross(joint->rB, impulse);
+    a->v = spSub(a->v, spMult(impulse, a->mInv));
+    b->v = spAdd(b->v, spMult(impulse, b->mInv));
+    a->w -= a->iInv * spCross(joint->rA, impulse);
+    b->w += b->iInv * spCross(joint->rB, impulse);
 }

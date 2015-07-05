@@ -515,4 +515,22 @@ inline spBool spAlmostEqual(const spVector a, const spVector b, const spFloat EP
     return spAlmostEqual(a.x, b.x, EPSILON) && spAlmostEqual(a.y, b.y, EPSILON);
 }
 
+/// @ingroup spDebug spDebug
+/// @{
+
+#ifdef SP_DEBUG
+    #define VECCHECK(vec) NANCHECK(vec.x); NANCHECK(vec.y)
+    #define ROTCHECK(rot) NANCHECK(rot.p); NANCHECK(rot.q)
+    #define MATCHECK(mat) NANCHECK(mat.a); NANCHECK(mat.b);\
+                          NANCHECK(mat.c); NANCHECK(mat.d)
+    #define XFCHECK(xf)   ROTCHECK(xf.q);  VECCHECK(xf.p)
+#else
+    #define VECCHECK(vec)
+    #define ROTCHECK(rot)
+    #define MATCHECK(mat)
+    #define XFCHECK(xf)
+#endif
+
+/// @}
+
 #endif

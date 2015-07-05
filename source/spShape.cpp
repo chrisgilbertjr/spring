@@ -52,6 +52,8 @@ spShapeTestPoint(spShape* shape, spVector point)
         return spCircleTestPoint((spCircle*) shape, point);
     case SP_SHAPE_POLYGON:
         return spPolygonTestPoint((spPolygon*) shape, point);
+    case SP_SHAPE_SEGMENT:
+        return spFalse;
     }
     return spFalse;
 }
@@ -78,7 +80,7 @@ spShapeCastCircle(const spShape* shape)
     }
     else
     {
-        spAssert(spFalse, "the shape is not a circle!\n");
+        spWarning(spFalse, "the shape is not a circle!\n");
         return NULL;
     }
 }
@@ -93,7 +95,7 @@ spShapeCastPolygon(const spShape* shape)
     }
     else
     {
-        spAssert(spFalse, "the shape is not a polygon!\n");
+        spWarning(spFalse, "the shape is not a polygon!\n");
         return NULL;
     }
 }
@@ -108,7 +110,7 @@ spShapeCastSegment(const spShape* shape)
     }
     else
     {
-        spAssert(spFalse, "the shape is not a segment!\n");
+        spWarning(spFalse, "the shape is not a segment!\n");
         return NULL;
     }
 }

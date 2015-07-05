@@ -16,7 +16,6 @@
     <ClInclude Include="..\..\include\spGearJoint.h" />
     <ClInclude Include="..\..\include\spMotorJoint.h" />
     <ClInclude Include="..\..\include\spApplication.h" />
-    <ClInclude Include="..\..\include\spArray.h" />
     <ClInclude Include="..\..\include\spBody.h" />
     <ClInclude Include="..\..\include\spBound.h" />
     <ClInclude Include="..\..\include\spChain.h" />
@@ -48,6 +47,7 @@
     <ClCompile Include="..\..\source\spAngularSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />
     <ClCompile Include="..\..\source\spBody.cpp" />
+    <ClCompile Include="..\..\source\spBound.cpp" />
     <ClCompile Include="..\..\source\spCircle.cpp" />
     <ClCompile Include="..\..\source\spCollision.cpp" />
     <ClCompile Include="..\..\source\spConstraint.cpp" />

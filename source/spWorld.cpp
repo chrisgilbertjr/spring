@@ -119,7 +119,7 @@ void spWorldBroadPhase(spWorld* world)
             if (spShapesCanCollide(shape_a, shape_b) == spFalse) continue;
 
             /// check if the shapes AABB's overlap
-            if (spBoundBoxOverlap(*ba, *bb, body_a->xf, body_b->xf) == spFalse) continue;
+            if (spBoundBoxOverlap(ba, bb, &body_a->xf, &body_b->xf) == spFalse) continue;
 
             /// they do overlap, create a contact key
             spContactKey key = spContactKey(shape_a, shape_b);

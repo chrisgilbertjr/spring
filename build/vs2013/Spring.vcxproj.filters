@@ -17,9 +17,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\spArray.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spBody.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -203,6 +200,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spSegment.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\spBound.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

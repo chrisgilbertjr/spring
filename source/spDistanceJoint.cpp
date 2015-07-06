@@ -38,8 +38,8 @@ spDistanceJointFree(spDistanceJoint** joint)
 void 
 spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->base_class.body_a;
-    spBody* bB = joint->base_class.body_b;
+    spBody* bA = joint->base_class.bodyA;
+    spBody* bB = joint->base_class.bodyB;
     spVector pA = spMult(bA->xf, joint->anchorA);
     spVector pB = spMult(bB->xf, joint->anchorB);
 
@@ -56,8 +56,8 @@ spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
 void 
 spDistanceJointSolve(spDistanceJoint* joint)
 {
-    spBody* bA = joint->base_class.body_a;
-    spBody* bB = joint->base_class.body_b;
+    spBody* bA = joint->base_class.bodyA;
+    spBody* bB = joint->base_class.bodyB;
 
     spVector rv = spRelativeVelocity(bA->v, bB->v, bA->w, bB->w, joint->rA, joint->rB);
     spFloat nrv = spDot(joint->n, rv);

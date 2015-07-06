@@ -17,13 +17,13 @@ spRopeJointGetLocalAnchorB(spRopeJoint* joint)
 spVector 
 spRopeJointGetWorldAnchorA(spRopeJoint* joint)
 {
-    return spMult(joint->constraint.body_a->xf, joint->anchorA);
+    return spMult(joint->constraint.bodyA->xf, joint->anchorA);
 }
 
 spVector 
 spRopeJointGetWorldAnchorB(spRopeJoint* joint)
 {
-    return spMult(joint->constraint.body_b->xf, joint->anchorB);
+    return spMult(joint->constraint.bodyB->xf, joint->anchorB);
 }
 
 spVector 
@@ -65,13 +65,13 @@ spRopeJointSetLocalAnchorB(spRopeJoint* joint, spVector anchorB)
 void 
 spRopeJointSetWorldAnchorA(spRopeJoint* joint, spVector anchorA)
 {
-    joint->anchorA = spTMult(joint->constraint.body_a->xf, anchorA);
+    joint->anchorA = spTMult(joint->constraint.bodyA->xf, anchorA);
 }
 
 void 
 spRopeJointSetWorldAnchorB(spRopeJoint* joint, spVector anchorB)
 {
-    joint->anchorB = spTMult(joint->constraint.body_a->xf, anchorB);
+    joint->anchorB = spTMult(joint->constraint.bodyB->xf, anchorB);
 }
 
 void 
@@ -133,8 +133,8 @@ spRopeJointFree(spRopeJoint** joint)
 void 
 spRopeJointApplyCachedImpulse(spRopeJoint* joint, const spFloat h)
 {
-    spBody* a = joint->constraint.body_a;
-    spBody* b = joint->constraint.body_b;
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
     /// compute impulse
     spVector impulse = spMult(joint->n, joint->lambdaAccum);
@@ -149,8 +149,8 @@ spRopeJointApplyCachedImpulse(spRopeJoint* joint, const spFloat h)
 void 
 spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
 {
-    spBody* a = joint->constraint.body_a;
-    spBody* b = joint->constraint.body_b;
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
     /// compute anchors in world space
     spVector anchorA = spMult(a->xf, joint->anchorA);
@@ -179,8 +179,8 @@ spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
 void 
 spRopeJointSolve(spRopeJoint* joint)
 {
-    spBody* a = joint->constraint.body_a;
-    spBody* b = joint->constraint.body_b;
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
     /// compute the velocity constraint
     spVector rvA = spAdd(a->v, spCross(a->w, joint->rA));

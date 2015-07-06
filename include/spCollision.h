@@ -12,8 +12,8 @@ struct spCollisionResult
 {
     spBool   colliding; ///< spTrue if the the shapes are in contact, spFlase otherwise
     spVector normal;    ///< collision normal
-    spVector pointA[2]; ///< collision point A
-    spVector pointB[2]; ///< collision point B
+    spVector pointA[2]; ///< collision points, for body A
+    spVector pointB[2]; ///< collision points, for body B
     spInt    count;     ///< number of contact points
 };
 

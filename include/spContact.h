@@ -36,22 +36,16 @@ struct spContact
 void spContactPointInit(spContactPoint* point);
 
 /// initialize a contact
-void spContactInit(spContact* contact, const spContactKey& key);
+void spContactInit(spContact* contact, const spContactKey key);
 
 /// allocate space for a new contact on the heap
 spContact* spContactAlloc();
 
 /// allocate and init a new contact on the heap
-spContact* spContactNew(const spContactKey& key);
+spContact* spContactNew(const spContactKey key);
 
 /// release the memory of a contact
 void spContactFree(spContact** contact);
-
-/// insert a contact into the contact list
-void spContactAdd(spContact* contact, spContact*& list);
-
-/// remove a contact from the contact list
-void spContactRemove(spContact* contact, spContact*& list);
 
 /// initialize a constraint for use in the impulse solver
 void spContactPreSolve(spContact* contact, const spFloat h);

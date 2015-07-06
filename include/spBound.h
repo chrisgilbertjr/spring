@@ -10,7 +10,7 @@
 /// 2d axis aligned bounding box and circle
 struct spBound
 {
-    spVector half_width;
+    spVector halfWidth;
     spVector center;
     spFloat  radius;
 };
@@ -30,14 +30,29 @@ spFloat spBoundBoxArea(spBound* bound);
 /// checks if two AABB overlap
 spBool spBoundBoxOverlap(spBound* a, spBound* b, spTransform* xfa, spTransform* xfb);
 
-/// get a bounds half width
+/// get the bound in world space
+spBound spBoundGetWorldBound(spBound* bound, spTransform* xf);
+
+/// get the bounds center in world space
+spVector spBoundGetWorldCenter(spBound* bound, spTransform* xf);
+
+/// get the bounds half width
 spVector spBoundGetHalfWidth(spBound* bound);
 
-/// get a bounds center
+/// get the bounds center
 spVector spBoundGetCenter(spBound* bound);
 
-/// get a bounds radius
+/// get the bounds radius
 spFloat spBoundGetRadius(spBound* bound);
+
+/// set the bounds half widths
+void spBoundSetHalfWidth(spBound* bound, spVector halfWidth);
+
+/// set the bounds center
+void spBoundSetCenter(spBound* bound, spVector center);
+
+/// set the bounds radius
+void spBoundSetRadius(spBound* bound, spFloat radius);
 
 /// @}
 

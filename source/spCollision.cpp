@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include "spBody.h"
 
-/// collision structs
-
 /// an edge of two points
 struct Edge
 {
@@ -52,8 +50,6 @@ struct SupportPointContext
     SupportPointFunc supportPointA; ///< the first  shapes support point function
     SupportPointFunc supportPointB; ///< the second shapes support point function
 };
-
-/// GJK/EPA functions
 
 static inline spFloat
 spLerpRatio(spVector t, spVector h)
@@ -105,11 +101,10 @@ spDistToOrigin(spVector t, spVector h)
     return spLength(spClosestPointToOrigin(t, h));
 }
 
-/// Construct functions
-
 static inline struct MinkowskiEdge
 MinkowskiEdgeConstruct(spMinkowskiPoint* head, spMinkowskiPoint* tail)
 {
+    NULLCHECK(head); NULLCHECK(tail);
     /// get the closest minkowski point
     spFloat t = spLerpRatio(tail->v, head->v);
     spVector point = spLerp(tail->v, head->v, t);
@@ -134,6 +129,7 @@ MinkowskiEdgeConstruct(spMinkowskiPoint* head, spMinkowskiPoint* tail)
 static inline struct ClosestPoints
 MinkowskiEdgeComputePoints(MinkowskiEdge* edge)
 {
+    NULLCHECK(edge);
     /// compute the two world space points of each body given the lerp value and edge vertices
     spVector pointA = spLerp(edge->tail.a, edge->head.a, edge->t);
     spVector pointB = spLerp(edge->tail.b, edge->head.b, edge->t);
@@ -169,11 +165,10 @@ spMinkowskiPointConstruct(spVector a, spVector b)
     return m;
 }
 
-/// contact result functions
-
 static void
 addContact(spCollisionResult* result, const spVector pointA, const spVector pointB)
 {
+    NULLCHECK(result);
     spAssert(result->count <= 2, "cannot add more than 2 contacts!");
 
     /// add the contact to the collision result
@@ -186,6 +181,7 @@ addContact(spCollisionResult* result, const spVector pointA, const spVector poin
 static void
 invertContacts(spCollisionResult* result)
 {
+    NULLCHECK(result);
     /// swap the contact info
     for (spInt i = 0; i < result->count; ++i)
     {
@@ -196,11 +192,10 @@ invertContacts(spCollisionResult* result)
     result->normal = spNegate(result->normal);
 }
 
-/// support point functions
-
 static spVector
 extremalPointCircle(const spCircle* circle, const spVector normal)
 {
+    NULLCHECK(circle);
     /// circles are tested as points with a radius, return the world center
     return spMult(circle->shape.body->xf, circle->center);
 }
@@ -208,6 +203,7 @@ extremalPointCircle(const spCircle* circle, const spVector normal)
 static spVector
 extremalPointSegment(const spSegment* segment, const spVector normal)
 {
+    NULLCHECK(segment);
     spTransform* xf = &segment->shape.body->xf;
     
     spVector pointA = spMult(*xf, segment->pointA);
@@ -219,6 +215,7 @@ extremalPointSegment(const spSegment* segment, const spVector normal)
 static Edge
 extremalEdgeSegment(const spSegment* segment, const spVector normal)
 {
+    NULLCHECK(segment);
     spTransform* xf = &segment->shape.body->xf;
     
     spVector pointA = spMult(*xf, segment->pointA);
@@ -243,6 +240,7 @@ extremalEdgeSegment(const spSegment* segment, const spVector normal)
 static spInt
 extremalIndexPoly(const spPolygon* poly, const spVector normal)
 {
+    NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
@@ -274,6 +272,7 @@ extremalIndexPoly(const spPolygon* poly, const spVector normal)
 static spVector
 extremalPointPoly(const spPolygon* poly, const spVector normal)
 {
+    NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
@@ -305,6 +304,7 @@ extremalPointPoly(const spPolygon* poly, const spVector normal)
 static Edge
 extremalEdgePoly(const spPolygon* poly, const spVector& normal)
 {
+    NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
@@ -347,6 +347,7 @@ extremalEdgePoly(const spPolygon* poly, const spVector& normal)
 static struct spMinkowskiPoint
 supportPoint(const struct SupportPointContext* context, const spVector normal)
 {
+    NULLCHECK(context);
     SupportPoint pointA = context->supportPointA(context->shapeA, normal);
     SupportPoint pointB = context->supportPointB(context->shapeB, spNegate(normal));
 
@@ -358,6 +359,7 @@ supportPoint(const struct SupportPointContext* context, const spVector normal)
 static void
 vertexVertexCorrection(MinkowskiEdge* edge, struct ClosestPoints points)
 {
+    NULLCHECK(edge);
     /// compute the new normal
 	edge->normal = spNormal(spSub(points.b, points.a));
 
@@ -368,6 +370,7 @@ vertexVertexCorrection(MinkowskiEdge* edge, struct ClosestPoints points)
 static spBool
 edgesOverlap(const struct Edge* a, const struct Edge* b, spVector normal)
 {
+    NULLCHECK(a); NULLCHECK(b);
     /// get the tangents of the edges given a normal
     spVector tangentA = spSkew(normal);
     spVector tangentB = spNegate(tangentA);
@@ -384,6 +387,7 @@ edgesOverlap(const struct Edge* a, const struct Edge* b, spVector normal)
 static spCollisionResult
 clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge* edge, spFloat radiusA, spFloat radiusB)
 {
+    NULLCHECK(a); NULLCHECK(b); NULLCHECK(edge);
     spCollisionResult result = spCollisionResultConstruct();
     spVector normal = result.normal = edge->normal;
 
@@ -438,6 +442,7 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
 static MinkowskiEdge
 EPA(const struct SupportPointContext* context, spMinkowskiPoint* m0, spMinkowskiPoint* m1, spMinkowskiPoint* m2)
 {
+    NULLCHECK(context); NULLCHECK(m0); NULLCHECK(m1); NULLCHECK(m2);
     /// allocate space for the hulls
     spMinkowskiPoint  hull0[32] = { 0 };
     spMinkowskiPoint  hull1[32] = { 0 };
@@ -508,13 +513,14 @@ EPA(const struct SupportPointContext* context, spMinkowskiPoint* m0, spMinkowski
         }
         hull = hull_new;
     }
-    spAssert(false, "increase EPA iters, or remove poly's with large amounts of vertices\n");
+    spWarning(false, "increase EPA iters, or remove poly's with large amounts of vertices\n");
     return MinkowskiEdgeConstruct(hull+0, hull+1);
 }
 
 static struct MinkowskiEdge 
 GJK(const struct SupportPointContext* context)
 {
+    NULLCHECK(context);
     /// get the shape pointers
     const spShape* shapeA = context->shapeA;
     const spShape* shapeB = context->shapeB;
@@ -586,6 +592,7 @@ GJK(const struct SupportPointContext* context)
 static spCollisionResult 
 CircleToCircle(const spCircle* circleA, const spCircle* circleB)
 {
+    NULLCHECK(circleA); NULLCHECK(circleB);
     spCollisionResult result = spCollisionResultConstruct();
 
     /// get the shapes transforms
@@ -623,6 +630,7 @@ CircleToCircle(const spCircle* circleA, const spCircle* circleB)
 static spCollisionResult 
 PolygonToCircle(const spPolygon* poly, const spCircle* circle)
 {
+    NULLCHECK(poly); NULLCHECK(circle);
     struct SupportPointContext context = { 
         (spShape*)poly, 
         (spShape*)circle, 
@@ -662,6 +670,7 @@ PolygonToCircle(const spPolygon* poly, const spCircle* circle)
 static spCollisionResult 
 CircleToPolygon(const spCircle* circle, const spPolygon* poly)
 {
+    NULLCHECK(circle); NULLCHECK(poly);
     spCollisionResult result = PolygonToCircle(poly, circle);
     invertContacts(&result);
     return result;
@@ -670,6 +679,7 @@ CircleToPolygon(const spCircle* circle, const spPolygon* poly)
 static spCollisionResult
 PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
 {
+    NULLCHECK(polyA); NULLCHECK(polyB);
     struct SupportPointContext context = { 
         (spShape*)polyA, 
         (spShape*)polyB, 
@@ -703,6 +713,7 @@ PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
 static spCollisionResult
 SegmentToCircle(const spSegment* segment, const spCircle* circle)
 {
+    NULLCHECK(segment); NULLCHECK(circle);
     struct SupportPointContext context = { 
         (spShape*)segment, 
         (spShape*)circle, 
@@ -744,6 +755,7 @@ SegmentToCircle(const spSegment* segment, const spCircle* circle)
 static spCollisionResult
 CircleToSegment(const spCircle* circle, const spSegment* segment)
 {
+    NULLCHECK(circle); NULLCHECK(segment);
     /// collide the shapes and swap the contacts
     spCollisionResult result = SegmentToCircle(segment, circle);
     invertContacts(&result);
@@ -753,6 +765,7 @@ CircleToSegment(const spCircle* circle, const spSegment* segment)
 static spCollisionResult
 PolygonToSegment(const spPolygon* poly, const spSegment* segment)
 {
+    NULLCHECK(poly); NULLCHECK(segment);
     struct SupportPointContext context = { 
         (spShape*)poly, 
         (spShape*)segment, 
@@ -812,6 +825,7 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
 static spCollisionResult
 SegmentToPolygon(const spSegment* segment, const spPolygon* poly)
 {
+    NULLCHECK(segment); NULLCHECK(poly);
     /// collide the shapes and swap the contact info
     spCollisionResult result = PolygonToSegment(poly, segment);
     invertContacts(&result);
@@ -821,6 +835,7 @@ SegmentToPolygon(const spSegment* segment, const spPolygon* poly)
 static spCollisionResult
 SegmentToSegment(const spSegment* segmentA, const spSegment* segmentB)
 {
+    NULLCHECK(segmentA); NULLCHECK(segmentB);
     /// segments cannot collide
     return spCollisionResultConstruct();
 }

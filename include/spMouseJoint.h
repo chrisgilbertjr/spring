@@ -39,14 +39,14 @@ inline void spMouseJointUpdate(spMouseJoint* joint, spVector target)
 
 inline void spMouseJointStart(spMouseJoint* joint, spBody* a, spVector point) 
 { 
-    joint->constraint.body_a = a; 
+    joint->constraint.bodyA = a; 
     joint->anchor = spTMult(a->xf, point);
     joint->target = point; 
 }
 
 inline void spMouseJointEnd(spMouseJoint* joint)
 {
-    joint->constraint.body_a = NULL;
+    joint->constraint.bodyA = NULL;
     joint->anchor = spVectorZero();
     joint->target = spVectorZero();
 }

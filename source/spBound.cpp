@@ -6,7 +6,7 @@ void spBoundInit(spBound* bound, spVector center, spFloat radius)
 {
     NULLCHECK(bound);
     bound->center = center;
-    bound->half_width = spVector(radius, radius);
+    bound->halfWidth = spVector(radius, radius);
     bound->radius = radius;
 }
 
@@ -20,13 +20,13 @@ spBound spBoundConstruct(spVector center, spFloat radius)
 spFloat spBoundBoxPerimeter(spBound* bound)
 {
     NULLCHECK(bound);
-    return bound->half_width.x * 4.0f + bound->half_width.y * 4.0f;
+    return bound->halfWidth.x * 4.0f + bound->halfWidth.y * 4.0f;
 }
 
 spFloat spBoundBoxArea(spBound* bound)
 {
     NULLCHECK(bound);
-    return bound->half_width.x * 2.0f * bound->half_width.y * 2.0f;
+    return bound->halfWidth.x * 2.0f * bound->halfWidth.y * 2.0f;
 }
 
 spBool 
@@ -36,15 +36,33 @@ spBoundBoxOverlap(spBound* a, spBound* b, spTransform* xfA, spTransform* xfB)
     spVector cA = spMult(*xfA, a->center);
     spVector cB = spMult(*xfB, b->center);
 
-    if (spAbs(cA.x - cB.x) > (a->half_width.x + b->half_width.x)) return spFalse;
-    if (spAbs(cA.y - cB.y) > (a->half_width.y + b->half_width.y)) return spFalse;
+    if (spAbs(cA.x - cB.x) > (a->halfWidth.x + b->halfWidth.x)) return spFalse;
+    if (spAbs(cA.y - cB.y) > (a->halfWidth.y + b->halfWidth.y)) return spFalse;
     return spTrue;
+}
+
+spBound 
+spBoundGetWorldBound(spBound* bound, spTransform* xf)
+{
+    NULLCHECK(bound); NULLCHECK(xf);
+    spBound newBound;
+    newBound.center = spMult(*xf, bound->center);
+    newBound.halfWidth = bound->halfWidth;
+    newBound.radius = bound->radius;
+    return newBound;
+}
+
+spVector 
+spBoundGetWorldCenter(spBound* bound, spTransform* xf)
+{
+    NULLCHECK(bound); NULLCHECK(xf);
+    return spMult(*xf, bound->center);
 }
 
 spVector spBoundGetHalfWidth(spBound* bound)
 {
     NULLCHECK(bound);
-    return bound->half_width;
+    return bound->halfWidth;
 }
 
 spVector 
@@ -59,4 +77,26 @@ spBoundGetRadius(spBound* bound)
 {
     NULLCHECK(bound);
     return bound->radius;
+}
+
+void 
+spBoundSetHalfWidth(spBound* bound, spVector halfWidth)
+{
+    NULLCHECK(bound);
+    bound->halfWidth = halfWidth;
+}
+
+void 
+spBoundSetCenter(spBound* bound, spVector center)
+{
+    NULLCHECK(bound);
+    bound->center = center;
+}
+
+void 
+spBoundSetRadius(spBound* bound, spFloat radius)
+{
+    NULLCHECK(bound);
+    bound->radius = radius;
+    bound->halfWidth = spVector(radius, radius);
 }

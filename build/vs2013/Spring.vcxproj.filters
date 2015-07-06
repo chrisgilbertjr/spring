@@ -23,9 +23,6 @@
     <ClInclude Include="..\..\include\spBound.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\spChain.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spCircle.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -56,13 +53,7 @@
     <ClInclude Include="..\..\include\spPolygon.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\spring.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\spShape.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\spSolver.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\spWorld.h">
@@ -131,9 +122,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spPolygon.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\spring.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spShape.cpp">

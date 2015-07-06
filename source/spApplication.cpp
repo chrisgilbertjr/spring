@@ -162,7 +162,7 @@ default_loop(spApplication* app)
             {
                 spMouseJointStart(app->mouse, shape->body, pos);
                 spWorldAddConstraint(&app->world, (spConstraint*)app->mouse);
-                app->mouse->constraint.body_a = shape->body;
+                app->mouse->constraint.bodyA = shape->body;
                 app->mouseShape = shape;
             }
         }

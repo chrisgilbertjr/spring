@@ -6,6 +6,7 @@
 void 
 spContactPointInit(spContactPoint* point)
 {
+    NULLCHECK(point);
     point->rA = spVectorZero();
     point->rB = spVectorZero();
     point->lambdaAccumNorm = 0.0f;
@@ -17,12 +18,13 @@ spContactPointInit(spContactPoint* point)
 }
 
 void 
-spContactInit(spContact* contact, const spContactKey& key)
+spContactInit(spContact* contact, const spContactKey key)
 {
+    NULLCHECK(contact);
     spContactPointInit(contact->points+0);
     spContactPointInit(contact->points+1);
-    contact->key.shape_a = key.shape_a;
-    contact->key.shape_b = key.shape_b;
+    contact->key.shapeA = key.shapeA;
+    contact->key.shapeB = key.shapeB;
     contact->next        = NULL;
     contact->prev        = NULL;
     contact->normal      = spVectorZero();
@@ -38,9 +40,10 @@ spContactAlloc()
 }
 
 spContact* 
-spContactNew(const spContactKey& key)
+spContactNew(const spContactKey key)
 {
     spContact* contact = spContactAlloc();
+    NULLCHECK(contact);
     spContactInit(contact, key);
     return contact;
 }
@@ -52,23 +55,12 @@ spContactFree(spContact** contact)
 }
 
 void 
-spContactAdd(spContact* contact, spContact*& list)
-{
-    SP_LINKED_LIST_PREPEND(spContact, contact, list);
-}
-
-void 
-spContactRemove(spContact* contact, spContact*& list)
-{
-    SP_LINKED_LIST_REMOVE(spContact, contact, list);
-}
-
-void 
 spContactPreSolve(spContact* contact, const spFloat h)
 {
+    NULLCHECK(contact);
     /// get the bodies
-    spBody* a = contact->key.shape_a->body;
-    spBody* b = contact->key.shape_b->body;
+    spBody* a = contact->key.shapeA->body;
+    spBody* b = contact->key.shapeB->body;
 
     spInt    points  = contact->count;
     spVector normal  = contact->normal;
@@ -101,10 +93,11 @@ spContactPreSolve(spContact* contact, const spFloat h)
         /// compute penetration and set position slop
         spFloat penetration = -spDot(spAdd(spSub(point->rB, point->rA), spSub(b->p, a->p)), normal);
         static const spFloat slop = -0.55f;
+        spFloat beta = 0.2f;
 
-        /// compute bounce bias and velocity bias
+        /// compute bounce bias and velocity bias (compute position constraint)
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;
-        point->bias = (penetration > slop) ? (-0.2f * (penetration + slop) / h) : 0.0f;
+        point->bias = (penetration > slop) ? (-beta * (penetration + slop) / h) : 0.0f;
 
         /// reset accumulated multipliers
         point->lambdaAccumNorm = 0.0f;
@@ -115,9 +108,10 @@ spContactPreSolve(spContact* contact, const spFloat h)
 void 
 spContactApplyCachedImpulse(spContact* contact, const spFloat h)
 {
+    NULLCHECK(contact);
     /// get the bodies
-    spBody* a = contact->key.shape_a->body;
-    spBody* b = contact->key.shape_b->body;
+    spBody* a = contact->key.shapeA->body;
+    spBody* b = contact->key.shapeB->body;
 
     for (spInt i = 0; i < contact->count; ++i)
     {
@@ -137,8 +131,9 @@ spContactApplyCachedImpulse(spContact* contact, const spFloat h)
 void 
 spContactSolve(spContact* contact)
 {
-    spBody* a = contact->key.shape_a->body;
-    spBody* b = contact->key.shape_b->body;
+    NULLCHECK(contact);
+    spBody* a = contact->key.shapeA->body;
+    spBody* b = contact->key.shapeB->body;
 
     spInt    points  = contact->count;
     spVector normal  = contact->normal;

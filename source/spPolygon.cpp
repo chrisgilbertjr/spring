@@ -5,6 +5,7 @@
 static spVector 
 spPolygonComputeCenterOfMass(spPolygon* poly)
 {
+    NULLCHECK(poly);
     /// http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon 
     ///
     /// compute the centroid
@@ -36,6 +37,7 @@ spPolygonComputeCenterOfMass(spPolygon* poly)
 static spFloat
 spPolygonComputeInertia(spPolygon* poly, spFloat mass)
 {
+    NULLCHECK(poly);
     spAssert(poly != NULL, "the polygon is null while computing the moment of inertia");
 
     /// http://en.wikipedia.org/wiki/List_of_moments_of_inertia
@@ -69,11 +71,9 @@ spPolygonComputeInertia(spPolygon* poly, spFloat mass)
 }
 
 static void 
-spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& center)
+spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector center)
 {
-    spAssert(poly  != NULL, "the polygon is null while computing a bounding volume");
-    spAssert(bound != NULL, "bound is null while computing a polygon bound");
-
+    NULLCHECK(poly); NULLCHECK(bound);
     /// TODO: im computing a fat bounding box in this test, 
     /// should i compute a tight fight a recompute often?
     spInt count = poly->count;
@@ -99,8 +99,7 @@ spPolygonComputeBound(spPolygon* poly, spBound* bound, const spVector& center)
 static void 
 spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
 {
-    spAssert(poly != NULL, "the polygon is null while computing mass data");
-    spAssert(data != NULL, "mass data is null while computing mass data");
+    NULLCHECK(poly); NULLCHECK(data);
     spAssert(mass >= 0.0f, "mass is negative while computing mass data");
 
     /// initialize all mass related data
@@ -114,13 +113,14 @@ spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
 void 
 spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
 {
-    spAssert(vertices != NULL, "vertices are null in spPolygonInit\n");
+    NULLCHECK(poly); NULLCHECK(vertices);
     spAssert(count > 2, "less than 3 vertices in spPolygonInit\n");
     spMaterial material = { 0.6f, 0.2f };
 
     poly->count = count;
     poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
     poly->radius = 0.55f;
+    NULLCHECK(poly->edges);
 
     /// initialize vertices and normals
     for (spInt i = 0; i < count; ++i)
@@ -145,6 +145,7 @@ spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
 spShape* 
 spPolygonNew(spVector* vertices, spInt count, spFloat mass)
 {
+    NULLCHECK(vertices);
     spPolygon* poly = spPolygonAlloc();
     spPolygonInit(poly, vertices, count, mass);
     return (spShape*)poly;
@@ -159,8 +160,11 @@ spPolygonAlloc()
 void 
 spPolygonFree(spPolygon** poly)
 {
+    NULLCHECK(poly);
     spPolygon* polygon = *poly;
+    NULLCHECK(polygon);
     spEdge** edges = &polygon->edges;
+    NULLCHECK(edges);
     spFree(edges);
     spFree(poly);
 }
@@ -168,6 +172,7 @@ spPolygonFree(spPolygon** poly)
 spBool 
 spPolygonTestPoint(spPolygon* poly, spVector point)
 {
+    NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
     spVector v0 = spTMult(*xf, point);
 
@@ -184,4 +189,25 @@ spPolygonTestPoint(spPolygon* poly, spVector point)
         if (spDeterminant(mat) < 0.0f) return spFalse;
     }
     return spTrue;
+}
+
+spFloat 
+spPolygonGetRadius(spPolygon* poly)
+{
+    NULLCHECK(poly);
+    return poly->radius;
+}
+
+spInt 
+spPolygonGetCount(spPolygon* poly)
+{
+    NULLCHECK(poly);
+    return poly->count;
+}
+
+void 
+spPolygonSetRadius(spPolygon* poly, spFloat radius)
+{
+    NULLCHECK(poly);
+    poly->radius = radius;
 }

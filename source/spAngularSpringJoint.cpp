@@ -41,8 +41,8 @@ spAngularSpringJointFree(spAngularSpringJoint** joint)
 void 
 spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
 
     spFloat iMass = bA->iInv + bB->iInv;
     spFloat mass = iMass != 0.0f ? 1.0f / iMass : 0.0f;
@@ -71,8 +71,8 @@ spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
 void 
 spAngularSpringJointSolve(spAngularSpringJoint* joint)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
     if (joint->inverse)
     {
         spFloat Cdot = bA->w - bB->w;

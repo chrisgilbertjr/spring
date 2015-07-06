@@ -105,6 +105,18 @@ spBound spShapeGetBound(spShape* shape);
 /// get the shapes body
 spBody* spShapeGetBody(spShape* shape);
 
+/// get a local point in world space
+spVector spShapeLocalToWorldPoint(spShape* shape, spVector point);
+
+/// get a world point in local space
+spVector spShapeWorldToLocalPoint(spShape* shape, spVector point);
+
+/// get a local point in world space
+spVector spShapeLocalToWorldVector(spShape* shape, spVector vector);
+
+/// get a world point in local space
+spVector spShapeWorldToLocalVector(spShape* shape, spVector vector);
+
 /// set the shapes material given restitution and a friction value
 void spShapeSetMaterial(spShape* shape, spFloat restitution, spFloat friction);
 

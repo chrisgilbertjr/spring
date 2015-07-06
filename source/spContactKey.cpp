@@ -3,32 +3,35 @@
 #include "spContact.h"
 
 void 
-spContactKeyInit(spContactKey* key, spShape* shape_a, spShape* shape_b)
+spContactKeyInit(spContactKey* key, spShape* shapeA, spShape* shapeB)
 {
-    if (spShapeLessThan(shape_a, shape_b))
+    NULLCHECK(key); NULLCHECK(shapeA); NULLCHECK(shapeB);
+    if (spShapeLessThan(shapeA, shapeB))
     {
-        key->shape_a = shape_a;
-        key->shape_b = shape_b;
+        key->shapeA = shapeA;
+        key->shapeB = shapeB;
     }
     else
     {
-        key->shape_a = shape_b;
-        key->shape_b = shape_a;
+        key->shapeA = shapeB;
+        key->shapeB = shapeA;
     }
 }
 
 spContactKey 
-_spContactKey(spShape* shape_a, spShape* shape_b)
+spContactKeyConstruct(spShape* shapeA, spShape* shapeB)
 {
+    NULLCHECK(shapeA); NULLCHECK(shapeB);
     spContactKey key;
-    spContactKeyInit(&key, shape_a, shape_b);
+    spContactKeyInit(&key, shapeA, shapeB);
     return key;
 }
 
 spBool 
-spContactKeyExists(const spContactKey& key, spContact* contact_list)
+spContactKeyExists(const spContactKey key, spContact* contactList)
 {
-    for_each_contact(contact, contact_list)
+    NULLCHECK(contactList);
+    for_each_contact(contact, contactList)
     {
         if (spContactKeyEqual(key, contact->key) == spTrue)
         {
@@ -39,15 +42,16 @@ spContactKeyExists(const spContactKey& key, spContact* contact_list)
 }
 
 spBool 
-spContactKeyEqual(const spContactKey& key_a, const spContactKey& key_b)
+spContactKeyEqual(spContactKey keyA, spContactKey keyB)
 {
-    return key_a.shape_a == key_b.shape_a && key_a.shape_b == key_b.shape_b ? spTrue : spFalse;
+    return keyA.shapeA == keyB.shapeA && keyA.shapeB == keyB.shapeB ? spTrue : spFalse;
 }
 
 void 
 spContactKeySortShapes(spContactKey* key)
 {
-    if (spShapeLessThan(key->shape_a, key->shape_b)) return;
+    NULLCHECK(key);
+    if (spShapeLessThan(key->shapeA, key->shapeB)) return;
 
     spContactKeySwapShapes(key);
 }
@@ -55,8 +59,9 @@ spContactKeySortShapes(spContactKey* key)
 void 
 spContactKeySwapShapes(spContactKey* key)
 {
-    spShape* tmp = key->shape_a;
-    key->shape_a = key->shape_b;
-    key->shape_b = tmp;
+    NULLCHECK(key);
+    spShape* tmp = key->shapeA;
+    key->shapeA = key->shapeB;
+    key->shapeB = tmp;
 }
 

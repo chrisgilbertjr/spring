@@ -7,23 +7,24 @@
 /// @defgroup spContactKey spContactKey
 /// @{
 
+/// used for persistent contacts
 struct spContactKey
 {
-    spShape* shape_a;
-    spShape* shape_b;
+    spShape* shapeA;
+    spShape* shapeB;
 };
 
 /// initialize a contact key with two shapes
-void spContactKeyInit(spContactKey* key, spShape* shape_a, spShape* shape_b);
+void spContactKeyInit(spContactKey* key, spShape* shapeA, spShape* shapeB);
 
 /// 'faked' constructor for stack allocation
-spContactKey _spContactKey(spShape* shape_a, spShape* shape_b);
+spContactKey spContactKeyConstruct(spShape* shapeA, spShape* shapeB);
 
 /// checks if a contact with a contact key exists
-spBool spContactKeyExists(const spContactKey& key, spContact* contact_list);
+spBool spContactKeyExists(spContactKey key, spContact* contactList);
 
 /// checks if two contact keys are the same
-spBool spContactKeyEqual(const spContactKey& key_a, const spContactKey& key_b);
+spBool spContactKeyEqual(spContactKey keyA, spContactKey keyB);
 
 /// sorts the contact key so the first shape is < the second shape
 void spContactKeySortShapes(spContactKey* key);

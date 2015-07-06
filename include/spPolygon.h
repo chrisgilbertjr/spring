@@ -37,8 +37,17 @@ spShape* spPolygonNew(spVector* vertices, spInt count, spFloat mass);
 /// free allocated memory for a polygon from the heap
 void spPolygonFree(spPolygon** poly);
 
-/// TODO:
+/// tests if a point is inside of the polygon
 spBool spPolygonTestPoint(spPolygon* poly, spVector point);
+
+/// gets the polygons radius
+spFloat spPolygonGetRadius(spPolygon* poly);
+
+/// get the edge count of the polygon
+spInt spPolygonGetCount(spPolygon* poly);
+
+/// sets the radius of the polygon
+void spPolygonSetRadius(spPolygon* poly, spFloat radius);
 
 /// @}
 

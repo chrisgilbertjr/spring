@@ -43,7 +43,7 @@ spMouseJointFree(spMouseJoint** joint)
 void 
 spMouseJointPreSolve(spMouseJoint* joint, const spFloat h)
 {
-    spBody* a = joint->constraint.body_a;
+    spBody* a = joint->constraint.bodyA;
     
     spFloat omega = 2.0f * SP_PI * joint->frequency;
     spFloat c = 2.0f * a->m * joint->damping * omega;
@@ -79,7 +79,7 @@ spMouseJointPreSolve(spMouseJoint* joint, const spFloat h)
 void 
 spMouseJointSolve(spMouseJoint* joint)
 {
-    spBody* a = joint->constraint.body_a;
+    spBody* a = joint->constraint.bodyA;
 
     spVector Cdot = spAdd(a->v, spCross(a->w, joint->rA));
     spVector A = spAdd(Cdot, joint->bias);

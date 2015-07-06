@@ -176,7 +176,7 @@ void
 spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform& xf)
 {
     spVector c  = spMult(xf, bound->center);
-    spVector hw = bound->half_width;
+    spVector hw = bound->halfWidth;
     spVector p0 = spAdd(c, spVector(-hw.x,-hw.y));
     spVector p1 = spAdd(c, spVector( hw.x,-hw.y));
     spVector p2 = spAdd(c, spVector( hw.x, hw.y));

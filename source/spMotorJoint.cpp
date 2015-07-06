@@ -36,14 +36,14 @@ spMotorJointFree(spMotorJoint** joint)
 void 
 spMotorJointPreStep(spMotorJoint* joint, const spFloat h)
 {
-    joint->inertia = 1.0f / (joint->constraint.body_a->iInv + joint->constraint.body_b->iInv);
+    joint->inertia = 1.0f / (joint->constraint.bodyA->iInv + joint->constraint.bodyB->iInv);
 }
 
 void 
 spMotorJointSolve(spMotorJoint* joint)
 {
-    spBody* a = joint->constraint.body_a;
-    spBody* b = joint->constraint.body_b;
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
     spFloat w = joint->w + b->w - a->w;
     spFloat lambda = joint->inertia * -w;

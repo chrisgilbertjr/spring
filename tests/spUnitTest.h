@@ -55,8 +55,6 @@ inline void spLogEquality(spResult result, const spInt8* test, const spInt8* a, 
     spInt8 buffer[70] = { 0 };
     spMemset(buffer, '.', 69);
 
-    //spAssert(strlen(test) > 70, "test is to long, minimize test length!");
-
     spInt8* mem = buffer;
     strncpy(mem, test, strlen(test));  mem += strlen(test);
     strncpy(mem, "(",  strlen("("));   mem += strlen("(");

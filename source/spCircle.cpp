@@ -6,37 +6,30 @@
 static spFloat
 spCircleComputeInertia(spCircle* circle, spFloat mass)
 {
-    spAssert(circle != NULL, "the circle is null while computing mass data");
-
     /// http://en.wikipedia.org/wiki/List_of_moments_of_inertia
     /// inertia for a 'disk' = mass * radius * radius / 2.0f
+    NULLCHECK(circle);
     return mass * circle->radius * circle->radius * 0.5f * SP_DEG_TO_RAD;
 }
 
 static void 
 spCircleComputeBound(spCircle* circle, spBound* bound)
 {
-    spAssert(circle != NULL, "the circle is null while computing mass data");
-
-    spFloat radius = circle->radius;
-
-    bound->center = circle->center;
-    bound->radius = radius;
-    bound->half_width = spVector(radius, radius);
+    NULLCHECK(circle); NULLCHECK(bound);
+    spBoundInit(bound, circle->center, circle->radius);
 }
 
 static void 
 spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass)
 {
-    spAssert(circle != NULL, "the circle is null while computing mass data");
-    spAssert(data != NULL, "mass data is null while computing mass data");
-
+    NULLCHECK(circle); NULLCHECK(data);
     spMassDataInit(data, circle->center, spCircleComputeInertia(circle, mass), mass);
 }
 
 void 
 spCircleInit(spCircle* circle, spVector center, spFloat radius, spFloat mass)
 {
+    NULLCHECK(circle); 
     circle->center = center;
     circle->radius = radius;
 
@@ -59,6 +52,7 @@ spShape*
 spCircleNew(spVector center, spFloat radius, spFloat mass)
 {
     spCircle* circle = spCircleAlloc();
+    NULLCHECK(circle);
     spCircleInit(circle, center, radius, mass);
     return (spShape*)circle;
 }
@@ -66,12 +60,14 @@ spCircleNew(spVector center, spFloat radius, spFloat mass)
 void 
 spCircleFree(spCircle** circle)
 {
+    NULLCHECK(*circle);
     spFree(circle);
 }
 
 spBool 
 spCircleTestPoint(spCircle* circle, spVector point)
 {
+    NULLCHECK(circle);
     spVector center = spCircleGetWorldCenter(circle);
     return spLength(spSub(point, center)) <= circle->radius;
 }
@@ -79,17 +75,20 @@ spCircleTestPoint(spCircle* circle, spVector point)
 spVector 
 spCircleGetLocalCenter(spCircle* circle)
 {
+    NULLCHECK(circle);
     return circle->center;
 }
 
 spVector 
 spCircleGetWorldCenter(spCircle* circle)
 {
-    return spMult(circle->shape.body->xf, circle->center);
+    NULLCHECK(circle);
+    return spShapeLocalToWorldPoint(&circle->shape, circle->center);
 }
 
 spFloat 
 spCircleGetRadius(spCircle* circle)
 {
+    NULLCHECK(circle);
     return circle->radius;
 }

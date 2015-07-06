@@ -12,11 +12,12 @@
 void 
 spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstraintType type)
 {
+    NULLCHECK(constraint);
     constraint->type = type;
     constraint->next = NULL;
     constraint->prev = NULL;
-    constraint->body_a = a;
-    constraint->body_b = b;
+    constraint->bodyA = a;
+    constraint->bodyB = b;
 }
 
 spConstraint
@@ -30,6 +31,7 @@ spConstraintConstruct(spBody* a, spBody* b, spConstraintType type)
 void 
 spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
 {
+    NULLCHECK(constraint);
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
@@ -57,8 +59,9 @@ spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
 }
 
 void 
-spConstraintPreStep(spConstraint* constraint, const spFloat h)
+spConstraintPreSolve(spConstraint* constraint, const spFloat h)
 {
+    NULLCHECK(constraint);
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
@@ -96,6 +99,7 @@ spConstraintPreStep(spConstraint* constraint, const spFloat h)
 void 
 spConstraintSolve(spConstraint* constraint)
 {
+    NULLCHECK(constraint);
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
@@ -130,7 +134,143 @@ spConstraintSolve(spConstraint* constraint)
     }
 }
 
-void 
-spConstraintStabilize(spConstraint* constraint)
+struct spAngularSpringJoint*
+spConstraintCastAngularSpringJoint(spConstraint* constraint)
 {
+    NULLCHECK(constraint);
+    if (constraint->type == SP_ANGULAR_SPRING_JOINT)
+    {
+        return (spAngularSpringJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not an angular spring joint\n");
+        return NULL;
+    }
+}
+
+struct spDistanceJoint*
+spConstraintCastDistanceJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_DISTANCE_JOINT)
+    {
+        return (spDistanceJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a distance joint\n");
+        return NULL;
+    }
+}
+
+struct spSpringJoint*
+spConstraintCastSpringJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_SPRING_JOINT)
+    {
+        return (spSpringJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a spring joint\n");
+        return NULL;
+    }
+}
+
+struct spPointJoint*
+spConstraintCastPointJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_POINT_JOINT)
+    {
+        return (spPointJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a point joint\n");
+        return NULL;
+    }
+}
+
+struct spMotorJoint*
+spConstraintCastMotorJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_MOTOR_JOINT)
+    {
+        return (spMotorJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a motor joint\n");
+        return NULL;
+    }
+}
+
+struct spWheelJoint*
+spConstraintCastWheelJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_WHEEL_JOINT)
+    {
+        return (spWheelJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a wheel joint\n");
+        return NULL;
+    }
+}
+
+struct spMouseJoint*
+spConstraintCastMouseJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_MOUSE_JOINT)
+    {
+        return (spMouseJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a mouse joint\n");
+        return NULL;
+    }
+}
+
+struct spRopeJoint*
+spConstraintCastRopeJoint(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    if (constraint->type == SP_ROPE_JOINT)
+    {
+        return (spRopeJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a rope joint\n");
+        return NULL;
+    }
+}
+
+struct spBody* 
+spConstraintGetBodyA(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    return constraint->bodyA;
+}
+
+struct spBody* 
+spConstraintGetBodyB(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    return constraint->bodyB;
+}
+
+spConstraintType 
+spConstraintGetType(spConstraint* constraint)
+{
+    NULLCHECK(constraint);
+    return constraint->type;
 }

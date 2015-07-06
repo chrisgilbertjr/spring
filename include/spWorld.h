@@ -58,8 +58,10 @@ spShape* spWorldTestPoint(spWorld* world, spVector point);
 /// TODO:
 void spWorldAddBody(spWorld* world, spBody* body);
 
+/// TODO:
 void spWorldAddConstraint(spWorld* world, spConstraint* constraint);
 
+/// TODO:
 void spWorldRemoveConstraint(spWorld* world, spConstraint* constraint);
 
 void spWorldDraw(spWorld* world);

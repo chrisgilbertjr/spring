@@ -55,8 +55,8 @@ spWheelJointFree(spWheelJoint** joint)
 void 
 spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
 
     spVector pA = spMult(bA->xf, joint->anchorA);
     spVector pB = spMult(bB->xf, joint->anchorB);
@@ -126,8 +126,8 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
 void 
 spWheelJointSolve(spWheelJoint* joint)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
 
     /// solve spring constraint
     {

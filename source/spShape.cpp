@@ -2,6 +2,7 @@
 #include "spPolygon.h"
 #include "spCircle.h"
 #include "spShape.h"
+#include "spBody.h"
 
 /// common collision filters and a default material
 extern const spMask spCollideAll   = ~(spMask)0;
@@ -176,6 +177,34 @@ spShapeGetBody(spShape* shape)
 {
     NULLCHECK(shape);
     return shape->body;
+}
+
+spVector 
+spShapeLocalToWorldPoint(spShape* shape, spVector point)
+{
+    NULLCHECK(shape);
+    return spMult(shape->body->xf, point);
+}
+
+spVector 
+spShapeWorldToLocalPoint(spShape* shape, spVector point)
+{
+    NULLCHECK(shape);
+    return spTMult(shape->body->xf, point);
+}
+
+spVector 
+spShapeLocalToWorldVector(spShape* shape, spVector vector)
+{
+    NULLCHECK(shape);
+    return spMult(shape->body->xf.q, vector);
+}
+
+spVector 
+spShapeWorldToLocalVector(spShape* shape, spVector vector)
+{
+    NULLCHECK(shape);
+    return spTMult(shape->body->xf.q, vector);
 }
 
 void 

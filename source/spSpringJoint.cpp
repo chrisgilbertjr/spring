@@ -6,25 +6,25 @@
 spVector 
 spSpringJointGetWorldAnchorA(spSpringJoint* joint)
 {
-    return spMult(joint->constraint.body_a->xf, joint->anchorA);
+    return spMult(joint->constraint.bodyA->xf, joint->anchorA);
 }
 
 spVector 
 spSpringJointGetWorldAnchorB(spSpringJoint* joint)
 {
-    return spMult(joint->constraint.body_b->xf, joint->anchorB);
+    return spMult(joint->constraint.bodyB->xf, joint->anchorB);
 }
 
 void 
 spSpringJointSetWorldAnchorA(spSpringJoint* joint, spVector anchorA)
 {
-    joint->anchorA = spTMult(joint->constraint.body_a->xf, anchorA);
+    joint->anchorA = spTMult(joint->constraint.bodyA->xf, anchorA);
 }
 
 void 
 spSpringJointSetWorldAnchorB(spSpringJoint* joint, spVector anchorB)
 {
-    joint->anchorB = spTMult(joint->constraint.body_a->xf, anchorB);
+    joint->anchorB = spTMult(joint->constraint.bodyB->xf, anchorB);
 }
 
 void 
@@ -85,8 +85,8 @@ spSpringJointFree(spSpringJoint** joint)
 void 
 spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
     spVector pA = spMult(bA->xf, joint->anchorA);
     spVector pB = spMult(bB->xf, joint->anchorB);
 
@@ -127,8 +127,8 @@ spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
 void 
 spSpringJointSolve(spSpringJoint* joint)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
 
     /// compute velocity constraint
     spVector rvA = spAdd(bA->v, spCross(bA->w, joint->rA));

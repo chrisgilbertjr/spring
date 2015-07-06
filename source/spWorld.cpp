@@ -25,6 +25,20 @@ initContact(spCollisionResult* result, spContact* contact, spShape* shapeA, spSh
 	}
 }
 
+static void
+addContact(spWorld* world, spContact* contact)
+{
+    SP_LINKED_LIST_PREPEND(spContact, contact, world->contact_list);
+}
+
+static void 
+destroyContact(spWorld* world, spContact** destroy)
+{
+    spContact* contact = *destroy;
+    SP_LINKED_LIST_REMOVE(spContact, contact, world->contact_list);
+    spContactFree(destroy);
+}
+
 void 
 spWorldInit(spWorld* world, const spVector& gravity)
 {
@@ -55,7 +69,7 @@ spWorldStep(spWorld* world, const spFloat h)
     /// pre step the constraints
     for_each_constraint(joint, world->joint_list)
     {
-        spConstraintPreStep(joint, h);
+        spConstraintPreSolve(joint, h);
     }
 
     /// pre step the contacts
@@ -122,7 +136,7 @@ void spWorldBroadPhase(spWorld* world)
             if (spBoundBoxOverlap(ba, bb, &body_a->xf, &body_b->xf) == spFalse) continue;
 
             /// they do overlap, create a contact key
-            spContactKey key = spContactKey(shape_a, shape_b);
+            spContactKey key = spContactKeyConstruct(shape_a, shape_b);
 
             /// check if the contact key is currently in the contact list
             if (spContactKeyExists(key, world->contact_list) == spFalse)
@@ -131,7 +145,7 @@ void spWorldBroadPhase(spWorld* world)
                 spContact* contact = spContactNew(key);
 
                 /// insert the contact into the contact list
-                spContactAdd(contact, world->contact_list); 
+                addContact(world, contact);
             }
         }}
     }}
@@ -144,8 +158,8 @@ void spWorldNarrowPhase(spWorld* world)
     {
         /// get the contact key and shapes to collide
         spContactKey* key     = &contact->key;
-        spShape*      shapeA  = key->shape_a;
-        spShape*      shapeB  = key->shape_b;
+        spShape*      shapeA  = key->shapeA;
+        spShape*      shapeB  = key->shapeB;
 
         /// collide the two shapes
         spCollisionFunc Collide = CollideFunc[shapeA->type][shapeB->type];
@@ -157,8 +171,7 @@ void spWorldNarrowPhase(spWorld* world)
             /// destroy the contact
             spContact* destroy = contact;
             spContact* next = contact->next;
-            spContactRemove(destroy, world->contact_list);
-            spContactFree(&destroy);
+            destroyContact(world, &destroy);
             contact = next;
         }
 
@@ -194,11 +207,6 @@ void spWorldDraw(spWorld* world)
             }
         }
     }
-    for_each_contact(contact, world->contact_list)
-    {
-        //spDebugDrawContact(0, contact, contact->key.shape_b->body->xf);
-    }
-    spLog("\n");
 #endif
 }
 

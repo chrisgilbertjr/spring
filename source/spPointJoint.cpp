@@ -41,8 +41,8 @@ spPointJointFree(spPointJoint** joint)
 void 
 spPointJointPreSolve(spPointJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
     spVector pA = spMult(bA->xf, joint->anchorA);
     spVector pB = spMult(bB->xf, joint->anchorB);
 
@@ -80,8 +80,8 @@ spPointJointPreSolve(spPointJoint* joint, const spFloat h)
 void 
 spPointJointSolve(spPointJoint* joint)
 {
-    spBody* bA = joint->constraint.body_a;
-    spBody* bB = joint->constraint.body_b;
+    spBody* bA = joint->constraint.bodyA;
+    spBody* bB = joint->constraint.bodyB;
 
     spVector Cdot = spSub(spAdd(bB->v, spCross(bB->w, joint->rB)), spAdd(bA->v, spCross(bA->w, joint->rA)));
 

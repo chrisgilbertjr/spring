@@ -2,87 +2,10 @@
 #include "spRopeJoint.h"
 #include "spBody.h"
 
-spVector 
-spRopeJointGetLocalAnchorA(spRopeJoint* joint)
-{
-    return joint->anchorA;
-}
-
-spVector 
-spRopeJointGetLocalAnchorB(spRopeJoint* joint)
-{
-    return joint->anchorB;
-}
-
-spVector 
-spRopeJointGetWorldAnchorA(spRopeJoint* joint)
-{
-    return spMult(joint->constraint.bodyA->xf, joint->anchorA);
-}
-
-spVector 
-spRopeJointGetWorldAnchorB(spRopeJoint* joint)
-{
-    return spMult(joint->constraint.bodyB->xf, joint->anchorB);
-}
-
-spVector 
-spRopeJointGetImpulseDirection(spRopeJoint* joint)
-{
-    return joint->n;
-}
-
-spVector 
-spRopeJointGetImpulse(spRopeJoint* joint)
-{
-    return spMult(joint->n, joint->lambdaAccum);
-}
-
-spFloat 
-spRopeJointGetMaxDistance(spRopeJoint* joint)
-{
-    return joint->maxDistance;
-}
-
-spFloat 
-spRopeJointGetImpulseLength(spRopeJoint* joint)
-{
-    return joint->lambdaAccum;
-}
-
-void 
-spRopeJointSetLocalAnchorA(spRopeJoint* joint, spVector anchorA)
-{
-    joint->anchorA = anchorA;
-}
-
-void 
-spRopeJointSetLocalAnchorB(spRopeJoint* joint, spVector anchorB)
-{
-    joint->anchorB = anchorB;
-}
-
-void 
-spRopeJointSetWorldAnchorA(spRopeJoint* joint, spVector anchorA)
-{
-    joint->anchorA = spTMult(joint->constraint.bodyA->xf, anchorA);
-}
-
-void 
-spRopeJointSetWorldAnchorB(spRopeJoint* joint, spVector anchorB)
-{
-    joint->anchorB = spTMult(joint->constraint.bodyB->xf, anchorB);
-}
-
-void 
-spRopeJointSetMaxDistance(spRopeJoint* joint, spFloat maxDistance)
-{
-    joint->maxDistance = maxDistance;
-}
-
 void 
 spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
 {
+    NULLCHECK(joint); NULLCHECK(a); NULLCHECK(b);
     joint->constraint = spConstraintConstruct(a, b, SP_ROPE_JOINT);
     joint->anchorA = anchorA;
     joint->anchorB = anchorB;
@@ -118,7 +41,9 @@ spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat
 spRopeJoint* 
 spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
 {
+    NULLCHECK(a); NULLCHECK(b);
     spRopeJoint* joint = spRopeJointAlloc();
+    NULLCHECK(joint);
     spRopeJointWorldInit(joint, a, b, anchorA, anchorB, maxDistance);
     return joint;
 }
@@ -126,24 +51,23 @@ spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, sp
 void 
 spRopeJointFree(spRopeJoint** joint)
 {
-    free(*joint);
-    *joint = NULL;
+    NULLCHECK(*joint);
+    spFree(joint);
 }
 
 void 
-spRopeJointApplyCachedImpulse(spRopeJoint* joint, const spFloat h)
+spRopeJointApplyCachedImpulse(spRopeJoint* joint)
 {
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
 
     /// compute impulse
-    spVector impulse = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseA = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseB = spNegate(impulseA);
 
     /// apply the impulse
-    a->v = spSub(a->v, spMult(impulse, a->mInv));
-    b->v = spAdd(b->v, spMult(impulse, b->mInv));
-    a->w -= a->iInv * spCross(joint->rA, impulse);
-    b->w += b->iInv * spCross(joint->rB, impulse);
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
 }
 
 void 
@@ -169,10 +93,12 @@ spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
     joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
     joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
 
-    /// compute the position constraint, and compute baumgarte stabilization bias
+    /// compute the position constraint, and compute baumgarte velocity bias
     spFloat C = length - joint->maxDistance;
     spFloat beta = 0.2f;
     joint->bias = C * (beta / h);
+
+    /// reset the lagrange multiplier
     joint->lambdaAccum = 0.0f;
 }
 
@@ -191,11 +117,96 @@ spRopeJointSolve(spRopeJoint* joint)
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
     spFloat lambdaOld = joint->lambdaAccum;
     joint->lambdaAccum += lambda;
-    spVector impulse = spMult(joint->n, joint->lambdaAccum - lambdaOld);
+
+    /// compute the impulses
+    spVector impulseA = spMult(joint->n, joint->lambdaAccum - lambdaOld);
+    spVector impulseB = spNegate(impulseB);
 
     /// apply the impulse
-    a->v = spSub(a->v, spMult(impulse, a->mInv));
-    b->v = spAdd(b->v, spMult(impulse, b->mInv));
-    a->w -= a->iInv * spCross(joint->rA, impulse);
-    b->w += b->iInv * spCross(joint->rB, impulse);
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
+spVector 
+spRopeJointGetAnchorA(spRopeJoint* joint)
+{
+    return joint->anchorA;
+}
+
+spVector 
+spRopeJointGetAnchorB(spRopeJoint* joint)
+{
+    return joint->anchorB;
+}
+
+spVector 
+spRopeJointGetWorldAnchorA(spRopeJoint* joint)
+{
+    return spMult(joint->constraint.bodyA->xf, joint->anchorA);
+}
+
+spVector 
+spRopeJointGetWorldAnchorB(spRopeJoint* joint)
+{
+    return spMult(joint->constraint.bodyB->xf, joint->anchorB);
+}
+
+spVector 
+spRopeJointGetImpulseDirection(spRopeJoint* joint)
+{
+    return joint->n;
+}
+
+spFloat 
+spRopeJointGetImpulse(spRopeJoint* joint)
+{
+    return joint->lambdaAccum;
+}
+
+spVector 
+spRopeJointGetImpulseA(spRopeJoint* joint)
+{
+    return spMult(joint->n, joint->lambdaAccum);
+}
+
+spVector 
+spRopeJointGetImpulseB(spRopeJoint* joint)
+{
+    return spNegate(spMult(joint->n, joint->lambdaAccum));
+}
+
+spFloat 
+spRopeJointGetMaxDistance(spRopeJoint* joint)
+{
+    return joint->maxDistance;
+}
+
+void 
+spRopeJointSetAnchorA(spRopeJoint* joint, spVector anchorA)
+{
+    joint->anchorA = anchorA;
+}
+
+void 
+spRopeJointSetAnchorB(spRopeJoint* joint, spVector anchorB)
+{
+    joint->anchorB = anchorB;
+}
+
+void 
+spRopeJointSetWorldAnchorA(spRopeJoint* joint, spVector anchorA)
+{
+    joint->anchorA = spTMult(joint->constraint.bodyA->xf, anchorA);
+}
+
+void 
+spRopeJointSetWorldAnchorB(spRopeJoint* joint, spVector anchorB)
+{
+    joint->anchorB = spTMult(joint->constraint.bodyB->xf, anchorB);
+}
+
+void 
+spRopeJointSetMaxDistance(spRopeJoint* joint, spFloat maxDistance)
+{
+    joint->maxDistance = maxDistance;
 }

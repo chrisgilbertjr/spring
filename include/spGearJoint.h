@@ -5,6 +5,9 @@
 #include "spConstraint.h"
 #include "spMath.h"
 
+/// @defgroup spGearJoint spGearJoint
+/// @{
+
 /// a gear joint holds two bodies angular velocity at a constant ratio
 struct spGearJoint
 {
@@ -64,5 +67,7 @@ void spGearSetRatio(spGearJoint* joint, spFloat ratio);
 
 /// set the gear phase angle
 void spGearSetPhase(spGearJoint* joint, spFloat phase);
+
+/// @}
 
 #endif

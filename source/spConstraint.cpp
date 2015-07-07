@@ -37,7 +37,7 @@ spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
     case SP_DISTANCE_JOINT:
         break;
     case SP_ROPE_JOINT:
-        spRopeJointApplyCachedImpulse((spRopeJoint*) constraint, h);
+        spRopeJointApplyCachedImpulse((spRopeJoint*) constraint);
         break;
     case SP_MOTOR_JOINT:
         break;
@@ -48,6 +48,7 @@ spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
     case SP_WHEEL_JOINT:
         break;
     case SP_GEAR_JOINT:
+        spGearJointApplyCachedImpulses((spGearJoint*) constraint);
         break;
     case SP_POINT_JOINT:
         break;
@@ -257,20 +258,17 @@ spConstraintCastRopeJoint(spConstraint* constraint)
 struct spBody* 
 spConstraintGetBodyA(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
     return constraint->bodyA;
 }
 
 struct spBody* 
 spConstraintGetBodyB(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
     return constraint->bodyB;
 }
 
 spConstraintType 
 spConstraintGetType(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
     return constraint->type;
 }

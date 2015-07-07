@@ -168,7 +168,7 @@ default_loop(spApplication* app)
         }
         else
         {
-            spMouseJointUpdate(app->mouse, pos);
+            spMouseJointSetTarget(app->mouse, pos);
         }
     }
     else

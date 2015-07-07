@@ -40,11 +40,9 @@ spGearJointFree(spGearJoint** joint)
 void 
 spGearJointApplyCachedImpulses(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
-    NULLCHECK(a); NULLCHECK(b);
 
     /// compute the impulse, and apply it to the bodies
     spFloat impulse = joint->lambdaAccum;
@@ -55,11 +53,9 @@ spGearJointApplyCachedImpulses(spGearJoint* joint)
 void 
 spGearJointPreSolve(spGearJoint* joint, const spFloat h)
 {
-    NULLCHECK(joint);
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
-    NULLCHECK(a); NULLCHECK(b);
 
     /// compute the effective mass
     spFloat iMass = a->iInv*joint->ratioInv + b->iInv*joint->ratio;
@@ -77,16 +73,14 @@ spGearJointPreSolve(spGearJoint* joint, const spFloat h)
 void 
 spGearJointSolve(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
-    NULLCHECK(a); NULLCHECK(b);
 
     /// compute the velocity constraint, and solve for the lagrange multiplier
     spFloat Cdot = b->w * joint->ratio - a->w;
-    spFloat lambdaOld = joint->lambdaAccum;
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
+    spFloat lambdaOld = joint->lambdaAccum;
     joint->lambdaAccum += lambda;
 
     /// compute and apply the impulse
@@ -105,7 +99,6 @@ spConstraintIsGearJoint(spConstraint* constraint)
 spGearJoint*
 spConstraintCastGearJoint(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
     if (spConstraintIsGearJoint(constraint))
     {
         return (spGearJoint*) constraint;
@@ -120,46 +113,38 @@ spConstraintCastGearJoint(spConstraint* constraint)
 spFloat 
 spGearJointGetImpulse(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     return joint->lambdaAccum;
 }
 
 spFloat 
 spGearJointGetImpulseA(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     spBody* a = joint->constraint.bodyA;
-    NULLCHECK(a);
     return -joint->lambdaAccum * a->iInv * joint->ratioInv;
 }
 
 spFloat 
 spGearJointGetImpulseB(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     spBody* b = joint->constraint.bodyB;
-    NULLCHECK(b);
     return joint->lambdaAccum * b->iInv;
 }
 
 spFloat 
 spGearGetRatio(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     return joint->ratio;
 }
 
 spFloat 
 spGearGetPhase(spGearJoint* joint)
 {
-    NULLCHECK(joint);
     return joint->phase;
 }
 
 void 
 spGearSetRatio(spGearJoint* joint, spFloat ratio)
 {
-    NULLCHECK(joint);
     joint->ratio    = ratio != 0.0f ?      ratio : 0.0f;
     joint->ratioInv = ratio != 0.0f ? 1.0f/ratio : 0.0f;
 }
@@ -167,6 +152,5 @@ spGearSetRatio(spGearJoint* joint, spFloat ratio)
 void 
 spGearSetPhase(spGearJoint* joint, spFloat phase)
 {
-    NULLCHECK(joint);
     joint->phase = phase;
 }

@@ -7,7 +7,10 @@
 /// @defgroup spConstraint spConstraint
 /// @{
 
-/// different 'joints'
+/// baumgarte velocity bias coef
+#define spBaumgarte 0.2f 
+
+/// different joint types
 enum spConstraintType
 {
     SP_ANGULAR_SPRING_JOINT,
@@ -53,24 +56,6 @@ struct spAngularSpringJoint* spConstraintCastAngularSpringJoint(spConstraint* co
 
 /// safely cast a constraint to a distance joint if its that type
 struct spDistanceJoint* spConstraintCastDistanceJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a spring joint if its that type
-struct spSpringJoint* spConstraintCastSpringJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a point joint if its that type
-struct spPointJoint* spConstraintCastPointJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a motor joint if its that type
-struct spMotorJoint* spConstraintCastMotorJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a wheel joint if its that type
-struct spWheelJoint* spConstraintCastWheelJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a mouse joint if its that type
-struct spMouseJoint* spConstraintCastMouseJoint(spConstraint* constraint);
-
-/// safely cast a constraint to a rope joint if its that type
-struct spRopeJoint* spConstraintCastRopeJoint(spConstraint* constraint);
 
 /// get the constraints first body
 struct spBody* spConstraintGetBodyA(spConstraint* constraint);

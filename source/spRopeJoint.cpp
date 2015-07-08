@@ -62,8 +62,8 @@ spRopeJointApplyCachedImpulse(spRopeJoint* joint)
     spBody* b = joint->constraint.bodyB;
 
     /// compute impulse
-    spVector impulseA = spMult(joint->n, joint->lambdaAccum);
-    spVector impulseB = spNegate(impulseA);
+    spVector impulseB = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseA = spNegate(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
@@ -127,6 +127,26 @@ spRopeJointSolve(spRopeJoint* joint)
     spBodyApplyImpulse(b, joint->rB, impulseB);
 }
 
+spBool 
+spConstraintIsRopeJoint(spConstraint* constraint)
+{
+    return constraint->type == SP_ROPE_JOINT;
+}
+
+spRopeJoint* 
+spConstraintCastRopeJoint(spConstraint* constraint)
+{
+    if (spConstraintIsRopeJoint(constraint))
+    {
+        return (spRopeJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a rope joint\n");
+        return NULL;
+    }
+}
+
 spVector 
 spRopeJointGetAnchorA(spRopeJoint* joint)
 {
@@ -166,13 +186,13 @@ spRopeJointGetImpulse(spRopeJoint* joint)
 spVector 
 spRopeJointGetImpulseA(spRopeJoint* joint)
 {
-    return spMult(joint->n, joint->lambdaAccum);
+    return spNegate(spMult(joint->n, joint->lambdaAccum));
 }
 
 spVector 
 spRopeJointGetImpulseB(spRopeJoint* joint)
 {
-    return spNegate(spMult(joint->n, joint->lambdaAccum));
+    return spMult(joint->n, joint->lambdaAccum);
 }
 
 spFloat 

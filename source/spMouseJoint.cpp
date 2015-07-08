@@ -95,8 +95,29 @@ spMouseJointSolve(spMouseJoint* joint)
     spVector impulse = spSub(joint->lambdaAccum, lambdaOld);
 
     /// apply the impulse
-    a->v  = spAdd(a->v, spMult(a->mInv, impulse));
-    a->w += a->iInv * spCross(joint->rA, impulse);
+    spBodyApplyImpulse(a, joint->rA, impulse);
+    //a->v  = spAdd(a->v, spMult(a->mInv, impulse));
+    //a->w += a->iInv * spCross(joint->rA, impulse);
+}
+
+spBool 
+spConstraintIsMouseJoint(spConstraint* constraint)
+{
+    return constraint->type == SP_MOUSE_JOINT;
+}
+
+spMouseJoint* 
+spConstraintCastMouseJoint(spConstraint* constraint)
+{
+    if (spConstraintIsMouseJoint(constraint))
+    {
+        return (spMouseJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a mouse joint\n");
+        return NULL;
+    }
 }
 
 void 

@@ -5,45 +5,26 @@
 #include "spConstraint.h"
 #include "spMath.h"
 
+/// @defgroup spSpringJoint spSpringJoint
+/// @{
+
 /// a spring joint is a soft distance constraint
-/// the spring parameters are constrolled by the frequency and damping parameters
-/// frequency is oscilations per second, while damping represents its velocity
-/// loss during the simulation. a value of 0 damping with oscilate forever,
-/// while a value of 1 will asscilate and stop very quickly
-///
-/// constraints:
-/// C    = normal(pA - pB) - restLength
-/// Cdot = dot(n, vB + cross(wB, rB) - vA - cross(wA, rA))
-/// J    = [-n  -cross(rA, n)  n  cross(rB, n)]
-/// K    = invMassA + invInertA * cross(rA, n)^2 + invMassB + invInertB * cross(rB, n)^2
 struct spSpringJoint
 {
-    spConstraint constraint; /// INTERNAL: base class
-    spVector anchorA;        ///           local anchor on body a
-    spVector anchorB;        ///           local anchor on body b
-    spVector rA;             /// INTERNAL: relative velocity of anchor a to com of body a
-    spVector rB;             /// INTERNAL: relative velocity of anchor b to com of body b
-    spVector n;              /// INTERNAL: normal impulse direction
-    spFloat lambdaAccum;     /// INTERNAL: accumulated impulse magnitude
-    spFloat restLength;      ///           rest length of the spring
-    spFloat frequency;       ///           frequency of oscilation per second
-    spFloat damping;         ///           springs damping
-    spFloat eMass;           /// INTERNAL: effective mass of the joint = K
-    spFloat gamma;           /// INTERNAL: feeds lambda back into velocity constraint. used for soft constraint
-    spFloat beta;            /// INTERNAL: feeds position error back into velocity constraint. used for soft constraint
+    spConstraint constraint; /// constraint base class
+    spVector anchorA;        /// local anchor on body A's local space
+    spVector anchorB;        /// local anchor on body B's local space
+    spVector rA;             /// relative velocity of body A
+    spVector rB;             /// relative velocity of body B
+    spVector n;              /// normal impulse direction
+    spFloat lambdaAccum;     /// accumulated lagrange multiplier
+    spFloat restLength;      /// rest length of the spring
+    spFloat frequency;       /// frequency of oscilation per second
+    spFloat damping;         /// springs damping
+    spFloat eMass;           /// effective mass
+    spFloat gamma;           /// temp solver
+    spFloat beta;            /// temp solver
 };
-
-/// gets anchor a in world coordinates of body a
-spVector spSpringJointGetWorldAnchorA(spSpringJoint* joint);
-
-/// gets anchor b in world coordinates of body b
-spVector spSpringJointGetWorldAnchorB(spSpringJoint* joint);
-
-/// sets anchor a in world coordinates of body a
-void spSpringJointSetWorldAnchorA(spSpringJoint* joint, spVector anchorA);
-
-/// sets anchor b in world coordinates of body b
-void spSpringJointSetWorldAnchorB(spSpringJoint* joint, spVector anchorB);
 
 /// init a spring joint with 2 bodies, 2 anchor points, damping, frequency, and damping.
 void spSpringJointInit(spSpringJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
@@ -52,7 +33,7 @@ void spSpringJointInit(spSpringJoint* joint, spBody* a, spBody* b, spVector anch
 spSpringJoint* spSpringJointAlloc();
 
 /// create a spring joint on the heap with 2 bodies, 2 anchor points, damping, frequency, and damping.
-spSpringJoint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
+spConstraint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
 
 /// release the memory pointed at by a spring joint
 void spSpringJointFree(spSpringJoint** joint);
@@ -63,37 +44,54 @@ void spSpringJointPreStep(spSpringJoint* joint, const spFloat h);
 /// solve and apply impulses to a spring joint 
 void spSpringJointSolve(spSpringJoint* joint);
 
-/// gets anchor a in local coordinates of body a
-inline spVector spSpringJointGetAnchorA(spSpringJoint* joint) { return joint->anchorA; };
+/// check if a constraint is a spring joint
+spBool spConstraintIsSpringJoint(spConstraint* constraint);
 
-/// gets anchor b in local coordinates of body b
-inline spVector spSpringJointGetAnchorB(spSpringJoint* joint) { return joint->anchorB; };
+/// safely cast a constraint to a spring joint if its that type
+spSpringJoint* spConstraintCastSpringJoint(spConstraint* constraint);
 
-/// gets the length of the impulse that was applied last timestep
-inline spFloat spSpringJointGetImpulseMag(spSpringJoint* joint) { return joint->lambdaAccum; };
+/// get the spring joints first anchor in body A's local space
+spVector spSpringJointGetAnchorA(spConstraint* constraint);
 
-/// gets the rest length of the spring
-inline spFloat spSpringJointGetRestLength(spSpringJoint* joint) { return joint->restLength; };
+/// get the spring joints second anchor in body B's local space
+spVector spSpringJointGetAnchorB(spConstraint* constraint);
 
-/// gets the oscilations per second of the spring
-inline spFloat spSpringJointGetFrequency(spSpringJoint* joint) { return joint->frequency; };
+/// get the spring joints first anchor in world space
+spVector spSpringJointGetWorldAnchorA(spConstraint* constraint);
 
-/// gets the damping coefficient of a spring
-inline spFloat spSpringJointGetDamping(spSpringJoint* joint) { return joint->damping; };
+/// get the spring joints second anchor in world space
+spVector spSpringJointGetWorldAnchorB(spConstraint* constraint);
 
-/// sets anchor points a in local coordinates of body a
-inline void spSpringJointSetAnchorA(spSpringJoint* joint, spVector anchorA) { joint->anchorA = anchorA; };
+/// get the spring joints rest length
+spFloat spSpringJointGetRestLength(spConstraint* constraint);
 
-/// sets anchor points b in local coordinates of body b
-inline void spSpringJointSetAnchorB(spSpringJoint* joint, spVector anchorB) { joint->anchorB = anchorB; };
+/// get the spring joints frequency
+spFloat spSpringJointGetFrequency(spConstraint* constraint);
 
-/// sets the rest length of the spring
-inline void spSpringJointSetRestLength(spSpringJoint* joint, spFloat restLength) { joint->restLength = restLength; };
+/// get the spring joints damping
+spFloat spSpringJointGetDamping(spConstraint* constraint);
 
-/// sets the oscilation per second of the spring 
-inline void spSpringJointSetFrequency(spSpringJoint* joint, spFloat frequency) { joint->frequency = frequency; };
+/// set the spring joints first anchor in body A's local space
+void spSpringJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 
-/// sets the damping coefficient of the spring
-inline void spSpringJointSetDamping(spSpringJoint* joint, spFloat damping) { joint->damping = damping; };
+/// set the spring joints second anchor in body B's local space
+void spSpringJointSetAnchorB(spConstraint* constraint, spVector anchorB);
+
+/// set the spring joints first anchor in world space
+void spSpringJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
+
+/// set the spring joints second anchor in world space
+void spSpringJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
+
+/// set the spring joints rest length
+void spSpringJointSetRestLength(spConstraint* constraint, spFloat restLength);
+
+/// set the spring joints frequency
+void spSpringJointSetFrequency(spConstraint* constraint, spFloat frequency);
+
+/// set the spring joints damping
+void spSpringJointSetDamping(spConstraint* constraint, spFloat damping);
+
+/// @}
 
 #endif

@@ -117,20 +117,6 @@ spGearJointGetImpulse(spGearJoint* joint)
 }
 
 spFloat 
-spGearJointGetImpulseA(spGearJoint* joint)
-{
-    spBody* a = joint->constraint.bodyA;
-    return -joint->lambdaAccum * a->iInv * joint->ratioInv;
-}
-
-spFloat 
-spGearJointGetImpulseB(spGearJoint* joint)
-{
-    spBody* b = joint->constraint.bodyB;
-    return joint->lambdaAccum * b->iInv;
-}
-
-spFloat 
 spGearGetRatio(spGearJoint* joint)
 {
     return joint->ratio;

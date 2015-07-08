@@ -41,6 +41,7 @@ void spGearJointPreSolve(spGearJoint* joint, const spFloat h);
 /// solve the gear joint and apply the impulses
 void spGearJointSolve(spGearJoint* joint);
 
+
 /// check if a constraint is a gear joint
 spBool spConstraintIsGearJoint(spConstraint* constraint);
 
@@ -49,12 +50,6 @@ spGearJoint* spConstraintCastGearJoint(spConstraint* constraint);
 
 /// get the angular impulse used on both bodies (this is not the applied impulse)
 spFloat spGearJointGetImpulse(spGearJoint* joint);
-
-/// get the last impulse applied to bodyA
-spFloat spGearJointGetImpulseA(spGearJoint* joint);
-
-/// get the last impulse applied to bodyB
-spFloat spGearJointGetImpulseB(spGearJoint* joint);
 
 /// get the gear ratio
 spFloat spGearGetRatio(spGearJoint* joint);

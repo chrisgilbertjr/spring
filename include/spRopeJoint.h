@@ -50,6 +50,12 @@ void spRopeJointPreSolve(spRopeJoint* joint, const spFloat h);
 /// solve the rope joint, and apply impulses to the bodies
 void spRopeJointSolve(spRopeJoint* joint);
 
+/// check if a constraint is a rope joint
+spBool spConstraintIsRopeJoint(spConstraint* constraint);
+
+/// safely cast a constraint to a rope joint if its that type
+spRopeJoint* spConstraintCastRopeJoint(spConstraint* constraint);
+
 /// get anchorA in A's local space
 spVector spRopeJointGetlAnchorA(spRopeJoint* joint);
 

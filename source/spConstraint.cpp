@@ -66,7 +66,7 @@ spConstraintPreSolve(spConstraint* constraint, const spFloat h)
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
-        spDistanceJointPreStep((spDistanceJoint*) constraint, h);
+        spDistanceJointPreSolve((spDistanceJoint*) constraint, h);
         break;
     case SP_ROPE_JOINT:
         spRopeJointPreSolve((spRopeJoint*) constraint, h);
@@ -146,111 +146,6 @@ spConstraintCastAngularSpringJoint(spConstraint* constraint)
     else
     {
         spWarning(spFalse, "constraint is not an angular spring joint\n");
-        return NULL;
-    }
-}
-
-struct spDistanceJoint*
-spConstraintCastDistanceJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_DISTANCE_JOINT)
-    {
-        return (spDistanceJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a distance joint\n");
-        return NULL;
-    }
-}
-
-struct spSpringJoint*
-spConstraintCastSpringJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_SPRING_JOINT)
-    {
-        return (spSpringJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a spring joint\n");
-        return NULL;
-    }
-}
-
-struct spPointJoint*
-spConstraintCastPointJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_POINT_JOINT)
-    {
-        return (spPointJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a point joint\n");
-        return NULL;
-    }
-}
-
-struct spMotorJoint*
-spConstraintCastMotorJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_MOTOR_JOINT)
-    {
-        return (spMotorJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a motor joint\n");
-        return NULL;
-    }
-}
-
-struct spWheelJoint*
-spConstraintCastWheelJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_WHEEL_JOINT)
-    {
-        return (spWheelJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a wheel joint\n");
-        return NULL;
-    }
-}
-
-struct spMouseJoint*
-spConstraintCastMouseJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_MOUSE_JOINT)
-    {
-        return (spMouseJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a mouse joint\n");
-        return NULL;
-    }
-}
-
-struct spRopeJoint*
-spConstraintCastRopeJoint(spConstraint* constraint)
-{
-    NULLCHECK(constraint);
-    if (constraint->type == SP_ROPE_JOINT)
-    {
-        return (spRopeJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not a rope joint\n");
         return NULL;
     }
 }

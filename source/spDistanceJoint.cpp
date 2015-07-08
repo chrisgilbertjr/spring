@@ -1,16 +1,22 @@
 
 #include "spDistanceJoint.h"
-#include "spDebugDraw.h"
 #include "spBody.h"
-#include "spSolver.h"
+
+#define distanceJoint spConstraintCastDistanceJoint(constraint)
 
 void 
 spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
 {
-    joint->base_class = spConstraintConstruct(a, b, SP_DISTANCE_JOINT);
+    joint->constraint = spConstraintConstruct(a, b, SP_DISTANCE_JOINT);
     joint->anchorA = anchorA;
     joint->anchorB = anchorB;
+    joint->rA = spVectorZero();
+    joint->rB = spVectorZero();
+    joint->n  = spVectorZero();
+    joint->lambdaAccum = 0.0f;
     joint->distance = distance;
+    joint->eMass = 0.0f;
+    joint->bias = 0.0f;
 }
 
 spDistanceJoint* 
@@ -23,6 +29,7 @@ spDistanceJoint*
 spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
 {
     spDistanceJoint* joint = spDistanceConstraintAlloc();
+    NULLCHECK(joint);
     spDistanceJointInit(joint, a, b, anchorA, anchorB, distance);
     return joint;
 }
@@ -30,61 +37,145 @@ spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB
 void 
 spDistanceJointFree(spDistanceJoint** joint)
 {
-    free(*joint);
-    *joint = NULL;
-    joint = NULL;
+    NULLCHECK(*joint);
+    spFree(joint);
 }
 
 void 
-spDistanceJointPreStep(spDistanceJoint* joint, const spFloat h)
+spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->base_class.bodyA;
-    spBody* bB = joint->base_class.bodyB;
-    spVector pA = spMult(bA->xf, joint->anchorA);
-    spVector pB = spMult(bB->xf, joint->anchorB);
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
-    joint->rA = spSub(pA, bA->p);
-    joint->rB = spSub(pB, bB->p);
-    joint->n = spMult(joint->n, 1.0f / (spLength(joint->n) + SP_FLT_EPSILON));
+    /// compute the world space anchors
+    spVector pA = spMult(a->xf, joint->anchorA);
+    spVector pB = spMult(b->xf, joint->anchorB);
 
+    /// compute rel velocity
+    joint->rA = spSub(pA, a->p);
+    joint->rB = spSub(pB, b->p);
+
+    /// compute normal
+    spVector dir = spSub(pB, pA);
+    spFloat length = spLength(dir);
+    joint->n = spMult(dir, 1.0f / (length + SP_FLT_EPSILON));
+
+    /// compute effective mass
     spFloat nrA = spCross(joint->n, joint->rA);
     spFloat nrB = spCross(joint->n, joint->rB);
-    joint->eMass =  1.0f / (bA->mInv + bB->mInv + bA->iInv * nrA * nrA + bB->iInv * nrB * nrB);
-    joint->jAccum = 0.0f;
+    joint->eMass =  1.0f / (a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB);
+
+    /// compute position constraint and baumgarte velocity bias
+    spFloat C = length - joint->distance;
+    joint->bias = -spBaumgarte * C / h;
+
+    /// reset the lagrange multiplier
+    joint->lambdaAccum = 0.0f;
 }
 
 void 
 spDistanceJointSolve(spDistanceJoint* joint)
 {
-    spBody* bA = joint->base_class.bodyA;
-    spBody* bB = joint->base_class.bodyB;
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
-    spVector rv = spRelativeVelocity(bA->v, bB->v, bA->w, bB->w, joint->rA, joint->rB);
-    spFloat nrv = spDot(joint->n, rv);
+    /// compute the velocity constraint
+    spVector rvA = spAdd(a->v, spCross(a->w, joint->rA));
+    spVector rvB = spAdd(b->v, spCross(b->w, joint->rB));
+    spFloat Cdot = spDot(joint->n, spSub(rvB, rvA));
 
-    spFloat lambda = -nrv * joint->eMass;
-    spFloat jPrev = joint->jAccum;
-    joint->jAccum = jPrev + lambda;
-    spFloat  j = joint->jAccum - jPrev;
-    spVector P = spMult(joint->n, j);
-    bA->v  = spSub(bA->v, spMult(P, bA->mInv));
-    bB->v  = spAdd(bB->v, spMult(P, bB->mInv));
-    bA->w -= bA->iInv * spCross(joint->rA, P);
-    bB->w += bB->iInv * spCross(joint->rB, P);
+    /// compute the multiplier
+    spFloat lambda = -(Cdot + joint->bias) * joint->eMass;
+    spFloat lambdaOld = joint->lambdaAccum;
+    joint->lambdaAccum = lambdaOld + lambda;
+
+    /// compute the impulse
+    spVector impulseB = spMult(joint->n, joint->lambdaAccum - lambdaOld);
+    spVector impulseA = spNegate(impulseB);
+
+    /// apply the impulse
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
+spBool 
+spConstraintIsDistanceJoint(spConstraint* constraint)
+{
+    return constraint->type == SP_DISTANCE_JOINT;
+}
+
+spDistanceJoint* 
+spConstraintCastDistanceJoint(spConstraint* constraint)
+{
+    if (spConstraintIsDistanceJoint(constraint))
+    {
+        return (spDistanceJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a distance joint\n");
+        return NULL;
+    }
+}
+
+spVector 
+spDistanceJointGetAnchorA(spConstraint* constraint)
+{
+    return distanceJoint->anchorA;
+}
+
+spVector 
+spDistanceJointGetAnchorB(spConstraint* constraint)
+{
+    return distanceJoint->anchorB;
+}
+
+spVector 
+spDistanceJointWorldGetAnchorA(spConstraint* constraint)
+{
+    return spMult(constraint->bodyA->xf, distanceJoint->anchorA);
+}
+
+spVector 
+spDistanceJointWorldGetAnchorB(spConstraint* constraint)
+{
+    return spMult(constraint->bodyB->xf, distanceJoint->anchorB);
 }
 
 spFloat 
-spDistanceJointInvEffectiveMass(
-    spFloat ima, 
-    spFloat imb, 
-    spFloat iia, 
-    spFloat iib, 
-    spVector ra, 
-    spVector rb, 
-    spVector n)
+spDistanceJointGetDistance(spConstraint* constraint)
 {
-    spFloat nra = spCross(n, ra);
-    spFloat nrb = spCross(n, rb);
-    spFloat em = ima + imb + iia * nra * nra + iib * nrb * nrb;
-    return 1.0f / em;
+    return distanceJoint->distance;
+}
+
+void 
+spDistanceJointSetAnchorA(spConstraint* constraint, spVector anchorA)
+{
+    distanceJoint->anchorA = anchorA;
+}
+
+void 
+spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB)
+{
+    distanceJoint->anchorB = anchorB;
+}
+
+void 
+spDistanceJointWorldSetAnchorA(spConstraint* constraint, spVector anchorA)
+{
+    distanceJoint->anchorA = spMult(constraint->bodyA->xf, anchorA);
+}
+
+void 
+spDistanceJointWorldSetAnchorB(spConstraint* constraint, spVector anchorB)
+{
+    distanceJoint->anchorB = spMult(constraint->bodyB->xf, anchorB);
+}
+
+void 
+spDistanceJointSetDistance(spConstraint* constraint, spFloat distance)
+{
+    distanceJoint->distance = distance;
 }

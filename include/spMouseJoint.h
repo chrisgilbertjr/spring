@@ -44,6 +44,12 @@ void spMouseJointPreSolve(spMouseJoint* joint, const spFloat h);
 /// solve the mouse joint, and apply impulses to the body
 void spMouseJointSolve(spMouseJoint* joint);
 
+/// check if a constraint is a mouse joint
+spBool spConstraintIsMouseJoint(spConstraint* constraint);
+
+/// safely cast a constraint to a gear joint if its that type
+spMouseJoint* spConstraintCastMouseJoint(spConstraint* constraint);
+
 /// start a mouse drag on body a given a world anchor point
 void spMouseJointStart(spMouseJoint* joint, spBody* a, spVector point);
 

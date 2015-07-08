@@ -3,9 +3,13 @@
 #include "spBody.h"
 #include "spDebugDraw.h"
 
+/// convenience macro for getters/setters
+#define pointJoint spConstraintCastPointJoint(constraint)
+
 void 
 spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB)
 {
+    NULLCHECK(joint);
     joint->constraint = spConstraintConstruct(a, b, SP_POINT_JOINT);
     joint->anchorA = anchorA;
     joint->anchorB = anchorB;
@@ -13,7 +17,7 @@ spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, sp
     joint->bias = spVectorZero();
     joint->rA = spVectorZero();
     joint->rB = spVectorZero();
-    joint->eMass = spMatrixIdentity();
+    joint->eMass = spMatrixZero();
 }
 
 spPointJoint* 
@@ -26,6 +30,7 @@ spPointJoint*
 spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB)
 {
     spPointJoint* joint = spPointJointAlloc();
+    NULLCHECK(joint);
     spPointJointInit(joint, a, b, anchorA, anchorB);
     return joint;
 }
@@ -33,30 +38,29 @@ spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB)
 void 
 spPointJointFree(spPointJoint** joint)
 {
-    free(*joint);
-    *joint = NULL;
-    joint = NULL;
+    NULLCHECK(*joint);
+    spFree(joint);
 }
 
 void 
 spPointJointPreSolve(spPointJoint* joint, const spFloat h)
 {
-    spBody* bA = joint->constraint.bodyA;
-    spBody* bB = joint->constraint.bodyB;
-    spVector pA = spMult(bA->xf, joint->anchorA);
-    spVector pB = spMult(bB->xf, joint->anchorB);
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
-    spVector rA = joint->rA = spSub(pA, bA->p);
-    spVector rB = joint->rB = spSub(pB, bB->p);
+    /// compute world anchors
+    spVector pA = spMult(a->xf, joint->anchorA);
+    spVector pB = spMult(b->xf, joint->anchorB);
 
-    spDebugDrawLine(pA, bA->p, spGreen(1.0f));
-    spDebugDrawLine(pB, bB->p, spGreen(1.0f));
-    spDebugDrawPoint(pB, spYellow(1.0f));
+    /// compute rel velocity
+    spVector rA = joint->rA = spSub(pA, a->p);
+    spVector rB = joint->rB = spSub(pB, b->p);
 
     /// compute the effective mass matrix
-    spFloat iiA = bA->iInv;
-    spFloat iiB = bB->iInv;
-    spFloat iMass = bA->mInv + bB->mInv;
+    spFloat iiA = a->iInv;
+    spFloat iiB = b->iInv;
+    spFloat iMass = a->mInv + b->mInv;
 
     spMatrix K = spMatrix(iMass, 0.0f, 0.0f, iMass);
 
@@ -69,29 +73,126 @@ spPointJointPreSolve(spPointJoint* joint, const spFloat h)
     K.c += rABn;
     K.d += rA.x * rA.x * iiA + rB.x * rB.x * iiB;
 
+    /// invert the matrix to get the effective mass
     joint->eMass = spInverse(K);
 
-    /// compute bias velocity given the position constraint
+    /// compute the position constraint and the baumgarte velocity bias
     spVector C = spSub(pB, pA);
-    spFloat beta = 0.3f;
-    joint->bias = spMult(C, -beta / h); 
+    joint->bias = spMult(C, -spBaumgarte / h); 
 }
 
 void 
 spPointJointSolve(spPointJoint* joint)
 {
-    spBody* bA = joint->constraint.bodyA;
-    spBody* bB = joint->constraint.bodyB;
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
 
-    spVector Cdot = spSub(spAdd(bB->v, spCross(bB->w, joint->rB)), spAdd(bA->v, spCross(bA->w, joint->rA)));
+    /// compute the velocity constraint
+    spVector Cdot = spSub(spAdd(b->v, spCross(b->w, joint->rB)), spAdd(a->v, spCross(a->w, joint->rA)));
 
+    /// compute the lagrange multiplier
     spVector lambda = spMult(joint->eMass, spSub(joint->bias, Cdot));
     spVector lambdaOld = joint->lambdaAccum;
     joint->lambdaAccum = spAdd(joint->lambdaAccum, lambda);
-    spVector impulse = spSub(joint->lambdaAccum, lambdaOld);
 
-    bA->v  = spSub(bA->v, spMult(impulse, bA->mInv));
-    bB->v  = spAdd(bB->v, spMult(impulse, bB->mInv));
-    bA->w -= bA->iInv * spCross(joint->rA, impulse);
-    bB->w += bB->iInv * spCross(joint->rB, impulse);
+    /// compute the impulses
+    spVector impulseB = spSub(joint->lambdaAccum, lambdaOld);
+    spVector impulseA = spNegate(impulseB);
+
+    /// apply the impulses
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
+spBool 
+spConstraintIsPointJoint(spConstraint* constraint)
+{
+    return constraint->type == SP_POINT_JOINT;
+}
+
+spPointJoint* 
+spConstraintCastPointJoint(spConstraint* constraint)
+{
+    if (spConstraintIsPointJoint(constraint))
+    {
+        return (spPointJoint*) constraint;
+    }
+    else
+    {
+        spWarning(spFalse, "constraint is not a point joint\n");
+        return NULL;
+    }
+}
+
+spVector 
+spPointJointGetAnchorA(spConstraint* constraint)
+{
+    return pointJoint->anchorA;
+}
+
+spVector 
+spPointJointGetAnchorB(spConstraint* constraint)
+{
+    return pointJoint->anchorB;
+}
+
+spVector 
+spPointJointGetWorldAnchorA(spConstraint* constraint)
+{
+    return spMult(constraint->bodyA->xf, pointJoint->anchorA);
+}
+
+spVector 
+spPointJointGetWorldAnchorB(spConstraint* constraint)
+{
+    return spMult(constraint->bodyB->xf, pointJoint->anchorB);
+}
+
+spVector 
+spPointJointGetImpulseA(spConstraint* constraint)
+{
+    return pointJoint->lambdaAccum;
+}
+
+spVector 
+spPointJointGetImpulseB(spConstraint* constraint)
+{
+    return spNegate(pointJoint->lambdaAccum);
+}
+
+spVector 
+spPointJointGetRelVelocityA(spConstraint* constraint)
+{
+    return pointJoint->rA;
+}
+
+spVector 
+spPointJointGetRelVelocityB(spConstraint* constraint)
+{
+    return pointJoint->rB;
+}
+
+void 
+spPointJointSetAnchorA(spConstraint* constraint, spVector anchorA)
+{
+    pointJoint->anchorA = anchorA;
+}
+
+void 
+spPointJointSetAnchorB(spConstraint* constraint, spVector anchorB)
+{
+    pointJoint->anchorB = anchorB;
+}
+
+void 
+spPointJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
+{
+    pointJoint->anchorA = spTMult(constraint->bodyA->xf, anchorA);
+}
+
+void 
+spPointJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
+{
+    pointJoint->anchorB = spTMult(constraint->bodyB->xf, anchorB);
 }

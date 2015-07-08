@@ -33,9 +33,8 @@ spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency,
 void 
 spAngularSpringJointFree(spAngularSpringJoint** joint)
 {
-    free(*joint);
-    *joint = NULL;
-    joint = NULL;
+    NULLCHECK(*joint);
+    spFree(joint);
 }
 
 void 

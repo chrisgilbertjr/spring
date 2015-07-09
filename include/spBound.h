@@ -10,9 +10,9 @@
 /// 2d axis aligned bounding box and circle
 struct spBound
 {
-    spVector halfWidth;
-    spVector center;
-    spFloat  radius;
+    spVector halfWidth; ///< half width of bounding box
+    spVector center;    ///< center of circle
+    spFloat  radius;    ///< radius of circle
 };
 
 /// initialize the bound

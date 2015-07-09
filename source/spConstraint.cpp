@@ -9,6 +9,8 @@
 #include "spRopeJoint.h"
 #include "spGearJoint.h"
 
+spFloat spBaumgarte = 0.2f;
+
 void 
 spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstraintType type)
 {
@@ -29,30 +31,87 @@ spConstraintConstruct(spBody* a, spBody* b, spConstraintType type)
 }
 
 void 
-spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
+spConstraintFree(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
+    /// TODO: add function pointers to constraints so we can get rid of these ugly if else statements...
+    if (constraint->type == SP_DISTANCE_JOINT)
+    {
+        spDistanceJoint* distance = (spDistanceJoint*) constraint;
+        spDistanceJointFree(&distance);
+    }
+    else if (constraint->type == SP_ROPE_JOINT)
+    {
+        spRopeJoint* rope = (spRopeJoint*) constraint;
+        spRopeJointFree(&rope);
+    }
+    else if (constraint->type == SP_MOTOR_JOINT)
+    {
+        spMotorJoint* motor = (spMotorJoint*) constraint;
+        spMotorJointFree(&motor);
+    }
+    else if (constraint->type == SP_SPRING_JOINT)
+    {
+        spSpringJoint* spring = (spSpringJoint*) constraint;
+        spSpringJointFree(&spring);
+    }
+    else if (constraint->type == SP_ANGULAR_SPRING_JOINT)
+    {
+        spAngularSpringJoint* angularSpring = (spAngularSpringJoint*) constraint;
+        spAngularSpringJointFree(&angularSpring);
+    }
+    else if (constraint->type == SP_WHEEL_JOINT)
+    {
+        spWheelJoint* wheel = (spWheelJoint*) constraint;
+        spWheelJointFree(&wheel);
+    }
+    else if (constraint->type == SP_GEAR_JOINT)
+    {
+        spGearJoint* gear = (spGearJoint*) constraint;
+        spGearJointFree(&gear);
+    }
+    else if (constraint->type == SP_POINT_JOINT)
+    {
+        spPointJoint* point = (spPointJoint*) constraint;
+        spPointJointFree(&point);
+    }
+    else if (constraint->type == SP_MOUSE_JOINT)
+    {
+        spMouseJoint* mouse = (spMouseJoint*) constraint;
+    }
+}
+
+void 
+spConstraintApplyCachedImpulse(spConstraint* constraint)
+{
+    /// TODO: add function pointers to constraints so we can get rid of these ugly switch statment...
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
+        spDistanceJointApplyCachedImpulse((spDistanceJoint*) constraint);
         break;
     case SP_ROPE_JOINT:
         spRopeJointApplyCachedImpulse((spRopeJoint*) constraint);
         break;
     case SP_MOTOR_JOINT:
+        spMotorJointApplyCachedImpulse((spMotorJoint*) constraint);
         break;
     case SP_SPRING_JOINT:
+        spSpringJointApplyCachedImpulse((spSpringJoint*) constraint);
         break;
     case SP_ANGULAR_SPRING_JOINT:
+        spAngularSpringJointApplyCachedImpulse((spAngularSpringJoint*) constraint);
         break;
     case SP_WHEEL_JOINT:
+        spWheelJointApplyCachedImpulse((spWheelJoint*) constraint);
         break;
     case SP_GEAR_JOINT:
-        spGearJointApplyCachedImpulses((spGearJoint*) constraint);
+        spGearJointApplyCachedImpulse((spGearJoint*) constraint);
         break;
     case SP_POINT_JOINT:
+        spPointJointApplyCachedImpulse((spPointJoint*) constraint);
         break;
     case SP_MOUSE_JOINT:
+        /// no need.
         break;
     default:
         spAssert(false, "constraint type is not valid in prestep!\n");
@@ -62,7 +121,7 @@ spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h)
 void 
 spConstraintPreSolve(spConstraint* constraint, const spFloat h)
 {
-    NULLCHECK(constraint);
+    /// TODO: add function pointers to constraints so we can get rid of these ugly switch statment...
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
@@ -72,10 +131,10 @@ spConstraintPreSolve(spConstraint* constraint, const spFloat h)
         spRopeJointPreSolve((spRopeJoint*) constraint, h);
         break;
     case SP_MOTOR_JOINT:
-        spMotorJointPreStep((spMotorJoint*) constraint, h);
+        spMotorJointPreSolve((spMotorJoint*) constraint, h);
         break;
     case SP_SPRING_JOINT:
-        spSpringJointPreStep((spSpringJoint*) constraint, h);
+        spSpringJointPreSolve((spSpringJoint*) constraint, h);
         break;
     case SP_ANGULAR_SPRING_JOINT:
         spAngularSpringJointPreSolve((spAngularSpringJoint*) constraint, h);
@@ -100,7 +159,7 @@ spConstraintPreSolve(spConstraint* constraint, const spFloat h)
 void 
 spConstraintSolve(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
+    /// TODO: add function pointers to constraints so we can get rid of these ugly switch statment...
     switch (constraint->type)
     {
     case SP_DISTANCE_JOINT:
@@ -135,19 +194,16 @@ spConstraintSolve(spConstraint* constraint)
     }
 }
 
-struct spAngularSpringJoint*
-spConstraintCastAngularSpringJoint(spConstraint* constraint)
+spConstraint* 
+spConstraintGetNext(spConstraint* constraint)
 {
-    NULLCHECK(constraint);
-    if (constraint->type == SP_ANGULAR_SPRING_JOINT)
-    {
-        return (spAngularSpringJoint*) constraint;
-    }
-    else
-    {
-        spWarning(spFalse, "constraint is not an angular spring joint\n");
-        return NULL;
-    }
+    return constraint->next;
+}
+
+spConstraint* 
+spConstraintGetPrev(spConstraint* constraint)
+{
+    return constraint->prev;
 }
 
 struct spBody* 

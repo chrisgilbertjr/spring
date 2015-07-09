@@ -3,6 +3,9 @@
 #include "spMouseJoint.h"
 #include "spBody.h"
 
+/// convenience macro for getters/setters
+#define mouseJoint spConstraintCastMouseJoint(constraint)
+
 void 
 spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
 {
@@ -121,94 +124,88 @@ spConstraintCastMouseJoint(spConstraint* constraint)
 }
 
 void 
-spMouseJointStart(spMouseJoint* joint, spBody* a, spVector point)
+spMouseJointStart(spConstraint* constraint, spBody* a, spVector point)
 { 
-    joint->constraint.bodyA = a; 
-    joint->anchor = spTMult(a->xf, point);
-    joint->target = point; 
+    mouseJoint->constraint.bodyA = a; 
+    mouseJoint->anchor = spTMult(a->xf, point);
+    mouseJoint->target = point; 
 }
 
-void spMouseJointEnd(spMouseJoint* joint)
+void spMouseJointEnd(spConstraint* constraint)
 {
-    joint->constraint.bodyA = NULL;
-    joint->anchor = spVectorZero();
-    joint->target = spVectorZero();
-}
-
-spVector 
-spMouseJointGetImpulse(spMouseJoint* joint)
-{
-    return joint->lambdaAccum;
+    mouseJoint->constraint.bodyA = NULL;
+    mouseJoint->anchor = spVectorZero();
+    mouseJoint->target = spVectorZero();
 }
 
 spVector 
-spMouseJointGetAnchor(spMouseJoint* joint)
+spMouseJointGetAnchor(spConstraint* constraint)
 {
-    return joint->anchor;
+    return mouseJoint->anchor;
 }
 
 spVector 
-spMouseJointGetWorldAnchor(spMouseJoint* joint)
+spMouseJointGetWorldAnchor(spConstraint* constraint)
 {
-    return spMult(joint->constraint.bodyA->xf, joint->anchor);
+    return spMult(mouseJoint->constraint.bodyA->xf, mouseJoint->anchor);
 }
 
 spVector 
-spMouseJointGetTarget(spMouseJoint* joint)
+spMouseJointGetTarget(spConstraint* constraint)
 {
-    return joint->target;
+    return mouseJoint->target;
 }
 
 spVector 
-spMouseJointGetLocalTarget(spMouseJoint* joint)
+spMouseJointGetLocalTarget(spConstraint* constraint)
 {
-    return spTMult(joint->constraint.bodyA->xf, joint->target);
+    return spTMult(mouseJoint->constraint.bodyA->xf, mouseJoint->target);
 }
 
 spFloat 
-spMouseJointGetFrequency(spMouseJoint* joint)
+spMouseJointGetFrequency(spConstraint* constraint)
 {
-    return joint->frequency;
+    return mouseJoint->frequency;
 }
 
 spFloat 
-spMouseJointGetDamping(spMouseJoint* joint)
+spMouseJointGetDamping(spConstraint* constraint)
 {
-    return joint->damping;
+    return mouseJoint->damping;
 }
 
 void 
-spMouseJointSetAnchor(spMouseJoint* joint, spVector anchor)
+spMouseJointSetAnchor(spConstraint* constraint, spVector anchor)
 {
-    joint->anchor = anchor;
+    mouseJoint->anchor = anchor;
 }
 
 void 
-spMouseJointSetWorldAnchor(spMouseJoint* joint, spVector anchor)
+spMouseJointSetWorldAnchor(spConstraint* constraint, spVector anchor)
 {
-    joint->anchor = spTMult(joint->constraint.bodyA->xf, anchor);
+    mouseJoint->anchor = spTMult(mouseJoint->constraint.bodyA->xf, anchor);
 }
 
 void 
-spMouseJointSetTarget(spMouseJoint* joint, spVector target)
+spMouseJointSetTarget(spConstraint* constraint, spVector target)
 {
-    joint->target = target;
+    mouseJoint->target = target;
 }
 
 void 
-spMouseJointSetLocalTarget(spMouseJoint* joint, spVector target)
+spMouseJointSetLocalTarget(spConstraint* constraint, spVector target)
 {
-    joint->target = spMult(joint->constraint.bodyA->xf, target);
+    mouseJoint->target = spMult(mouseJoint->constraint.bodyA->xf, target);
 }
 
 void 
-spMouseJointSetFrequency(spMouseJoint* joint, spFloat frequency)
+spMouseJointSetFrequency(spConstraint* constraint, spFloat frequency)
 {
-    joint->frequency = frequency;
+    mouseJoint->frequency = frequency;
 }
 
 void 
-spMouseJointSetDamping(spMouseJoint* joint, spFloat damping)
+spMouseJointSetDamping(spConstraint* constraint, spFloat damping)
 {
-    joint->damping = damping;
+    mouseJoint->damping = damping;
 }

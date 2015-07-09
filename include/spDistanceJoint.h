@@ -38,6 +38,9 @@ void spDistanceJointFree(spDistanceJoint** Joint);
 /// setup a distance joint to be solved
 void spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h);
 
+/// warm start the distance joint from the last timestep
+void spDistanceJointApplyCachedImpulse(spDistanceJoint* joint);
+
 /// solve the distance joint and apply the impulses
 void spDistanceJointSolve(spDistanceJoint* joint);
 

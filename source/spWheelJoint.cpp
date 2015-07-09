@@ -129,6 +129,49 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
     {
         joint->eMassMotor = 0.0f;
     }
+}
+
+void 
+spWheelJointApplyCachedImpulse(spWheelJoint* joint)
+{
+    /// get the body
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// spring impulses
+    {
+        /// compute the impulse
+        spVector impulse = spMult(joint->nWorld, joint->lambdaAccumSpring);
+        spFloat impulseA = joint->lambdaAccumSpring * joint->sAx;
+        spFloat impulseB = joint->lambdaAccumSpring * joint->sBx;
+
+        /// apply the impulse
+        a->v = spSub(a->v, spMult(a->mInv, impulse));
+        b->v = spAdd(b->v, spMult(b->mInv, impulse));
+        a->w -= a->iInv * impulseA;
+        b->w += b->iInv * impulseB;
+    }
+
+    /// motor impulses
+    {
+        /// apply the impulse
+        a->w -= a->iInv * joint->lambdaAccumMotor;
+        b->w += b->iInv * joint->lambdaAccumMotor;
+    }
+
+    /// point/line impulses
+    {
+        /// compute the impulses
+        spVector impulse = spMult(joint->lambdaAccumLine, joint->tWorld);
+        spFloat impulseA = joint->sAy * joint->lambdaAccumLine;
+        spFloat impulseB = joint->sBy * joint->lambdaAccumLine;
+
+        /// apply the impulses
+        a->v = spSub(a->v, spMult(a->mInv, impulse));
+        b->v = spAdd(b->v, spMult(b->mInv, impulse));
+        a->w -= a->iInv * impulseA;
+        b->w += b->iInv * impulseB;
+    }
 
     /// reset lagrange multipliers
     joint->lambdaAccumSpring = 0.0f;

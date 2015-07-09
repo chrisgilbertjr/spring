@@ -1,27 +1,49 @@
 
+#include "spConstraint.h"
+#include "spSegment.h"
+#include "spPolygon.h"
+#include "spCircle.h"
+#include "spWorld.h"
 #include "spShape.h"
 #include "spBody.h"
+
+#ifdef SP_DEBUG
+#define VALID(body) \
+    NANCHECK(body->m);  NANCHECK(body->mInv); \
+    NANCHECK(body->i);  NANCHECK(body->iInv); \
+    NANCHECK(body->p.x); NANCHECK(body->p.y); \
+    NANCHECK(body->v.x); NANCHECK(body->v.y); \
+    NANCHECK(body->f.x); NANCHECK(body->f.y); \
+    NANCHECK(body->a); \
+    NANCHECK(body->w); \
+    NANCHECK(body->t); \
+    NULLCHECK(body);   \
+    spAssert(body->m >= 0.0f, "mass is negative"); \
+    spAssert(body->i >= 0.0f, "inertia is negative");
+#else
+    #define VALID(body) 
+#endif
 
 static void 
 updateTransform(spBody* body)
 {
-    /// new_position = rotate(center_of_mass, angle) + position
     body->xf.q = spRotation(body->a);
     body->xf.p = spAdd(spMult(body->xf.q, body->com), body->p);
-    spBodyIsSane(body);
+    VALID(body);
 }
 
 void 
 spBodyInit(spBody* body, spBodyType type)
 {
+    NULLCHECK(body);
     body->xf = spTransform(spVectorZero(), spRotationZero());
     body->com = spVectorZero();
     body->p = spVectorZero();
     body->f = spVectorZero();
     body->v = spVectorZero();
     body->gScale = 1.0f;
-    body->vDamp = 0.0f;
-    body->wDamp = 0.0f;
+    body->vDamp = 0.02f;
+    body->wDamp = 0.02f;
     body->iInv = 0.0f;
     body->mInv = 0.0f;
     body->i = 0.0f;
@@ -33,11 +55,11 @@ spBodyInit(spBody* body, spBodyType type)
     body->prev = NULL;
     body->i = 0.0f;
     body->m = 0.0f;
+    body->world = NULL;
     body->shapes = NULL;
-    body->constraints = NULL;
     body->userData = NULL;
     spBodySetType(body, type);
-    spBodyIsSane(body);
+    VALID(body);
 }
 
 spBody* 
@@ -73,9 +95,42 @@ spBodyNewStatic()
 }
 
 void 
-spBodyFree(spBody** body)
+spBodyDestroy(spBody** bodyPtr)
 {
-    spFree(body);
+    NULLCHECK(bodyPtr);
+    spBody* body = *bodyPtr;
+    NULLCHECK(body);
+
+    /// free any shapes that are attached to the body
+    spShape* shape = body->shapes;
+    while (shape)
+    {
+        spShape* next = shape->next;
+        spShapeFree(shape);
+        shape = next;
+    }
+
+    /// remove and free any constraints this body is involved with
+    spConstraint* constraint = body->world->jointList;
+    while (constraint)
+    {
+        spConstraint* next = constraint->next;
+        if (constraint->bodyA == body || constraint->bodyB == body)
+        {
+            spWorldRemoveConstraint(body->world, constraint);
+            spConstraintFree(constraint);
+        }
+        constraint = next;
+    }
+
+    /// free the memory
+    spBodyFree(bodyPtr);
+}
+
+void 
+spBodyFree(spBody** bodyPtr)
+{
+    spFree(bodyPtr);
 }
 
 void 
@@ -89,64 +144,13 @@ spBodyAddShape(spBody* body, spShape* shape)
 }
 
 void 
-spBodySetPosition(spBody* body, const spVector& position)
+spBodyRemoveShape(spBody* body, spShape* shape)
 {
-    body->p = spAdd(spMult(body->xf.q, body->com), position);
-    updateTransform(body);
-}
-
-void 
-spBodySetRotation(spBody* body, spFloat angle)
-{
-    body->a = angle * SP_DEG_TO_RAD;
-    updateTransform(body);
-}
-
-void 
-spBodySetTransform(spBody* body, const spVector& position, spFloat angle)
-{
-    body->p = spAdd(spMult(body->xf.q, body->com), position);
-    body->a = angle * SP_DEG_TO_RAD;
-    updateTransform(body);
-}
-
-void 
-spBodySetType(spBody* body, spBodyType type)
-{
-    body->type = type;
-
-    switch (type)
+    SP_LINKED_LIST_REMOVE(spShape, shape, body->shapes);
+    if (body->type == SP_BODY_DYNAMIC && body->shapes != NULL)
     {
-    case SP_BODY_DYNAMIC:
         spBodyComputeShapeMassData(body);
-        break;
-    case SP_BODY_KINEMATIC:
-    case SP_BODY_STATIC:
-        body->w = body->mInv = body->iInv = 0.0f;
-        body->m = body->i = SP_INFINITY;
-        body->v = spVectorZero();
     }
-}
-
-void 
-spBodySetMass(spBody* body, spFloat mass)
-{
-    spAssert(body->type == SP_BODY_DYNAMIC, "The body is not dynamic, cannot set mass!");
-    spAssert(mass > 0.0f, "mass must be positive!");
-
-    body->m = mass;
-    body->mInv = 1.0f / mass;
-    spBodyIsSane(body);
-}
-
-void 
-spBodySetInertia(spBody* body, spFloat inertia)
-{
-    spAssert(inertia > 0.0f, "inertia must be positive!");
-
-    body->i = inertia;
-    body->iInv = 1.0f / inertia;
-    spBodyIsSane(body);
 }
 
 void 
@@ -190,20 +194,6 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
     /// update the bodys' transform according to the new position/rotation
     updateTransform(body);
 }
-
- void _spBodyIsSane(spBody* body)
- {
-     spAssert(body->m == body->m && body->mInv == body->mInv, "mass is NaN in sanity check");
-     spAssert(body->i == body->i && body->iInv == body->iInv, "inertia is NaN in sanity check");
-     spAssert(body->p.x == body->p.x && body->p.y == body->p.y, "position contains NaN in sanity check");
-     spAssert(body->v.x == body->v.x && body->v.y == body->v.y, "velocity contains NaN in sanity check");
-     spAssert(body->f.x == body->f.x && body->f.y == body->f.y, "force contains NaN in sanity check");
-     spAssert(body->m >= 0.0f, "mass is negative in sanity check");
-     spAssert(body->i >= 0.0f, "inertia is negative in sanity check");
-     spAssert(body->a == body->a, "angle is NaN in sanity check");
-     spAssert(body->w == body->w, "angular velocity is NaN in sanity check");
-     spAssert(body->t == body->t, "torque is Nan in sanity check");
- }
 
 spVector 
 spBodyAcceleration(spBody* body, const spVector& gravity)
@@ -257,13 +247,50 @@ void spBodyComputeShapeMassData(spBody* body)
     body->com  = tcom;
 
     spBodySetPosition(body, position);
-    spBodyIsSane(body);
+    VALID(body);
+}
+
+spVector
+spBodyLocalToWorldPoint(spBody* body, spVector point)
+{
+    return spMult(body->xf, point);
+}
+
+spVector
+spBodyWorldToLocalPoint(spBody* body, spVector point)
+{
+    return spTMult(body->xf, point);
+}
+
+spVector 
+spBodyLocalToWorldVector(spBody* body, spVector vector)
+{
+    return spMult(body->xf.q, vector);
+}
+
+spVector 
+spBodyWorldToLocalVector(spBody* body, spVector vector)
+{
+    return spTMult(body->xf.q, vector);
 }
 
 void 
 spBodyApplyTorque(spBody* body, spFloat torque)
 {
     body->t += torque;
+}
+
+void 
+spBodyApplyForceAtLocalPoint(spBody* body, spVector point, spVector force)
+{
+    spBodyApplyForceAtWorldPoint(body, spMult(body->xf, point), spMult(body->xf.q, force));
+}
+
+void 
+spBodyApplyForceAtWorldPoint(spBody* body, spVector point, spVector force)
+{
+    body->f  = spAdd(body->f, force);
+    body->t += spCross(spSub(point, spMult(body->xf, body->com)), force);
 }
 
 void 
@@ -277,4 +304,216 @@ spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse)
 {
     body->v  = spAdd(body->v, spMult(impulse, body->mInv));
     body->w += body->iInv * spCross(relVelocity, impulse);
+}
+
+spTransform 
+spBodyGetTransform(spBody* body)
+{
+    return body->xf;
+}
+
+spVector 
+spBodyGetPosition(spBody* body)
+{
+    return body->xf.p;
+}
+
+spRotation 
+spBodyGetRotation(spBody* body)
+{
+    return body->xf.q;
+}
+
+spFloat 
+spBodyGetAngle(spBody* body)
+{
+    return spRotationGetAngleDeg(body->xf.q);
+}
+
+spVector 
+spBodyGetCenterOfMass(spBody* body)
+{
+    return body->com;
+}
+
+spVector 
+spBodyGetForce(spBody* body)
+{
+    return body->f;
+}
+
+spFloat 
+spBodyGetGravityScale(spBody* body)
+{
+    return body->gScale;
+}
+
+spFloat 
+spBodyGetLinearVelocityDamping(spBody* body)
+{
+    return body->vDamp;
+}
+
+spFloat 
+spBodyGetAngularVelocityDamping(spBody* body)
+{
+    return body->wDamp;
+}
+
+spFloat 
+spBodyGetInertia(spBody* body)
+{
+    return body->i;
+}
+
+spFloat 
+spBodyGetMass(spBody* body)
+{
+    return body->m;
+}
+
+spFloat 
+spBodyGetTorque(spBody* body)
+{
+    return body->t;
+}
+
+spBody* 
+spBodyGetNext(spBody* body)
+{
+    return body->next;
+}
+
+spBody* 
+spBodyGetPrev(spBody* body)
+{
+    return body->prev;
+}
+
+spBodyType 
+spBodyGetType(spBody* body)
+{
+    return body->type;
+}
+
+spShape* 
+spBodyGetShapeList(spBody* body)
+{
+    return body->shapes;
+}
+
+spWorld* 
+spBodyGetWorld(spBody* body)
+{
+    return body->world;
+}
+
+spLazyPointer 
+spBodyGetUserData(spBody* body)
+{
+    return body->userData;
+}
+
+void 
+spBodySetTransform(spBody* body, const spVector& position, spFloat angle)
+{
+    body->p = spAdd(spMult(body->xf.q, body->com), position);
+    body->a = spDeg2Rad(angle);
+    updateTransform(body);
+}
+
+void 
+spBodySetPosition(spBody* body, const spVector& position)
+{
+    body->p = spAdd(spMult(body->xf.q, body->com), position);
+    updateTransform(body);
+}
+
+void 
+spBodySetRotation(spBody* body, spRotation rotate)
+{
+    body->a = spRotationGetAngle(rotate);
+    updateTransform(body);
+}
+
+void 
+spBodySetAngle(spBody* body, spFloat angle)
+{
+    body->a = spDeg2Rad(angle);
+    updateTransform(body);
+}
+
+void 
+spBodySetCenterOfMass(spBody* body, spVector com)
+{
+    body->com = com;
+}
+
+void 
+spBodySetForce(spBody* body, spVector force)
+{
+    body->f = force;
+}
+
+void 
+spBodySetGravityScale(spBody* body, spFloat gScale)
+{
+    body->gScale = gScale;
+}
+
+void 
+spBodySetLinearVelocityDamping(spBody* body, spFloat damping)
+{
+    body->vDamp = damping;
+}
+
+void 
+spBodySetAngularVelocityDamping(spBody* body, spFloat damping)
+{
+    body->wDamp = damping;
+}
+
+void
+spBodySetInertia(spBody* body, spFloat inertia)
+{
+    spAssert(inertia > 0.0f, "inertia must be positive!");
+
+    body->i = inertia;
+    body->iInv = 1.0f / inertia;
+    VALID(body);
+}
+
+void
+spBodySetMass(spBody* body, spFloat mass)
+{
+    spAssert(body->type == SP_BODY_DYNAMIC, "The body is not dynamic, cannot set mass!");
+    spAssert(mass > 0.0f, "mass must be positive!");
+
+    body->m = mass;
+    body->mInv = 1.0f / mass;
+    VALID(body);
+}
+
+void 
+spBodySetType(spBody* body, spBodyType type)
+{
+    body->type = type;
+
+    switch (type)
+    {
+    case SP_BODY_DYNAMIC:
+        spBodyComputeShapeMassData(body);
+        break;
+    case SP_BODY_KINEMATIC:
+    case SP_BODY_STATIC:
+        body->w = body->mInv = body->iInv = 0.0f;
+        body->m = body->i = SP_INFINITY;
+        body->v = spVectorZero();
+    }
+}
+
+void 
+spBodySetUserData(spBody* body, spLazyPointer* data)
+{
+    body->userData = data;
 }

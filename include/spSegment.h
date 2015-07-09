@@ -7,13 +7,14 @@
 /// @defgroup spSegment spSegment
 /// @{
 
+/// a segment is represented by two points. they create an edge with a normal and optional tangents for collision rejection
 struct spSegment
 {
-    spShape shape;
-    spVector pointA, pointB;
-    spVector tangentA, tangentB;
-    spVector normal;
-    spFloat radius;
+    spShape shape;               ///< base shape class
+    spVector pointA, pointB;     ///< two local space points for body A and body B
+    spVector tangentA, tangentB; ///< two local space tangents for body A and body B
+    spVector normal;             ///< segment edge normal
+    spFloat radius;              ///< small segment radius
 };
 
 /// initialize a segment with two local points, a radius, and its mass

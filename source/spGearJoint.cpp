@@ -2,6 +2,9 @@
 #include "spGearJoint.h"
 #include "spBody.h"
 
+/// convenience macro for getters/setters
+#define gearJoint spConstraintCastGearJoint(constraint)
+
 void 
 spGearJointInit(spGearJoint* joint, spBody* a, spBody* b, spFloat ratio, spFloat phase)
 {
@@ -38,19 +41,6 @@ spGearJointFree(spGearJoint** joint)
 }
 
 void 
-spGearJointApplyCachedImpulses(spGearJoint* joint)
-{
-    /// get the bodies
-    spBody* a = joint->constraint.bodyA;
-    spBody* b = joint->constraint.bodyB;
-
-    /// compute the impulse, and apply it to the bodies
-    spFloat impulse = joint->lambdaAccum;
-    a->w -= impulse * a->iInv * joint->ratioInv;
-    b->w += impulse * b->iInv;
-}
-
-void 
 spGearJointPreSolve(spGearJoint* joint, const spFloat h)
 {
     /// get the bodies
@@ -65,6 +55,18 @@ spGearJointPreSolve(spGearJoint* joint, const spFloat h)
     spFloat C = a->a * joint->ratio - b->a - joint->phase;
     spFloat beta = 0.2f;
     joint->bias =  C * beta / h;
+}
+
+void 
+spGearJointApplyCachedImpulse(spGearJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// apply last timesteps impulse
+    a->w -= joint->lambdaAccum * a->iInv * joint->ratioInv;
+    b->w += joint->lambdaAccum * b->iInv;
 
     /// reset the lagrange multipler
     joint->lambdaAccum = 0.0f;
@@ -80,11 +82,10 @@ spGearJointSolve(spGearJoint* joint)
     /// compute the velocity constraint, and solve for the lagrange multiplier
     spFloat Cdot = b->w * joint->ratio - a->w;
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
-    spFloat lambdaOld = joint->lambdaAccum;
     joint->lambdaAccum += lambda;
 
     /// compute and apply the impulse
-    spFloat impulse = joint->lambdaAccum - lambdaOld;
+    spFloat impulse = lambda;
     a->w -= impulse * a->iInv * joint->ratioInv;
     b->w += impulse * b->iInv;
 }
@@ -111,32 +112,32 @@ spConstraintCastGearJoint(spConstraint* constraint)
 }
 
 spFloat 
-spGearJointGetImpulse(spGearJoint* joint)
+spGearJointGetImpulse(spConstraint* constraint)
 {
-    return joint->lambdaAccum;
+    return gearJoint->lambdaAccum;
 }
 
 spFloat 
-spGearGetRatio(spGearJoint* joint)
+spGearGetRatio(spConstraint* constraint)
 {
-    return joint->ratio;
+    return gearJoint->ratio;
 }
 
 spFloat 
-spGearGetPhase(spGearJoint* joint)
+spGearGetPhase(spConstraint* constraint)
 {
-    return joint->phase;
+    return gearJoint->phase;
 }
 
 void 
-spGearSetRatio(spGearJoint* joint, spFloat ratio)
+spGearSetRatio(spConstraint* constraint, spFloat ratio)
 {
-    joint->ratio    = ratio != 0.0f ?      ratio : 0.0f;
-    joint->ratioInv = ratio != 0.0f ? 1.0f/ratio : 0.0f;
+    gearJoint->ratio    = ratio != 0.0f ?      ratio : 0.0f;
+    gearJoint->ratioInv = ratio != 0.0f ? 1.0f/ratio : 0.0f;
 }
 
 void 
-spGearSetPhase(spGearJoint* joint, spFloat phase)
+spGearSetPhase(spConstraint* constraint, spFloat phase)
 {
-    joint->phase = phase;
+    gearJoint->phase = phase;
 }

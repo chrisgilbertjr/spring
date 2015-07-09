@@ -1,13 +1,18 @@
 
+#include "spConstraint.h"
 #include "spDebugDraw.h"
 #include "spWorld.h"
+
+/// static funcs
 
 static void 
 initContact(spCollisionResult* result, spContact* contact, spShape* shapeA, spShape* shapeB)
 {
+    /// get the materials
 	spMaterial* matA = &shapeA->material;
 	spMaterial* matB = &shapeB->material;
 
+    /// get the bodies
     spBody* bodyA = shapeA->body;
 	spBody* bodyB = shapeB->body;
 
@@ -28,32 +33,67 @@ initContact(spCollisionResult* result, spContact* contact, spShape* shapeA, spSh
 static void
 addContact(spWorld* world, spContact* contact)
 {
-    SP_LINKED_LIST_PREPEND(spContact, contact, world->contact_list);
+    SP_LINKED_LIST_PREPEND(spContact, contact, world->contactList);
 }
 
 static void 
 destroyContact(spWorld* world, spContact** destroy)
 {
     spContact* contact = *destroy;
-    SP_LINKED_LIST_REMOVE(spContact, contact, world->contact_list);
+    SP_LINKED_LIST_REMOVE(spContact, contact, world->contactList);
     spContactFree(destroy);
 }
 
+/// world functions
+
 void 
-spWorldInit(spWorld* world, const spVector& gravity)
+spWorldInit(spWorld* world, spInt iterations, spVector gravity)
 {
-    world->iterations = 10;
+    world->iterations = iterations;
     world->gravity = gravity;
-    world->joint_list = NULL;
-    world->body_list  = NULL;
-    world->contact_list = NULL;
+    world->jointList = NULL;
+    world->bodyList  = NULL;
+    world->contactList = NULL;
+}
+
+void 
+spWorldDestroy(spWorld* world)
+{
+    /// destroy all contacts
+    spContact* contact = world->contactList;
+    while(contact)
+    {
+        spContact* next = contact->next;
+        destroyContact(world, &contact);
+        contact = next;
+    }
+
+    /// destroy all bodies
+    spBody* body = world->bodyList;
+    while(body)
+    {
+        spBody* next = body->next;
+        spBodyDestroy(&body);
+        body = next;
+    }
+    world->bodyList = NULL;
+
+    /// destroy all constraints
+    spConstraint* constraint = world->jointList;
+    while(constraint)
+    {
+        spConstraint* next = constraint->next;
+        spConstraintFree(constraint);
+        constraint = next;
+    }
+    world->jointList = NULL;
 }
 
 spWorld 
-spWorldConstruct(const spVector& gravity)
+spWorldConstruct(spInt iterations, spVector gravity)
 {
     spWorld world;
-    spWorldInit(&world, gravity);
+    spWorldInit(&world, iterations, gravity);
     return world;
 }
 
@@ -67,51 +107,51 @@ spWorldStep(spWorld* world, const spFloat h)
     spWorldNarrowPhase(world);
 
     /// pre step the constraints
-    for_each_constraint(joint, world->joint_list)
+    for_each_constraint(joint, world->jointList)
     {
         spConstraintPreSolve(joint, h);
     }
 
     /// pre step the contacts
-    for_each_contact(contact, world->contact_list)
+    for_each_contact(contact, world->contactList)
     {
         spContactPreSolve(contact, h);
     }
 
     /// integrate forces and update velocity
-    for_each_body(body, world->body_list)
+    for_each_body(body, world->bodyList)
     {
         spBodyIntegrateVelocity(body, world->gravity, h);
     }
 
     /// warm start the joints
-    for_each_constraint(joint, world->joint_list)
+    for_each_constraint(joint, world->jointList)
     {
-        spConstraintApplyCachedImpulse(joint, h);
+        spConstraintApplyCachedImpulse(joint);
     }
 
     /// pre step the contacts
-    for_each_contact(contact, world->contact_list)
+    for_each_contact(contact, world->contactList)
     {
-        spContactApplyCachedImpulse(contact, h);
+        spContactApplyCachedImpulse(contact);
     }
 
     /// apply contact / joint impulses
     for (spInt i = 0; i < world->iterations; ++i)
     {
-        for_each_constraint(joint, world->joint_list)
+        for_each_constraint(joint, world->jointList)
         {
             spConstraintSolve(joint);
         }
 
-        for_each_contact(contact, world->contact_list)
+        for_each_contact(contact, world->contactList)
         {
             spContactSolve(contact);
         }
     }
 
     /// integrate velocity and update position
-    for_each_body(body, world->body_list)
+    for_each_body(body, world->bodyList)
     {
         spBodyIntegratePosition(body, h);
     }
@@ -121,7 +161,7 @@ spWorldStep(spWorld* world, const spFloat h)
 
 void spWorldBroadPhase(spWorld* world)
 {
-    for_each_body(body_a, world->body_list) { for_each_body(body_b, body_a->next)
+    for_each_body(body_a, world->bodyList) { for_each_body(body_b, body_a->next)
     {
         for_each_shape(shape_a, body_a->shapes) { for_each_shape(shape_b, body_b->shapes)
         {
@@ -139,7 +179,7 @@ void spWorldBroadPhase(spWorld* world)
             spContactKey key = spContactKeyConstruct(shape_a, shape_b);
 
             /// check if the contact key is currently in the contact list
-            if (spContactKeyExists(key, world->contact_list) == spFalse)
+            if (spContactKeyExists(key, world->contactList) == spFalse)
             {
                 /// the contact key is not in the list, create a new contact with the key
                 spContact* contact = spContactNew(key);
@@ -153,7 +193,7 @@ void spWorldBroadPhase(spWorld* world)
 
 void spWorldNarrowPhase(spWorld* world)
 {
-    spContact* contact = world->contact_list;
+    spContact* contact = world->contactList;
     while (contact != NULL)
     {
         /// get the contact key and shapes to collide
@@ -187,7 +227,7 @@ void spWorldNarrowPhase(spWorld* world)
 void spWorldDraw(spWorld* world)
 {
 #ifdef SP_DEBUG_DRAW
-    spBody* body_list = world->body_list;
+    spBody* body_list = world->bodyList;
     for_each_body(body, body_list)
     {
         for_each_shape(shape, body->shapes)
@@ -213,7 +253,7 @@ void spWorldDraw(spWorld* world)
 spShape* 
 spWorldTestPoint(spWorld* world, spVector point)
 {
-    for_each_body(body, world->body_list)
+    for_each_body(body, world->bodyList)
     {
         for_each_shape(shape, body->shapes)
         {
@@ -229,42 +269,67 @@ spWorldTestPoint(spWorld* world, spVector point)
 void 
 spWorldAddBody(spWorld* world, spBody* body)
 {
-    SP_LINKED_LIST_PREPEND(spBody, body, world->body_list);
+    SP_LINKED_LIST_PREPEND(spBody, body, world->bodyList);
+    body->world = world;
+}
+
+void 
+spWorldRemoveBody(spWorld* world, spBody* body)
+{
+    SP_LINKED_LIST_REMOVE(spBody, body, world->bodyList);
+    body->world = NULL;
 }
 
 void 
 spWorldAddConstraint(spWorld* world, spConstraint* constraint)
 {
-    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->joint_list);
+    SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->jointList);
 }
 
 void 
 spWorldRemoveConstraint(spWorld* world, spConstraint* constraint)
 {
-    SP_LINKED_LIST_REMOVE(spConstraint, constraint, world->joint_list);
+    SP_LINKED_LIST_REMOVE(spConstraint, constraint, world->jointList);
+}
+
+spConstraint* 
+spWorldGetJointList(spWorld* world)
+{
+    return world->jointList;
+}
+
+spContact* 
+spWorldGetContactList(spWorld* world)
+{
+    return world->contactList;
+}
+
+spBody* 
+spWorldGetBodyList(spWorld* world)
+{
+    return world->bodyList;
+}
+
+spVector 
+spWorldGetGravity(spWorld* world)
+{
+    return world->gravity;
+}
+
+spInt 
+spWorldGetIterations(spWorld* world)
+{
+    return world->iterations;
 }
 
 void 
-spWorldLogBrief(spWorld* world)
+spWorldSetGravity(spWorld* world, spVector gravity)
 {
+    world->gravity = gravity;
 }
 
 void 
-spWorldLogBriefBodies(spWorld* world)
+spWorldSetIterations(spWorld* world, spInt iterations)
 {
-    spLog("Log Brief Bodies\n");
-    spLog("----------------\n");
-    spInt i = 0;
-    for_each_body(body, world->body_list)
-    {
-        spLog(" -> %p ", body);
-        if (i % 6 > 4 || body->next == NULL) { spLog("\n"); }
-        ++i;
-    }
-    spLog("\n");
-}
-
-void 
-spWorldLogDetail(spWorld* world)
-{
+    world->iterations = iterations;
 }

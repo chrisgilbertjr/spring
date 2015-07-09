@@ -2,6 +2,7 @@
 #include "spMotorJoint.h"
 #include "spBody.h"
 
+/// convenience macro for getters/setters
 #define motorJoint spConstraintCastMotorJoint(constraint)
 
 void 
@@ -36,10 +37,24 @@ spMotorJointFree(spMotorJoint** joint)
 }
 
 void 
-spMotorJointPreStep(spMotorJoint* joint, const spFloat h)
+spMotorJointPreSolve(spMotorJoint* joint, const spFloat h)
 {
     /// compute the effective mass
     joint->eMass = 1.0f / (joint->constraint.bodyA->iInv + joint->constraint.bodyB->iInv);
+}
+
+void 
+spMotorJointApplyCachedImpulse(spMotorJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    a->w -= joint->lambdaAccum * a->iInv;
+    b->w += joint->lambdaAccum * b->iInv;
+
+    /// clear lagrange multiplier
+    joint->lambdaAccum = 0.0f;
 }
 
 void 

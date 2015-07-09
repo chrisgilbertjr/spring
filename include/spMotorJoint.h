@@ -29,7 +29,10 @@ spConstraint* spMotorJointNew(spBody* a, spBody* b, spFloat w);
 void spMotorJointFree(spMotorJoint** joint);
 
 /// setup the motor joint to be solved
-void spMotorJointPreStep(spMotorJoint* joint, const spFloat h);
+void spMotorJointPreSolve(spMotorJoint* joint, const spFloat h);
+
+/// warm start the joint from last timestep
+void spMotorJointApplyCachedImpulse(spMotorJoint* joint);
 
 /// solve the motor joints and apply impulses
 void spMotorJointSolve(spMotorJoint* joint);

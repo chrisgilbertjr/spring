@@ -1,12 +1,13 @@
 
 #include "spContact.h"
-#include "spSolver.h"
 #include "spBody.h"
+
+static spFloat baumgarte = 0.1f;
+spFloat spSlop = 0.15f;
 
 void 
 spContactPointInit(spContactPoint* point)
 {
-    NULLCHECK(point);
     point->rA = spVectorZero();
     point->rB = spVectorZero();
     point->lambdaAccumNorm = 0.0f;
@@ -51,13 +52,13 @@ spContactNew(const spContactKey key)
 void 
 spContactFree(spContact** contact)
 {
+    NULLCHECK(*contact);
     spFree(contact);
 }
 
 void 
 spContactPreSolve(spContact* contact, const spFloat h)
 {
-    NULLCHECK(contact);
     /// get the bodies
     spBody* a = contact->key.shapeA->body;
     spBody* b = contact->key.shapeB->body;
@@ -92,23 +93,16 @@ spContactPreSolve(spContact* contact, const spFloat h)
 
         /// compute penetration and set position slop
         spFloat penetration = -spDot(spAdd(spSub(point->rB, point->rA), spSub(b->p, a->p)), normal);
-        static const spFloat slop = -0.55f;
-        spFloat beta = 0.2f;
 
         /// compute bounce bias and velocity bias (compute position constraint)
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;
-        point->bias = (penetration > slop) ? (-beta * (penetration + slop) / h) : 0.0f;
-
-        /// reset accumulated multipliers
-        point->lambdaAccumNorm = 0.0f;
-        point->lambdaAccumTang = 0.0f;
+        point->bias = (penetration > spSlop) ? (-baumgarte * (penetration + spSlop) / h) : 0.0f;
     }
 }
 
 void 
-spContactApplyCachedImpulse(spContact* contact, const spFloat h)
+spContactApplyCachedImpulse(spContact* contact)
 {
-    NULLCHECK(contact);
     /// get the bodies
     spBody* a = contact->key.shapeA->body;
     spBody* b = contact->key.shapeB->body;
@@ -125,13 +119,17 @@ spContactApplyCachedImpulse(spContact* contact, const spFloat h)
         /// apply the impulses
         spBodyApplyImpulse(a, point->rA, impulseA);
         spBodyApplyImpulse(b, point->rB, impulseB);
+
+        /// reset accumulated multipliers
+        point->lambdaAccumNorm = 0.0f;
+        point->lambdaAccumTang = 0.0f;
     }
 }
 
 void 
 spContactSolve(spContact* contact)
 {
-    NULLCHECK(contact);
+    /// get the bodies
     spBody* a = contact->key.shapeA->body;
     spBody* b = contact->key.shapeB->body;
 
@@ -188,4 +186,46 @@ spContactSolve(spContact* contact)
         spBodyApplyImpulse(a, point->rA, impulseA);
         spBodyApplyImpulse(b, point->rB, impulseB);
     }
+}
+
+spContactKey 
+spContactGetKey(spContact* contact)
+{
+    return contact->key;
+}
+
+spContact* 
+spContactGetNext(spContact* contact)
+{
+    return contact->next;
+}
+
+spContact* 
+spContactGetPrev(spContact* contact)
+{
+    return contact->prev;
+}
+
+spVector 
+spContactGetNormal(spContact* contact)
+{
+    return contact->normal;
+}
+
+spFloat 
+spContactGetRestitution(spContact* contact)
+{
+    return contact->restitution;
+}
+
+spFloat 
+spContactGetFriction(spContact* contact)
+{
+    return contact->friction;
+}
+
+spInt 
+spContactGetPointCount(spContact* contact)
+{
+    return contact->count;
 }

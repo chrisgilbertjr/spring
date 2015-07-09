@@ -41,11 +41,11 @@ spRopeJoint* spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVecto
 /// free memory pointed at by a rope joint
 void spRopeJointFree(spRopeJoint** joint);
 
-/// apply the last timesteps impulse, for a more stable simulation
-void spRopeJointApplyCachedImpulse(spRopeJoint* joint);
-
 /// setup a rope joint to be solved
 void spRopeJointPreSolve(spRopeJoint* joint, const spFloat h);
+
+/// apply the last timesteps impulse, for a more stable simulation
+void spRopeJointApplyCachedImpulse(spRopeJoint* joint);
 
 /// solve the rope joint, and apply impulses to the bodies
 void spRopeJointSolve(spRopeJoint* joint);
@@ -57,46 +57,34 @@ spBool spConstraintIsRopeJoint(spConstraint* constraint);
 spRopeJoint* spConstraintCastRopeJoint(spConstraint* constraint);
 
 /// get anchorA in A's local space
-spVector spRopeJointGetlAnchorA(spRopeJoint* joint);
+spVector spRopeJointGetlAnchorA(spConstraint* constraint);
 
 /// get anchorB in B's local space
-spVector spRopeJointGetAnchorB(spRopeJoint* joint);
+spVector spRopeJointGetAnchorB(spConstraint* constraint);
 
 /// get anchorA in world space
-spVector spRopeJointGetWorldAnchorA(spRopeJoint* joint);
+spVector spRopeJointGetWorldAnchorA(spConstraint* constraint);
 
 /// get anchorA in world space
-spVector spRopeJointGetWorldAnchorB(spRopeJoint* joint);
-
-/// get the impulse normal direction
-spVector spRopeJointGetImpulseDirection(spRopeJoint* joint);
-
-/// get the impulse used on both bodies (this is not the applied impulse)
-spFloat spRopeJointGetImpulse(spRopeJoint* joint);
-
-/// get the last impulse applied to bodyA
-spVector spRopeJointGetImpulseA(spRopeJoint* joint);
-
-/// get the last impulse applied to bodyB
-spVector spRopeJointGetImpulseB(spRopeJoint* joint);
+spVector spRopeJointGetWorldAnchorB(spConstraint* constraint);
 
 /// get the joints maximum distance
-spFloat spRopeJointGetMaxDistance(spRopeJoint* joint);
+spFloat spRopeJointGetMaxDistance(spConstraint* constraint);
 
 /// set body A's anchor point in A's local space
-void spRopeJointSetAnchorA(spRopeJoint* joint, spVector anchorA);
+void spRopeJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set body B's anchor point in B's local space
-void spRopeJointSetAnchorB(spRopeJoint* joint, spVector anchorB);
+void spRopeJointSetAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set body A's anchor point in world space
-void spRopeJointSetWorldAnchorA(spRopeJoint* joint, spVector anchorA);
+void spRopeJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set body B's anchor point in world space
-void spRopeJointSetWorldAnchorB(spRopeJoint* joint, spVector anchorB);
+void spRopeJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the max distance between the joints two anchor points
-void spRopeJointSetMaxDistance(spRopeJoint* joint, spFloat maxDistance);
+void spRopeJointSetMaxDistance(spConstraint* constraint, spFloat maxDistance);
 
 /// @}
 

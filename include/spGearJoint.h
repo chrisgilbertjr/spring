@@ -32,15 +32,14 @@ spConstraint* spGearJointNew(spBody* a, spBody* b, spFloat ratio, spFloat phase)
 /// free a gear joint from the heap
 void spGearJointFree(spGearJoint** joint);
 
-/// warm start the gear joint and apply last frames cached impulse
-void spGearJointApplyCachedImpulses(spGearJoint* joint);
-
 /// setup the gear joint to be solved
 void spGearJointPreSolve(spGearJoint* joint, const spFloat h);
 
+/// warm start the gear joint and apply last frames cached impulse
+void spGearJointApplyCachedImpulse(spGearJoint* joint);
+
 /// solve the gear joint and apply the impulses
 void spGearJointSolve(spGearJoint* joint);
-
 
 /// check if a constraint is a gear joint
 spBool spConstraintIsGearJoint(spConstraint* constraint);
@@ -48,20 +47,17 @@ spBool spConstraintIsGearJoint(spConstraint* constraint);
 /// safely cast a constraint to a gear joint if its that type
 spGearJoint* spConstraintCastGearJoint(spConstraint* constraint);
 
-/// get the angular impulse used on both bodies (this is not the applied impulse)
-spFloat spGearJointGetImpulse(spGearJoint* joint);
-
 /// get the gear ratio
-spFloat spGearGetRatio(spGearJoint* joint);
+spFloat spGearGetRatio(spConstraint* constraint);
 
 /// get the gear phase angle
-spFloat spGearGetPhase(spGearJoint* joint);
+spFloat spGearGetPhase(spConstraint* constraint);
 
 /// set the gear ratio
-void spGearSetRatio(spGearJoint* joint, spFloat ratio);
+void spGearSetRatio(spConstraint* constraint, spFloat ratio);
 
 /// set the gear phase angle
-void spGearSetPhase(spGearJoint* joint, spFloat phase);
+void spGearSetPhase(spConstraint* constraint, spFloat phase);
 
 /// @}
 

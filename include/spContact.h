@@ -8,6 +8,10 @@
 /// @defgroup spContact spContact
 /// @{
 
+/// penetration slop
+extern spFloat spSlop;
+
+/// a point of contact between two shapes
 struct spContactPoint
 {
     spVector rA;             ///< relative velocity from body a com
@@ -20,6 +24,7 @@ struct spContactPoint
     spFloat bias;            ///< baumgarte velocity bias
 };
 
+/// a contact that describes contact information between two shapes and how they react
 struct spContact
 {
     spContactPoint points[2]; ///< contact points
@@ -51,10 +56,31 @@ void spContactFree(spContact** contact);
 void spContactPreSolve(spContact* contact, const spFloat h);
 
 /// warm start contacts from last frame
-void spContactApplyCachedImpulse(spContact* contact, const spFloat h);
+void spContactApplyCachedImpulse(spContact* contact);
 
 /// calculate and apply an impulse to each body in the contact
 void spContactSolve(spContact* contact);
+
+/// get the contact key of this contact
+spContactKey spContactGetKey(spContact* contact);
+
+/// get the next contact in the list
+spContact* spContactGetNext(spContact* contact);
+
+/// get the prev contact in the list
+spContact* spContactGetPrev(spContact* contact);
+
+/// get the contact's normal
+spVector spContactGetNormal(spContact* contact);
+
+/// get the contact's restitution
+spFloat spContactGetRestitution(spContact* contact);
+
+/// get the contact's friction
+spFloat spContactGetFriction(spContact* contact);
+
+/// get the contact point count
+spInt spContactGetPointCount(spContact* contact);
 
 /// @}
 

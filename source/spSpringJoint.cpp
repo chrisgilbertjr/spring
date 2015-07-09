@@ -3,6 +3,7 @@
 #include "spDebugDraw.h"
 #include "spBody.h"
 
+/// convenience macro for getters/setters
 #define springJoint spConstraintCastSpringJoint(constraint)
 
 void 
@@ -27,7 +28,7 @@ spSpringJointInit(
     joint->frequency = frequency;
     joint->damping = damping;
     joint->gamma = 0.0f;
-    joint->beta = 0.0f;
+    joint->bias = 0.0f;
 }
 
 spSpringJoint* 
@@ -60,7 +61,7 @@ spSpringJointFree(spSpringJoint** joint)
 }
 
 void 
-spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
+spSpringJointPreSolve(spSpringJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -91,11 +92,27 @@ spSpringJointPreStep(spSpringJoint* joint, const spFloat h)
     spFloat c = 2.0f * mass * joint->damping * omega;
     spFloat k = mass * omega * omega;
     joint->gamma = 1.0f / (h * (c + h * k) + SP_FLT_EPSILON);
-    joint->beta = C * h * k * joint->gamma;
+    joint->bias = C * h * k * joint->gamma;
 
     /// compute effective mass
     iMass += joint->gamma;
     joint->eMass = 1.0f / (iMass + SP_FLT_EPSILON);
+}
+
+void 
+spSpringJointApplyCachedImpulse(spSpringJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// compute the impulses
+    spVector impulseB = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseA = spNegate(impulseB);
+
+    /// apply the impulse
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
 
     /// reset lagrange multiplier
     joint->lambdaAccum = 0.0f;
@@ -114,7 +131,7 @@ spSpringJointSolve(spSpringJoint* joint)
     spFloat Cdot = spDot(joint->n, spSub(rvB, rvA));
 
     /// compute lagrange multiplier
-    spFloat lambda = -joint->eMass * (Cdot + joint->beta + joint->gamma * joint->lambdaAccum);
+    spFloat lambda = -joint->eMass * (Cdot + joint->bias + joint->gamma * joint->lambdaAccum);
     joint->lambdaAccum += lambda;
 
     /// compute the impulse

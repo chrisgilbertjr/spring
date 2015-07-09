@@ -2,6 +2,7 @@
 #include "spDistanceJoint.h"
 #include "spBody.h"
 
+/// convenience macro for getters/setters
 #define distanceJoint spConstraintCastDistanceJoint(constraint)
 
 void 
@@ -69,6 +70,22 @@ spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h)
     /// compute position constraint and baumgarte velocity bias
     spFloat C = length - joint->distance;
     joint->bias = -spBaumgarte * C / h;
+}
+
+void 
+spDistanceJointApplyCachedImpulse(spDistanceJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// compute the impulses
+    spVector impulseB = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseA = spNegate(impulseB);
+
+    /// apply the impulse
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
 
     /// reset the lagrange multiplier
     joint->lambdaAccum = 0.0f;

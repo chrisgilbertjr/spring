@@ -37,6 +37,9 @@ void spPointJointFree(spPointJoint** joint);
 /// setup the point joint to be solved
 void spPointJointPreSolve(spPointJoint* joint, const spFloat h);
 
+/// warm start the joint from last timestep
+void spPointJointApplyCachedImpulse(spPointJoint* joint);
+
 /// solve the point joint and apply impulses
 void spPointJointSolve(spPointJoint* joint);
 

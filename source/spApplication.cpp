@@ -24,7 +24,7 @@ spApplicationInit(
     app->name = name;
     app->viewport = viewport;
     app->frustum = frustum;
-    app->world = spWorldConstruct(gravity);
+    app->world = spWorldConstruct(10, gravity);
     app->world.iterations = iterations;
     app->timestep = timestep;
     app->init = init;
@@ -160,7 +160,7 @@ default_loop(spApplication* app)
 
             if (shape != NULL && shape->body->type == SP_BODY_DYNAMIC)
             {
-                spMouseJointStart(app->mouse, shape->body, pos);
+                spMouseJointStart((spConstraint*)app->mouse, shape->body, pos);
                 spWorldAddConstraint(&app->world, (spConstraint*)app->mouse);
                 app->mouse->constraint.bodyA = shape->body;
                 app->mouseShape = shape;
@@ -168,14 +168,14 @@ default_loop(spApplication* app)
         }
         else
         {
-            spMouseJointSetTarget(app->mouse, pos);
+            spMouseJointSetTarget((spConstraint*)app->mouse, pos);
         }
     }
     else
     {
         if (app->mouseShape != NULL)
         {
-            spMouseJointEnd(app->mouse);
+            spMouseJointEnd((spConstraint*)app->mouse);
             spWorldRemoveConstraint(&app->world, (spConstraint*)app->mouse);
         }
         app->mouseShape = NULL;

@@ -60,6 +60,9 @@ void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, sp
 /// initializes a shape with mass data, a bounding box, and a shape type
 void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
 
+/// free a shape from the heap
+void spShapeFree(spShape* shape);
+
 /// sorts two shapes based on their pointer values
 spBool spShapeLessThan(const spShape* a, const spShape* b);
 

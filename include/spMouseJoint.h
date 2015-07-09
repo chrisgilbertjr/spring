@@ -51,49 +51,46 @@ spBool spConstraintIsMouseJoint(spConstraint* constraint);
 spMouseJoint* spConstraintCastMouseJoint(spConstraint* constraint);
 
 /// start a mouse drag on body a given a world anchor point
-void spMouseJointStart(spMouseJoint* joint, spBody* a, spVector point);
+void spMouseJointStart(spConstraint* constraint, spBody* a, spVector point);
 
 /// end a mouse drag 
-void spMouseJointEnd(spMouseJoint* joint);
-
-/// get the impulse used on both bodies (this is not the applied impulse)
-spVector spMouseJointGetImpulse(spMouseJoint* joint);
+void spMouseJointEnd(spConstraint* constraint);
 
 /// get the body anchor in local space
-spVector spMouseJointGetAnchor(spMouseJoint* joint);
+spVector spMouseJointGetAnchor(spConstraint* constraint);
 
 /// get the body anchor in world space
-spVector spMouseJointGetWorldAnchor(spMouseJoint* joint);
+spVector spMouseJointGetWorldAnchor(spConstraint* constraint);
 
 /// get the target in world space
-spVector spMouseJointGetTarget(spMouseJoint* joint);
+spVector spMouseJointGetTarget(spConstraint* constraint);
 
 /// get the target in body A's local space
-spVector spMouseJointGetLocalTarget(spMouseJoint* joint);
+spVector spMouseJointGetLocalTarget(spConstraint* constraint);
 
-/// get the spring frequency of the mouse joint
-spFloat spMouseJointGetFrequency(spMouseJoint* joint);
+/// get the spring frequency of the mouse constraint
+spFloat spMouseJointGetFrequency(spConstraint* constraint);
 
 /// get the spring damping of the mouse joint
-spFloat spMouseJointGetDamping(spMouseJoint* joint);
+spFloat spMouseJointGetDamping(spConstraint* constraint);
 
 /// set the mouse joints anchor in body A's local space
-void spMouseJointSetAnchor(spMouseJoint* joint, spVector anchor);
+void spMouseJointSetAnchor(spConstraint* constraint, spVector anchor);
 
 /// set the mouse joints anchor in world space
-void spMouseJointSetWorldAnchor(spMouseJoint* joint, spVector anchor);
+void spMouseJointSetWorldAnchor(spConstraint* constraint, spVector anchor);
 
 /// set the mouse joints target with a world space point
-void spMouseJointSetTarget(spMouseJoint* joint, spVector target);
+void spMouseJointSetTarget(spConstraint* constraint, spVector target);
 
 /// set the mouse joints target with a point in body A's local space
-void spMouseJointSetLocalTarget(spMouseJoint* joint, spVector target);
+void spMouseJointSetLocalTarget(spConstraint* constraint, spVector target);
 
 /// set the spring frequency of the mouse joint
-void spMouseJointSetFrequency(spMouseJoint* joint, spFloat frequency);
+void spMouseJointSetFrequency(spConstraint* constraint, spFloat frequency);
 
 /// set the spring damping of the mouse joint
-void spMouseJointSetDamping(spMouseJoint* joint, spFloat damping);
+void spMouseJointSetDamping(spConstraint* constraint, spFloat damping);
 
 /// @}
 

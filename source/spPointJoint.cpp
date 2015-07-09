@@ -82,6 +82,25 @@ spPointJointPreSolve(spPointJoint* joint, const spFloat h)
 }
 
 void 
+spPointJointApplyCachedImpulse(spPointJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// get the impulses
+    spVector impulseB = joint->lambdaAccum;
+    spVector impulseA = spNegate(impulseB);
+
+    /// apply the impulses
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+
+    /// reset the lagrange multiplier
+    joint->lambdaAccum = spVectorZero();
+}
+
+void 
 spPointJointSolve(spPointJoint* joint)
 {
     /// get the bodies

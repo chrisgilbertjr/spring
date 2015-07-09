@@ -177,6 +177,16 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
     return mem;
 }
 
+inline spFloat spDeg2Rad(spFloat val)
+{
+    return val * SP_DEG_TO_RAD;
+}
+
+inline spFloat spRad2Deg(spFloat val)
+{
+    return val * SP_DEG_TO_RAD;
+}
+
 /// @}
 
 /// @defgroup spDebug spDebug

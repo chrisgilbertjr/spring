@@ -23,7 +23,7 @@ struct spSpringJoint
     spFloat damping;         /// springs damping
     spFloat eMass;           /// effective mass
     spFloat gamma;           /// temp solver
-    spFloat beta;            /// temp solver
+    spFloat bias;            /// baumgarte veloicity bias
 };
 
 /// init a spring joint with 2 bodies, 2 anchor points, damping, frequency, and damping.
@@ -39,7 +39,10 @@ spConstraint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector 
 void spSpringJointFree(spSpringJoint** joint);
 
 /// setup a spring joint to be solved by the solver
-void spSpringJointPreStep(spSpringJoint* joint, const spFloat h);
+void spSpringJointPreSolve(spSpringJoint* joint, const spFloat h);
+
+/// warm start the joint from last timestep
+void spSpringJointApplyCachedImpulse(spSpringJoint* joint);
 
 /// solve and apply impulses to a spring joint 
 void spSpringJointSolve(spSpringJoint* joint);

@@ -8,7 +8,7 @@
 /// @{
 
 /// baumgarte velocity bias coef
-#define spBaumgarte 0.2f 
+extern spFloat spBaumgarte;
 
 /// different joint types
 enum spConstraintType
@@ -39,11 +39,14 @@ struct spConstraint
 /// initialize a constraint given two bodies and a type
 void spConstraintInit(spConstraint* constraint, struct spBody* a, struct spBody* b, spConstraintType type); 
 
+/// free a constraint from the heap
+void spConstraintFree(spConstraint* constraint);
+
 /// construct a constraint on the stack given two bodies and a type
 spConstraint spConstraintConstruct(struct spBody* a, struct spBody* b, spConstraintType type);
 
 /// warm start the constraint given the timestep
-void spConstraintApplyCachedImpulse(spConstraint* constraint, const spFloat h);
+void spConstraintApplyCachedImpulse(spConstraint* constraint);
 
 /// setup the constraint to be solved
 void spConstraintPreSolve(spConstraint* constraint, const spFloat h);
@@ -51,11 +54,11 @@ void spConstraintPreSolve(spConstraint* constraint, const spFloat h);
 /// solve the constraint and apply the impulse
 void spConstraintSolve(spConstraint* constraint);
 
-/// safely cast a constraint to an angular spring joint if its that type
-struct spAngularSpringJoint* spConstraintCastAngularSpringJoint(spConstraint* constraint);
+/// get the next constraint in the list
+spConstraint* spConstraintGetNext(spConstraint* constraint);
 
-/// safely cast a constraint to a distance joint if its that type
-struct spDistanceJoint* spConstraintCastDistanceJoint(spConstraint* constraint);
+/// get the prev constraint in the list
+spConstraint* spConstraintGetPrev(spConstraint* constraint);
 
 /// get the constraints first body
 struct spBody* spConstraintGetBodyA(spConstraint* constraint);

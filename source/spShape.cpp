@@ -1,4 +1,5 @@
 
+#include "spSegment.h"
 #include "spPolygon.h"
 #include "spCircle.h"
 #include "spShape.h"
@@ -33,6 +34,31 @@ void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType t
     shape->next = NULL;
     shape->prev = NULL;
     shape->filter = spFilterCollideAll;
+}
+
+void 
+spShapeFree(spShape* shape)
+{
+    /// shape is a poly
+    if (shape->type == SP_SHAPE_POLYGON)
+    {
+        spPolygon* poly = spShapeCastPolygon(shape);
+        spPolygonFree(&poly);
+    }
+
+    /// shape is a circle
+    else if (shape->type == SP_SHAPE_CIRCLE)
+    {
+        spCircle* circle = spShapeCastCircle(shape);
+        spCircleFree(&circle);
+    }
+
+    /// shape is a segment
+    else
+    {
+        spSegment* segment = spShapeCastSegment(shape);
+        spSegmentFree(&segment);
+    }
 }
 
 spBool 

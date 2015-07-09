@@ -50,6 +50,9 @@ void spWheelJointFree(spWheelJoint** joint);
 /// setup a wheel joint to be solved
 void spWheelJointPreSolve(spWheelJoint* joint, const spFloat h);
 
+/// warm start the joint from last timestep
+void spWheelJointApplyCachedImpulse(spWheelJoint* joint);
+
 /// solve the wheel joint and apply impulses
 void spWheelJointSolve(spWheelJoint* joint);
 

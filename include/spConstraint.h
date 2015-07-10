@@ -3,6 +3,7 @@
 #define SP_CONSTRAINT_H
 
 #include "spCore.h"
+#include "spMath.h"
 
 /// @defgroup spConstraint spConstraint
 /// @{

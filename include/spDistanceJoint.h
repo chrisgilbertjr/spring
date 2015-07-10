@@ -3,7 +3,6 @@
 #define SP_DISTANCE_CONSTRAINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spDistanceJoint spDistanceJoint
 /// @{

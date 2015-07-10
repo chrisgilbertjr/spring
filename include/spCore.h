@@ -3,6 +3,7 @@
 #ifndef SP_TYPE_H
 #define SP_TYPE_H
 
+/// c headers
 #include <assert.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -16,6 +17,7 @@
 /// @defgroup spCore spCore
 /// @{
 
+/// precision preference/defines
 #ifdef DOUBLE_PRECISION
   typedef double spFloat;
   #define spatan2 atan2
@@ -44,14 +46,6 @@
   #define SP_MIN_FLT FLT_MIN
 #endif
 
-/// math constants
-#define SP_EPSILON 1e-6f
-#define SP_FLT_EPSILON FLT_EPSILON
-#define SP_PI 3.1415926535897932f
-#define SP_RAD_TO_DEG 180.f / 3.1415926535897932f
-#define SP_DEG_TO_RAD 3.1415926535897932f / 180.f
-#define SP_INFINITY 1e10f
-
 /// memory defines
 #define spRealloc realloc
 #define spMalloc malloc
@@ -62,12 +56,6 @@
 #define SP_IGNORE(x) ((void)x)
 #define spFalse 0u
 #define spTrue 1u
-
-/// for each iters
-#define for_each_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)
-#define for_each_contact(contact, initializer) for (spContact* contact = initializer; contact != NULL; contact = contact->next)
-#define for_each_shape(shape, initializer) for (spShape* shape = initializer; shape; shape = shape->next)
-#define for_each_body(body, initializer) for (spBody* body = initializer; body; body = body->next)
 
 /// spring data types
 typedef char           spInt8;
@@ -83,21 +71,38 @@ typedef unsigned int   spGroup;
 typedef void*          spLazyPointer;
 
 /// struct typedefs for convenience
-typedef struct spContactPoint spContactPoint;
-typedef struct spBroadPhase spBroadPhase;
-typedef struct spConstraint spConstraint;
-typedef struct spTransform spTransform;
-typedef struct spRotation spRotation;
-typedef struct spContact spContact;
-typedef struct spCluster spCluster;
-typedef struct spVector spVector;
-typedef struct spMatrix spMatrix;
-typedef struct spWorld spWorld;
-typedef struct spShape spShape;
-typedef struct spBody spBody;
-typedef struct spBound spBound;
-typedef struct spMassData spMassData;
+typedef struct spAngularSpringJoint spAngularSpringJoint;
+typedef struct spCollisionResult    spCollisionResult;
+typedef struct spConstraintFuncs    spConstraintFuncs;
+typedef struct spDistanceJoint      spDistanceJoint;
+typedef struct spContactPoint       spContactPoint;
+typedef struct spSpringJoint        spSpringJoint;
+typedef struct spWheelJoint         spWheelJoint;
+typedef struct spContactKey         spContactKey;
+typedef struct spMotorJoint         spMotorJoint;
+typedef struct spMouseJoint         spMouseJoint;
+typedef struct spPointJoint         spPointJoint;
+typedef struct spConstraint         spConstraint;
+typedef struct spTransform          spTransform;
+typedef struct spRopeJoint          spRopeJoint;
+typedef struct spGearJoint          spGearJoint;
+typedef struct spRotation           spRotation;
+typedef struct spMassData           spMassData;
+typedef struct spMaterial           spMaterial;
+typedef struct spSegment            spSegment;
+typedef struct spPolygon            spPolygon;
+typedef struct spContact            spContact;
+typedef struct spVector             spVector;
+typedef struct spCircle             spCircle;
+typedef struct spMatrix             spMatrix;
+typedef struct spFilter             spFilter;
+typedef struct spShape              spShape;
+typedef struct spBound              spBound;
+typedef struct spWorld              spWorld;
+typedef struct spEdge               spEdge;
+typedef struct spBody               spBody;
 
+/// swap a and b
 inline void spSwap(spFloat* a, spFloat* b)
 {
     spFloat tmp = *a;
@@ -105,6 +110,7 @@ inline void spSwap(spFloat* a, spFloat* b)
     *b = tmp;
 }
 
+/// swap a and b
 inline void spSwap(spInt* a, spInt* b)
 {
     spInt tmp = *a;
@@ -112,21 +118,25 @@ inline void spSwap(spInt* a, spInt* b)
     *b = tmp;
 }
 
+/// get the abs value of a
 inline spFloat spAbs(const spFloat a)
 {
     return a > 0.0f ? a : -a;
 }
 
+/// get the min of a and b
 inline spFloat spMin(const spFloat a, const spFloat b)
 {
     return a < b ? a : b;
 }
 
+/// get the max of a and b
 inline spFloat spMax(const spFloat a, const spFloat b)
 {
     return a > b ? a : b;
 }
 
+/// clamp x between min and max
 inline spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
 {
     if (x < min)
@@ -140,7 +150,8 @@ inline spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
     return x;
 }
 
-inline spBool spAlmostEqual(const spFloat a, const spFloat b, const spFloat EPSILON = SP_FLT_EPSILON)
+/// check if two floats are equal within an epsilon value
+inline spBool spAlmostEqual(const spFloat a, const spFloat b, const spFloat EPSILON = 1e-6)
 {
      return (b - EPSILON) <= a && a <= (b + EPSILON) ? spTrue : spFalse;
 }
@@ -155,16 +166,6 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
         *ptr++ = (spUint8)value;
     }
     return mem;
-}
-
-inline spFloat spDeg2Rad(spFloat val)
-{
-    return val * SP_DEG_TO_RAD;
-}
-
-inline spFloat spRad2Deg(spFloat val)
-{
-    return val * SP_DEG_TO_RAD;
 }
 
 /// @}

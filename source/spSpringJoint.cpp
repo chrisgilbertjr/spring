@@ -1,11 +1,9 @@
 
 #include "spSpringJoint.h"
-#include "spDebugDraw.h"
 #include "spBody.h"
 
 /// convenience macro for getters/setters
 #define springJoint spConstraintCastSpringJoint(constraint)
-
 
 static void 
 Free(spSpringJoint** joint)

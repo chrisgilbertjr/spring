@@ -19,7 +19,7 @@ struct spCollisionResult
 
 /// collision/support function pointer typedefs
 typedef struct spCollisionResult (*spCollisionFunc)(const struct spShape* shapeA, const struct spShape* shapeB);
-typedef struct SupportPoint (*SupportPointFunc)(const struct spShape* shapeA, const spVector normal);
+typedef struct spVector (*SupportPointFunc)(const struct spShape* shapeA, const spVector normal);
 
 /// list of collision functions, indexed by the shapes types
 extern spCollisionFunc CollideFunc[SP_SHAPE_COUNT][SP_SHAPE_COUNT];

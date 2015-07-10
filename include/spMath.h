@@ -5,6 +5,19 @@
 
 #include "spCore.h"
 
+/// math constants
+#define SP_EPSILON 1e-6f
+#define SP_FLT_EPSILON FLT_EPSILON
+#define SP_PI 3.1415926535897932f
+#define SP_RAD_TO_DEG 180.f / 3.1415926535897932f
+#define SP_DEG_TO_RAD 3.1415926535897932f / 180.f
+#define SP_INFINITY 1e10f
+
+/// math defines
+#define spVectorZero()  spVectorConstruct(0.0f, 0.0f)
+#define spMatrixZero()  spMatrixConstruct(0.0f, 0.0f, 0.0f, 0.0f)
+#define spRotationZero() spRotationConstruct(0.0f)
+
 /// easy access to matrix axis
 enum spAxis
 {
@@ -67,7 +80,7 @@ inline void spSwap(spVector* a, spVector* b)
     *b = *b;
 }
 
-/// "faked" constructor for creating vectors
+/// stack constructor
 inline spVector spVectorConstruct(const spFloat x, const spFloat y)
 {
     return 
@@ -221,7 +234,7 @@ inline void spVectorLog(spVector* vector, spInt8* msg = "")
 /// @ingroup spMatrix
 /// @{
 
-/// "faked" constructor function for creating matrices
+/// stack constructor
 inline spMatrix spMatrixConstruct(const spFloat a, const spFloat b, const spFloat c, const spFloat d)
 {
     spMatrix matrix;
@@ -248,19 +261,19 @@ inline spBool spEqual(const spMatrix a, const spMatrix b)
 /// add two matrices together component wise
 inline spMatrix spAdd(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a+b.a, a.b+b.b, a.c+b.c, a.d+b.d);
+    return spMatrixConstruct(a.a+b.a, a.b+b.b, a.c+b.c, a.d+b.d);
 }
 
 /// sub two matrices together component wise
 inline spMatrix spSub(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a-b.a, a.b-b.b, a.c-b.c, a.d-b.d);
+    return spMatrixConstruct(a.a-b.a, a.b-b.b, a.c-b.c, a.d-b.d);
 }
 
 /// multiply two matrix2's together
 inline spMatrix spMult(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a*b.a + a.b*b.c,  a.a*b.b + a.b*b.d,
+    return spMatrixConstruct(a.a*b.a + a.b*b.c,  a.a*b.b + a.b*b.d,
                     a.c*b.a + a.d*b.c,  a.c*b.b + a.d*b.d);
 }
 
@@ -273,7 +286,7 @@ inline spVector spMult(const spMatrix a, const spVector b)
 /// multiply a matrix by a scalar
 inline spMatrix spMult(const spMatrix a, const spFloat b)
 {
-    return spMatrix(a.a*b, a.b*b, a.c*b, a.d*b);
+    return spMatrixConstruct(a.a*b, a.b*b, a.c*b, a.d*b);
 }
 
 /// multiply a matrix by a scalar
@@ -285,21 +298,21 @@ inline spMatrix spMult(const spFloat b, const spMatrix a)
 /// multiply the transpose of a matrix times a matrix
 inline spMatrix spTMult(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a*b.a + a.c*b.c, a.a*b.b + a.c*b.d,
+    return spMatrixConstruct(a.a*b.a + a.c*b.c, a.a*b.b + a.c*b.d,
                     a.b*b.a + a.d*b.c, a.b*b.b + a.d*b.d);
 }
 
 /// multiply a matrix by the trapose of a matrix
 inline spMatrix spMultT(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a*b.a + a.b*b.b, a.a*b.c + a.b*b.d,
+    return spMatrixConstruct(a.a*b.a + a.b*b.b, a.a*b.c + a.b*b.d,
                     a.c*b.a + a.d*b.b, a.c*b.c + a.d*b.d);
 }
 
 /// multiply the transpose of two matrices together
 inline spMatrix spTMultT(const spMatrix a, const spMatrix b)
 {
-    return spMatrix(a.a*b.a + a.c*b.b, a.a*b.c + a.c*b.d,
+    return spMatrixConstruct(a.a*b.a + a.c*b.b, a.a*b.c + a.c*b.d,
                     a.b*b.a + a.d*b.b, a.b*b.c + a.d*b.d);
 }
 
@@ -307,7 +320,7 @@ inline spMatrix spTMultT(const spMatrix a, const spMatrix b)
 inline spMatrix spDiv(const spMatrix a, const spFloat b)
 {
     spFloat ib = 1.0f / (b + SP_FLT_EPSILON);
-    return spMatrix(a.a*ib, a.b*ib, a.c*ib, a.d*ib);
+    return spMatrixConstruct(a.a*ib, a.b*ib, a.c*ib, a.d*ib);
 }
 
 /// get a specified axis from the matrix
@@ -332,7 +345,7 @@ inline spFloat spDeterminant(const spMatrix a)
 /// get the transpose of a matrix
 inline spMatrix spTranspose(const spMatrix a)
 {
-    return spMatrix(a.a, a.c, a.b, a.d);
+    return spMatrixConstruct(a.a, a.c, a.b, a.d);
 }
 
 /// transpose a matrix
@@ -349,7 +362,7 @@ inline spMatrix spInverse(const spMatrix a)
     spFloat d = spDeterminant(a);
     if (d == 0.0f) return spMatrixZero();
     spFloat d_inv =  1.0f / d;
-    return spMatrix(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
+    return spMatrixConstruct(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
 }
 
 /// invert a matrix2
@@ -369,9 +382,21 @@ inline void spInvert(spMatrix* a)
 /// @ingroup spRotation
 /// @{
 
+/// convert degrees to radians
+inline spFloat spDeg2Rad(spFloat val)
+{
+    return val * SP_DEG_TO_RAD;
+}
+
+/// convert radians to degrees
+inline spFloat spRad2Deg(spFloat val)
+{
+    return val * SP_DEG_TO_RAD;
+}
+
 inline spFloat spDegrees(const spFloat radians)
 {
-    return radians * SP_RAD_TO_DEG;
+    return spRad2Deg(radians);
 }
 
 /// gets the angle of a rotation
@@ -408,8 +433,8 @@ inline spRotation spRotationConstruct(const spFloat angle)
     return rot;
 }
 
-/// stack constructor
-inline spRotation spRotationConstruct(const spFloat s, const spFloat c)
+/// stack constructor in radians
+inline spRotation spRotationRadiansConstruct(const spFloat s, const spFloat c)
 {
     spRotation rot;
     spRotationSet(&rot, s, c);
@@ -426,7 +451,7 @@ inline spVector spMult(const spRotation a, const spVector b)
 /// combine two rotations
 inline spRotation spMult(const spRotation a, const spRotation b)
 {
-    return spRotationRadians(a.s*b.c + a.c*b.s, a.c*b.c - a.s*b.s);
+    return spRotationRadiansConstruct(a.s*b.c + a.c*b.s, a.c*b.c - a.s*b.s);
 }
 
 /// inverse rotate a vector
@@ -439,7 +464,7 @@ inline spVector spTMult(const spRotation a, const spVector b)
 /// inverse rotate another rotation
 inline spRotation spTMult(const spRotation a, const spRotation b)
 {
-    return spRotationRadians(a.c*b.s - a.s*b.c, a.c*b.c + a.s*b.s);
+    return spRotationRadiansConstruct(a.c*b.s - a.s*b.c, a.c*b.c + a.s*b.s);
 }
 
 /// @}

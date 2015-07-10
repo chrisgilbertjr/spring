@@ -1,7 +1,13 @@
 
 #include "spConstraint.h"
-#include "spDebugDraw.h"
+#include "spDebugDraw.h" ///< TEMP: need to create separate testbed
 #include "spWorld.h"
+
+/// for each iters
+#define foreach_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)
+#define foreach_contact(contact, initializer) for (spContact* contact = initializer; contact != NULL; contact = contact->next)
+#define foreach_shape(shape, initializer) for (spShape* shape = initializer; shape; shape = shape->next)
+#define foreach_body(body, initializer) for (spBody* body = initializer; body; body = body->next)
 
 /// static funcs
 
@@ -109,31 +115,31 @@ spWorldStep(spWorld* world, const spFloat h)
     spWorldNarrowPhase(world);
 
     /// pre step the constraints
-    for_each_constraint(joint, world->jointList)
+    foreach_constraint(joint, world->jointList)
     {
         joint->funcs.preSolve(joint);
     }
 
     /// pre step the contacts
-    for_each_contact(contact, world->contactList)
+    foreach_contact(contact, world->contactList)
     {
         spContactPreSolve(contact, h);
     }
 
     /// integrate forces and update velocity
-    for_each_body(body, world->bodyList)
+    foreach_body(body, world->bodyList)
     {
         spBodyIntegrateVelocity(body, world->gravity, h);
     }
 
     /// warm start the joints
-    for_each_constraint(joint, world->jointList)
+    foreach_constraint(joint, world->jointList)
     {
         joint->funcs.warmStart(joint);
     }
 
     /// pre step the contacts
-    for_each_contact(contact, world->contactList)
+    foreach_contact(contact, world->contactList)
     {
         spContactWarmStart(contact);
     }
@@ -141,19 +147,19 @@ spWorldStep(spWorld* world, const spFloat h)
     /// apply contact / joint impulses
     for (spInt i = 0; i < world->iterations; ++i)
     {
-        for_each_constraint(joint, world->jointList)
+        foreach_constraint(joint, world->jointList)
         {
             joint->funcs.solve(joint);
         }
 
-        for_each_contact(contact, world->contactList)
+        foreach_contact(contact, world->contactList)
         {
             spContactSolve(contact);
         }
     }
 
     /// integrate velocity and update position
-    for_each_body(body, world->bodyList)
+    foreach_body(body, world->bodyList)
     {
         spBodyIntegratePosition(body, h);
     }
@@ -163,9 +169,9 @@ spWorldStep(spWorld* world, const spFloat h)
 
 void spWorldBroadPhase(spWorld* world)
 {
-    for_each_body(body_a, world->bodyList) { for_each_body(body_b, body_a->next)
+    foreach_body(body_a, world->bodyList) { foreach_body(body_b, body_a->next)
     {
-        for_each_shape(shape_a, body_a->shapes) { for_each_shape(shape_b, body_b->shapes)
+        foreach_shape(shape_a, body_a->shapes) { foreach_shape(shape_b, body_b->shapes)
         {
             /// bounding boxes of shapeA and shapeB
             spBound* ba = &shape_a->bound;
@@ -230,9 +236,9 @@ void spWorldDraw(spWorld* world)
 {
 #ifdef SP_DEBUG_DRAW
     spBody* body_list = world->bodyList;
-    for_each_body(body, body_list)
+    foreach_body(body, body_list)
     {
-        for_each_shape(shape, body->shapes)
+        foreach_shape(shape, body->shapes)
         {
             spDebugDrawBound(0, &shape->bound, body->xf);
             if (shape->type == SP_SHAPE_CIRCLE)
@@ -255,9 +261,9 @@ void spWorldDraw(spWorld* world)
 spShape* 
 spWorldTestPoint(spWorld* world, spVector point)
 {
-    for_each_body(body, world->bodyList)
+    foreach_body(body, world->bodyList)
     {
-        for_each_shape(shape, body->shapes)
+        foreach_shape(shape, body->shapes)
         {
             if (spShapeTestPoint(shape, point))
             {

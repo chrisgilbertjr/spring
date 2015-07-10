@@ -1,8 +1,5 @@
 
 #include "spConstraint.h"
-#include "spSegment.h"
-#include "spPolygon.h"
-#include "spCircle.h"
 #include "spWorld.h"
 #include "spShape.h"
 #include "spBody.h"
@@ -27,7 +24,7 @@
 static void 
 updateTransform(spBody* body)
 {
-    body->xf.q = spRotation(body->a);
+    body->xf.q = spRotationConstruct(body->a);
     body->xf.p = spAdd(spMult(body->xf.q, body->com), body->p);
     VALID(body);
 }
@@ -36,7 +33,7 @@ void
 spBodyInit(spBody* body, spBodyType type)
 {
     NULLCHECK(body);
-    body->xf = spTransform(spVectorZero(), spRotationZero());
+    body->xf = spTransformConstruct(spVectorZero(), spRotationZero());
     body->com = spVectorZero();
     body->p = spVectorZero();
     body->f = spVectorZero();
@@ -244,7 +241,7 @@ void spBodyComputeShapeMassData(spBody* body)
     tcom = spVectorZero();
 
     /// accumulate mass data
-    for_each_shape(shape, body->shapes)
+    for (spShape* shape = body->shapes; shape; shape = shape->next)
     {
         spMassData* data = &shape->mass_data;
         spFloat m = data->mass;

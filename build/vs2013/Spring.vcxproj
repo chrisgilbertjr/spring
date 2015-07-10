@@ -62,7 +62,6 @@
     <ClCompile Include="..\..\source\spPolygon.cpp" />
     <ClCompile Include="..\..\source\spRopeJoint.cpp" />
     <ClCompile Include="..\..\source\spShape.cpp" />
-    <ClCompile Include="..\..\source\spSolver.cpp" />
     <ClCompile Include="..\..\source\spWheelJoint.cpp" />
     <ClCompile Include="..\..\source\spWorld.cpp" />
     <ClCompile Include="..\..\tests\spBoundTest.cpp" />

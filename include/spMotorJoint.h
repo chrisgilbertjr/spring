@@ -3,7 +3,6 @@
 #define SP_MOTOR_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spMotorJoint spMotorJoint
 /// @{

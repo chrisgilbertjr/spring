@@ -31,7 +31,7 @@ spBool
 spContactKeyExists(const spContactKey key, spContact* contactList)
 {
     NULLCHECK(contactList);
-    for_each_contact(contact, contactList)
+    for (spContact* contact = contactList; contact != NULL; contact = contact->next)
     {
         if (spContactKeyEqual(key, contact->key) == spTrue)
         {

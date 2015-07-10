@@ -44,6 +44,8 @@ spShapeFree(spShape* shape)
         spBodyRemoveShape(shape->body, shape);
     }
 
+    /// TODO: add function pointers to free shapes to reduce includes in spShape.cpp
+
     /// shape is a poly
     if (shape->type == SP_SHAPE_POLYGON)
     {

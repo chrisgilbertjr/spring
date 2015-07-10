@@ -1,21 +1,14 @@
 
 #include "spCollision.h"
-#include "spContact.h"
-#include "spDebugDraw.h"
-#include <stdio.h>
+#include "spSegment.h"
+#include "spPolygon.h"
+#include "spCircle.h"
 #include "spBody.h"
 
 /// an edge of two points
 struct Edge
 {
     spVector a, b; ///< edge points
-};
-
-/// returned by support functions
-/// TODO: Get rid of this, once vector macros are removed!!!
-struct SupportPoint
-{
-    spVector point; ///< support point
 };
 
 /// a point on the minkowski difference of two shapes
@@ -348,10 +341,10 @@ static struct spMinkowskiPoint
 supportPoint(const struct SupportPointContext* context, const spVector normal)
 {
     NULLCHECK(context);
-    SupportPoint pointA = context->supportPointA(context->shapeA, normal);
-    SupportPoint pointB = context->supportPointB(context->shapeB, spNegative(normal));
+    spVector pointA = context->supportPointA(context->shapeA, normal);
+    spVector pointB = context->supportPointB(context->shapeB, spNegative(normal));
 
-    return spMinkowskiPointConstruct(pointA.point, pointB.point);
+    return spMinkowskiPointConstruct(pointA, pointB);
 }
 
 /// contact point helper functions

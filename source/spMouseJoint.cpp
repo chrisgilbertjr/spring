@@ -1,5 +1,4 @@
 
-#include "spDebugDraw.h"
 #include "spMouseJoint.h"
 #include "spBody.h"
 

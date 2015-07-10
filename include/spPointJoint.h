@@ -3,7 +3,6 @@
 #define SP_POINT_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spPointJoint spPointJoint
 /// @{

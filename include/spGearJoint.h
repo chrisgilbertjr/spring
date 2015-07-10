@@ -3,7 +3,6 @@
 #define SP_GEAR_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spGearJoint spGearJoint
 /// @{

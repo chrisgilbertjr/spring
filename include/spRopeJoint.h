@@ -3,7 +3,6 @@
 #define SP_ROPE_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spRopeJoint spRopeJoint
 /// @{

@@ -3,8 +3,6 @@
 #define SP_MOUSE_JOINT_H
 
 #include "spConstraint.h"
-#include "spBody.h"
-#include "spMath.h"
 
 /// @defgroup spMouseJoint
 /// @{

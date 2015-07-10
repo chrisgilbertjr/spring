@@ -5,7 +5,6 @@
 /// convenience macro for getters/setters
 #define ropeJoint spConstraintCastRopeJoint(constraint)
 
-
 static void 
 Free(spRopeJoint** joint)
 {

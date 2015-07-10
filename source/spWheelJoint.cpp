@@ -1,11 +1,9 @@
 
 #include "spWheelJoint.h" 
 #include "spBody.h"
-#include "spDebugDraw.h"
 
 /// convenience macro for getters/setters
 #define wheelJoint spConstraintCastWheelJoint(constraint)
-
 
 static void 
 Free(spWheelJoint** joint)

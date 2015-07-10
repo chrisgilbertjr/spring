@@ -3,7 +3,6 @@
 #define SP_WHEEL_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spWheelJoint spWheelJoint
 /// @{

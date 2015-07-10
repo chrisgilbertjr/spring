@@ -1,15 +1,8 @@
 
-#include "spAngularSpringJoint.h"
-#include "spDistanceJoint.h"
-#include "spSpringJoint.h"
-#include "spPointJoint.h"
-#include "spMotorJoint.h"
-#include "spWheelJoint.h"
-#include "spMouseJoint.h"
-#include "spRopeJoint.h"
-#include "spGearJoint.h"
+#include "spConstraint.h"
 #include "spWorld.h"
 
+/// baumgarte velocity bias coef
 spFloat spBaumgarte = 0.2f;
 
 void 

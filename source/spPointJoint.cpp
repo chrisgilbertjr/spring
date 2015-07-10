@@ -1,7 +1,6 @@
 
 #include "spPointJoint.h"
 #include "spBody.h"
-#include "spDebugDraw.h"
 
 /// convenience macro for getters/setters
 #define pointJoint spConstraintCastPointJoint(constraint)
@@ -33,7 +32,7 @@ PreSolve(spPointJoint* joint, const spFloat h)
     spFloat iiB = b->iInv;
     spFloat iMass = a->mInv + b->mInv;
 
-    spMatrix K = spMatrix(iMass, 0.0f, 0.0f, iMass);
+    spMatrix K = spMatrixConstruct(iMass, 0.0f, 0.0f, iMass);
 
     spFloat yiA  =  rA.y * iiA;
     spFloat yiB  =  rB.y * iiB;

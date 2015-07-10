@@ -185,7 +185,7 @@ spPolygonTestPoint(spPolygon* poly, spVector point)
         spVector A = spSub(v1, v0);
         spVector B = spSub(v2, v0);
 
-        spMatrix mat = spMatrix(A.x, B.x, A.y, B.y);
+        spMatrix mat = spMatrixConstruct(A.x, B.x, A.y, B.y);
         if (spDeterminant(mat) < 0.0f) return spFalse;
     }
     return spTrue;

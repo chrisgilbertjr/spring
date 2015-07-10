@@ -1,5 +1,4 @@
 
-#include "spDebugDraw.h"
 #include "spCircle.h"
 #include "spBody.h"
 

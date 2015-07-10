@@ -1,6 +1,7 @@
 
 #include "spCore.h"
 
+/// debug functions
 #ifdef SP_DEBUG
     #define SP_LOG(file, msg)        \
         va_list args;                \

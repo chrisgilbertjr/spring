@@ -127,9 +127,6 @@
     <ClCompile Include="..\..\source\spShape.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\spSolver.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\spWorld.cpp">
       <Filter>source</Filter>
     </ClCompile>

@@ -3,11 +3,12 @@
 #define SP_ANGULAR_SPRING_JOINT_H
 
 #include "spConstraint.h"
-#include "spMath.h"
 
 /// @defgroup spAngularSpringJoint spAngularSpringJoint
 /// @{
 
+/// an angular spring joint is like a spring, but with rotation.
+/// objects behave like a spring when rotating.
 struct spAngularSpringJoint
 {
     spConstraint constraint; ///< base constraint class

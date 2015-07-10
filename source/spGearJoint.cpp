@@ -6,42 +6,14 @@
 #define gearJoint spConstraintCastGearJoint(constraint)
 
 void 
-spGearJointInit(spGearJoint* joint, spBody* a, spBody* b, spFloat ratio, spFloat phase)
-{
-    NULLCHECK(joint); NULLCHECK(a); NULLCHECK(b);
-    joint->constraint = spConstraintConstruct(a, b, SP_GEAR_JOINT);
-    joint->lambdaAccum = 0.0f;
-    joint->ratioInv = ratio ? 1.0f / ratio : 0.0f;
-    joint->ratio = ratio;
-    joint->eMass = 0.0f;
-    joint->phase = phase;
-    joint->bias = 0.0f;
-}
-
-spGearJoint* 
-spGearJointAlloc()
-{
-    return (spGearJoint*) spMalloc(sizeof(spGearJoint));
-}
-
-spConstraint* 
-spGearJointNew(spBody* a, spBody* b, spFloat ratio, spFloat phase)
-{
-    spGearJoint* joint = spGearJointAlloc();
-    NULLCHECK(joint);
-    spGearJointInit(joint, a, b, ratio, phase);
-    return (spConstraint*) joint;
-}
-
-void 
-spGearJointFree(spGearJoint** joint)
+Free(spGearJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spGearJointPreSolve(spGearJoint* joint, const spFloat h)
+static void 
+PreSolve(spGearJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -57,8 +29,8 @@ spGearJointPreSolve(spGearJoint* joint, const spFloat h)
     joint->bias =  C * beta / h;
 }
 
-void 
-spGearJointApplyCachedImpulse(spGearJoint* joint)
+static void 
+WarmStart(spGearJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -72,8 +44,8 @@ spGearJointApplyCachedImpulse(spGearJoint* joint)
     joint->lambdaAccum = 0.0f;
 }
 
-void 
-spGearJointSolve(spGearJoint* joint)
+static void 
+Solve(spGearJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -88,6 +60,40 @@ spGearJointSolve(spGearJoint* joint)
     spFloat impulse = lambda;
     a->w -= impulse * a->iInv * joint->ratioInv;
     b->w += impulse * b->iInv;
+}
+
+
+void 
+spGearJointInit(spGearJoint* joint, spBody* a, spBody* b, spFloat ratio, spFloat phase)
+{
+    NULLCHECK(joint); NULLCHECK(a); NULLCHECK(b);
+    joint->constraint = spConstraintConstruct(a, b, SP_GEAR_JOINT);
+    joint->lambdaAccum = 0.0f;
+    joint->ratioInv = ratio ? 1.0f / ratio : 0.0f;
+    joint->ratio = ratio;
+    joint->eMass = 0.0f;
+    joint->phase = phase;
+    joint->bias = 0.0f;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spGearJoint* 
+spGearJointAlloc()
+{
+    return (spGearJoint*) spMalloc(sizeof(spGearJoint));
+}
+
+spConstraint* 
+spGearJointNew(spBody* a, spBody* b, spFloat ratio, spFloat phase)
+{
+    spGearJoint* joint = spGearJointAlloc();
+    NULLCHECK(joint);
+    spGearJointInit(joint, a, b, ratio, phase);
+    return (spConstraint*) joint;
 }
 
 spBool 

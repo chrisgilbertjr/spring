@@ -76,7 +76,6 @@ spWorldDestroy(spWorld* world)
         spBodyDestroy(&body);
         body = next;
     }
-    world->bodyList = NULL;
 
     /// destroy all constraints
     spConstraint* constraint = world->jointList;
@@ -86,7 +85,10 @@ spWorldDestroy(spWorld* world)
         spConstraintFree(constraint);
         constraint = next;
     }
+
+    world->contactList = NULL;
     world->jointList = NULL;
+    world->bodyList = NULL;
 }
 
 spWorld 
@@ -109,7 +111,7 @@ spWorldStep(spWorld* world, const spFloat h)
     /// pre step the constraints
     for_each_constraint(joint, world->jointList)
     {
-        spConstraintPreSolve(joint, h);
+        joint->funcs.preSolve(joint);
     }
 
     /// pre step the contacts
@@ -127,13 +129,13 @@ spWorldStep(spWorld* world, const spFloat h)
     /// warm start the joints
     for_each_constraint(joint, world->jointList)
     {
-        spConstraintApplyCachedImpulse(joint);
+        joint->funcs.warmStart(joint);
     }
 
     /// pre step the contacts
     for_each_contact(contact, world->contactList)
     {
-        spContactApplyCachedImpulse(contact);
+        spContactWarmStart(contact);
     }
 
     /// apply contact / joint impulses
@@ -141,7 +143,7 @@ spWorldStep(spWorld* world, const spFloat h)
     {
         for_each_constraint(joint, world->jointList)
         {
-            spConstraintSolve(joint);
+            joint->funcs.solve(joint);
         }
 
         for_each_contact(contact, world->contactList)
@@ -284,12 +286,14 @@ void
 spWorldAddConstraint(spWorld* world, spConstraint* constraint)
 {
     SP_LINKED_LIST_PREPEND(spConstraint, constraint, world->jointList);
+    constraint->world = world;
 }
 
 void 
 spWorldRemoveConstraint(spWorld* world, spConstraint* constraint)
 {
     SP_LINKED_LIST_REMOVE(spConstraint, constraint, world->jointList);
+    constraint->world = NULL;
 }
 
 spConstraint* 

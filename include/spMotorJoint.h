@@ -25,23 +25,14 @@ spMotorJoint* spMotorJointAlloc();
 /// init the motor joint with 2 bodies, and an angular velocity
 spConstraint* spMotorJointNew(spBody* a, spBody* b, spFloat w);
 
-/// free a motor joint from the heap
-void spMotorJointFree(spMotorJoint** joint);
-
-/// setup the motor joint to be solved
-void spMotorJointPreSolve(spMotorJoint* joint, const spFloat h);
-
-/// warm start the joint from last timestep
-void spMotorJointApplyCachedImpulse(spMotorJoint* joint);
-
-/// solve the motor joints and apply impulses
-void spMotorJointSolve(spMotorJoint* joint);
-
 /// check if a constraint is a motor joint
 spBool spConstraintIsMotorJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a motor joint if its that type
 spMotorJoint* spConstraintCastMotorJoint(spConstraint* constraint);
+
+/// get the motor joints impulse
+spFloat spMotorJointGetImpulse(spConstraint* constraint);
 
 /// get the motor joints angular velocity
 spFloat spMotorJointGetAngVelocity(spConstraint* constraint);

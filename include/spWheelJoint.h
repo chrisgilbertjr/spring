@@ -44,23 +44,23 @@ spWheelJoint* spWheelJointAlloc();
 /// create a wheel joint on the heap with 2 bodies, 2 local space anchors, a line axis, and spring frequency/damping
 spConstraint* spWheelJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping);
 
-/// free a wheel joint on the heap
-void spWheelJointFree(spWheelJoint** joint);
-
-/// setup a wheel joint to be solved
-void spWheelJointPreSolve(spWheelJoint* joint, const spFloat h);
-
-/// warm start the joint from last timestep
-void spWheelJointApplyCachedImpulse(spWheelJoint* joint);
-
-/// solve the wheel joint and apply impulses
-void spWheelJointSolve(spWheelJoint* joint);
-
 /// check if a constraint is a wheel joint
 spBool spConstraintIsWheelJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a wheel joint if its that type
 spWheelJoint* spConstraintCastWheelJoint(spConstraint* constraint);
+
+/// get the wheels impulse
+spFloat spWheelJointGetImpulse(spConstraint* constraint);
+
+/// get the wheels spring impulse
+spFloat spWheelJointGetSpringImpulse(spConstraint* constraint);
+
+/// get the wheels motor impulse
+spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
+
+/// get the wheels line impulse
+spFloat spWheelJointGetLineImpulse(spConstraint* constraint);
 
 /// get the first anchor in body A's local space
 spVector spWheelJointGetAnchorA(spConstraint* constraint);
@@ -74,26 +74,8 @@ spVector spWheelJointGetWorldAnchorA(spConstraint* constraint);
 /// get the second anchor in world space
 spVector spWheelJointGetWorldAnchorB(spConstraint* constraint);
 
-/// get the springs velocity impulse
-spVector spWheelJointGetSpringImpulse(spConstraint* constraint);
-
-/// get the springs angular impulse on body A
-spFloat spWheelJointGetSpringImpulseA(spConstraint* constraint);
-
-/// get the springs angular impulse on body B
-spFloat spWheelJointGetSpringImpulseB(spConstraint* constraint);
-
 /// get the motors last impulse
 spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
-
-/// get the lines last velocity impulse
-spVector spWheelJointGetLineImpulse(spConstraint* constraint);
-
-/// get the lines last angular impulse on body A
-spFloat spWheelJointGetLineImpulseA(spConstraint* constraint);
-
-/// get the lines last angular impulse on body B
-spFloat spWheelJointGetLineImpulseB(spConstraint* constraint);
 
 /// get the wheel joints max motor torque
 spFloat spWheelJointGetMaxMotorTorque(spConstraint* constraint);

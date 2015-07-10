@@ -6,46 +6,15 @@
 /// convenience macro for getters/setters
 #define mouseJoint spConstraintCastMouseJoint(constraint)
 
-void 
-spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
-{
-    NULLCHECK(joint);
-    joint->constraint = spConstraintConstruct(a, NULL, SP_MOUSE_JOINT);
-    joint->lambdaAccum = spVectorZero();
-    joint->anchor = anchor;
-    joint->target = target;
-    joint->bias = spVectorZero();
-    joint->rA = spVectorZero();
-    joint->frequency = frequency;
-    joint->damping = damping;
-    joint->gamma = 0.0f;
-    joint->eMass = spMatrixZero();
-}
-
-spMouseJoint* 
-spMouseJointAlloc()
-{
-    return (spMouseJoint*) spMalloc(sizeof(spMouseJoint));
-}
-
-spMouseJoint* 
-spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
-{
-    spMouseJoint* joint = spMouseJointAlloc();
-    NULLCHECK(joint);
-    spMouseJointInit(joint, a, frequency, damping, anchor, target);
-    return joint;
-}
-
-void 
-spMouseJointFree(spMouseJoint** joint)
+static void 
+Free(spMouseJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spMouseJointPreSolve(spMouseJoint* joint, const spFloat h)
+static void 
+PreSolve(spMouseJoint* joint, const spFloat h)
 {
     /// get the body
     spBody* a = joint->constraint.bodyA;
@@ -79,8 +48,11 @@ spMouseJointPreSolve(spMouseJoint* joint, const spFloat h)
     joint->lambdaAccum = spVectorZero();
 }
 
-void 
-spMouseJointSolve(spMouseJoint* joint)
+static void 
+WarmStart(spMouseJoint** joint) {}
+
+static void 
+Solve(spMouseJoint* joint)
 {
     /// get the body
     spBody* a = joint->constraint.bodyA;
@@ -89,7 +61,7 @@ spMouseJointSolve(spMouseJoint* joint)
     spVector Cdot = spAdd(a->v, spCross(a->w, joint->rA));
     spVector A = spAdd(Cdot, joint->bias);
     spVector B = spMult(joint->gamma, joint->lambdaAccum);
-    spVector D = spNegate(spAdd(A, B));
+    spVector D = spNegative(spAdd(A, B));
 
     /// accumulate the impulse
     spVector lambdaOld = joint->lambdaAccum;
@@ -99,8 +71,42 @@ spMouseJointSolve(spMouseJoint* joint)
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulse);
-    //a->v  = spAdd(a->v, spMult(a->mInv, impulse));
-    //a->w += a->iInv * spCross(joint->rA, impulse);
+}
+
+void 
+spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
+{
+    NULLCHECK(joint);
+    joint->constraint = spConstraintConstruct(a, NULL, SP_MOUSE_JOINT);
+    joint->lambdaAccum = spVectorZero();
+    joint->anchor = anchor;
+    joint->target = target;
+    joint->bias = spVectorZero();
+    joint->rA = spVectorZero();
+    joint->frequency = frequency;
+    joint->damping = damping;
+    joint->gamma = 0.0f;
+    joint->eMass = spMatrixZero();
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spMouseJoint* 
+spMouseJointAlloc()
+{
+    return (spMouseJoint*) spMalloc(sizeof(spMouseJoint));
+}
+
+spMouseJoint* 
+spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
+{
+    spMouseJoint* joint = spMouseJointAlloc();
+    NULLCHECK(joint);
+    spMouseJointInit(joint, a, frequency, damping, anchor, target);
+    return joint;
 }
 
 spBool 
@@ -136,6 +142,12 @@ void spMouseJointEnd(spConstraint* constraint)
     mouseJoint->constraint.bodyA = NULL;
     mouseJoint->anchor = spVectorZero();
     mouseJoint->target = spVectorZero();
+}
+
+spVector 
+spMouseJointGetImpulse(spConstraint* constraint)
+{
+    return mouseJoint->lambdaAccum;
 }
 
 spVector 

@@ -38,23 +38,14 @@ spRopeJoint* spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anc
 /// allocate a rope joint on the heap, and init it with two bodies, two anchor points in world space, and a max distance
 spRopeJoint* spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance);
 
-/// free memory pointed at by a rope joint
-void spRopeJointFree(spRopeJoint** joint);
-
-/// setup a rope joint to be solved
-void spRopeJointPreSolve(spRopeJoint* joint, const spFloat h);
-
-/// apply the last timesteps impulse, for a more stable simulation
-void spRopeJointApplyCachedImpulse(spRopeJoint* joint);
-
-/// solve the rope joint, and apply impulses to the bodies
-void spRopeJointSolve(spRopeJoint* joint);
-
 /// check if a constraint is a rope joint
 spBool spConstraintIsRopeJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a rope joint if its that type
 spRopeJoint* spConstraintCastRopeJoint(spConstraint* constraint);
+
+/// get the rope joints impulse
+spFloat spRopeJointGetImpulse(spConstraint* constraint);
 
 /// get anchorA in A's local space
 spVector spRopeJointGetlAnchorA(spConstraint* constraint);

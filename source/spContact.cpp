@@ -101,7 +101,7 @@ spContactPreSolve(spContact* contact, const spFloat h)
 }
 
 void 
-spContactApplyCachedImpulse(spContact* contact)
+spContactWarmStart(spContact* contact)
 {
     /// get the bodies
     spBody* a = contact->key.shapeA->body;
@@ -112,9 +112,9 @@ spContactApplyCachedImpulse(spContact* contact)
         spContactPoint* point = contact->points+i;
 
         /// compute the impulses
-        spVector impulse = spVector(point->lambdaAccumNorm, point->lambdaAccumTang);
+        spVector impulse = spVectorConstruct(point->lambdaAccumNorm, point->lambdaAccumTang);
         spVector impulseA = spRotate(contact->normal, impulse);
-        spVector impulseB = spNegate(impulseA);
+        spVector impulseB = spNegative(impulseA);
 
         /// apply the impulses
         spBodyApplyImpulse(a, point->rA, impulseA);
@@ -179,8 +179,8 @@ spContactSolve(spContact* contact)
         }
 
         /// compute the body impulses
-        spVector impulseB = spRotate(normal, spVector(impulseNorm, impulseTang));
-        spVector impulseA = spNegate(impulseB);
+        spVector impulseB = spRotate(normal, spVectorConstruct(impulseNorm, impulseTang));
+        spVector impulseA = spNegative(impulseB);
 
         /// apply the impulses
         spBodyApplyImpulse(a, point->rA, impulseA);

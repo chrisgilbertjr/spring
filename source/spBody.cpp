@@ -95,10 +95,8 @@ spBodyNewStatic()
 }
 
 void 
-spBodyDestroy(spBody** bodyPtr)
+spBodyDestroyShapes(spBody* body)
 {
-    NULLCHECK(bodyPtr);
-    spBody* body = *bodyPtr;
     NULLCHECK(body);
 
     /// free any shapes that are attached to the body
@@ -109,19 +107,35 @@ spBodyDestroy(spBody** bodyPtr)
         spShapeFree(shape);
         shape = next;
     }
+}
 
-    /// remove and free any constraints this body is involved with
+void 
+spBodyDestroyConstraints(spBody* body)
+{
+    NULLCHECK(body);
+
+    /// free any constraints this body is involved with
     spConstraint* constraint = body->world->jointList;
     while (constraint)
     {
         spConstraint* next = constraint->next;
         if (constraint->bodyA == body || constraint->bodyB == body)
         {
-            spWorldRemoveConstraint(body->world, constraint);
             spConstraintFree(constraint);
         }
         constraint = next;
     }
+}
+
+void 
+spBodyDestroy(spBody** bodyPtr)
+{
+    NULLCHECK(bodyPtr);
+    spBody* body = *bodyPtr;
+
+    /// destroy shapes/constraints
+    spBodyDestroyShapes(body);
+    spBodyDestroyConstraints(body);
 
     /// free the memory
     spBodyFree(bodyPtr);
@@ -130,6 +144,13 @@ spBodyDestroy(spBody** bodyPtr)
 void 
 spBodyFree(spBody** bodyPtr)
 {
+    spBody* body = *bodyPtr;
+    NULLCHECK(body);
+
+    if (body->world)
+    {
+        spWorldRemoveBody(body->world, body);
+    }
     spFree(bodyPtr);
 }
 

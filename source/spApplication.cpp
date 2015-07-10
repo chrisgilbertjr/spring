@@ -150,7 +150,7 @@ default_loop(spApplication* app)
     spFloat h = spAbs(app->frustum.top - app->frustum.bottom);
     x *= w; x -= w*0.5f;
     y *= h; y -= h*0.5f;
-    spVector pos = spVector((spFloat)x, (spFloat)y);
+    spVector pos = spVectorConstruct((spFloat)x, (spFloat)y);
 
     if (glfwGetMouseButton(app->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
     {

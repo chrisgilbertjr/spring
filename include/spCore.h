@@ -44,44 +44,24 @@
   #define SP_MIN_FLT FLT_MIN
 #endif
 
+/// math constants
 #define SP_EPSILON 1e-6f
 #define SP_FLT_EPSILON FLT_EPSILON
 #define SP_PI 3.1415926535897932f
 #define SP_RAD_TO_DEG 180.f / 3.1415926535897932f
 #define SP_DEG_TO_RAD 3.1415926535897932f / 180.f
+#define SP_INFINITY 1e10f
 
-#ifdef INFINITY
-    #define SP_INFINITY INFINITY
-#else
-    #define SP_INFINITY 1e1000
-#endif
-
-
-
-#define SP_IGNORE(x) ((void)x)
+/// memory defines
 #define spRealloc realloc
 #define spMalloc malloc
 #define spCalloc calloc
 #define spFree(pointer) free(*pointer); *pointer = NULL;
+
+/// boolean/ignore defines
+#define SP_IGNORE(x) ((void)x)
 #define spFalse 0u
 #define spTrue 1u
-
-/// faked constructors for easy stack allocation
-#define spVector(x, y)                  _spVector(x, y)
-#define spVectorZero()                  _spVector(0.0f, 0.0f)
-#define spMatrix(a, b ,c, d)            _spMatrix(a, b, c, d)
-#define spMatrixZero()                  _spMatrix(0.0f, 0.0f, 0.0f, 0.0f)
-#define spMatrixIdentity()              _spMatrix(1.0f, 0.0f, 0.0f, 1.0f)
-#define spMatrixDiagonal(a)             _spMatrix(a, 0.0f, 0.0f, a);
-#define spRotation(a)                   _spRotation(a)
-#define spRotationZero()                _spRotation(0.0f)
-#define spRotationRadians(s, c)         _spRotation(s, c)
-#define spTransform(p, q)               _spTransform(p, q)
-#define spCollisionMatrix()             _spCollisionMatrix()
-#define spCollisionInput(a, b, xa, xb)  _spCollisionInput(a, b, xa, xb)
-#define spWorld(g)                      _spWorld(g)
-#define spContactKey(a, b)              _spContactKey(a, b)
-#define spBodyDef()                     _spBodyDef()
 
 /// for each iters
 #define for_each_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)

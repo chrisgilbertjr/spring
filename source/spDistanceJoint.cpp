@@ -5,45 +5,15 @@
 /// convenience macro for getters/setters
 #define distanceJoint spConstraintCastDistanceJoint(constraint)
 
-void 
-spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
-{
-    joint->constraint = spConstraintConstruct(a, b, SP_DISTANCE_JOINT);
-    joint->anchorA = anchorA;
-    joint->anchorB = anchorB;
-    joint->rA = spVectorZero();
-    joint->rB = spVectorZero();
-    joint->n  = spVectorZero();
-    joint->lambdaAccum = 0.0f;
-    joint->distance = distance;
-    joint->eMass = 0.0f;
-    joint->bias = 0.0f;
-}
-
-spDistanceJoint* 
-spDistanceConstraintAlloc()
-{
-    return (spDistanceJoint*) spMalloc(sizeof(spDistanceJoint));
-}
-
-spDistanceJoint* 
-spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
-{
-    spDistanceJoint* joint = spDistanceConstraintAlloc();
-    NULLCHECK(joint);
-    spDistanceJointInit(joint, a, b, anchorA, anchorB, distance);
-    return joint;
-}
-
-void 
-spDistanceJointFree(spDistanceJoint** joint)
+static void 
+Free(spDistanceJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h)
+static void 
+PreSolve(spDistanceJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -72,8 +42,8 @@ spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h)
     joint->bias = -spBaumgarte * C / h;
 }
 
-void 
-spDistanceJointApplyCachedImpulse(spDistanceJoint* joint)
+static void 
+WarmStart(spDistanceJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -81,7 +51,7 @@ spDistanceJointApplyCachedImpulse(spDistanceJoint* joint)
 
     /// compute the impulses
     spVector impulseB = spMult(joint->n, joint->lambdaAccum);
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
@@ -91,8 +61,8 @@ spDistanceJointApplyCachedImpulse(spDistanceJoint* joint)
     joint->lambdaAccum = 0.0f;
 }
 
-void 
-spDistanceJointSolve(spDistanceJoint* joint)
+static void 
+Solve(spDistanceJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -110,11 +80,46 @@ spDistanceJointSolve(spDistanceJoint* joint)
 
     /// compute the impulse
     spVector impulseB = spMult(joint->n, joint->lambdaAccum - lambdaOld);
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
     spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
+void 
+spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
+{
+    joint->constraint = spConstraintConstruct(a, b, SP_DISTANCE_JOINT);
+    joint->anchorA = anchorA;
+    joint->anchorB = anchorB;
+    joint->rA = spVectorZero();
+    joint->rB = spVectorZero();
+    joint->n  = spVectorZero();
+    joint->lambdaAccum = 0.0f;
+    joint->distance = distance;
+    joint->eMass = 0.0f;
+    joint->bias = 0.0f;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spDistanceJoint* 
+spDistanceConstraintAlloc()
+{
+    return (spDistanceJoint*) spMalloc(sizeof(spDistanceJoint));
+}
+
+spDistanceJoint* 
+spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance)
+{
+    spDistanceJoint* joint = spDistanceConstraintAlloc();
+    NULLCHECK(joint);
+    spDistanceJointInit(joint, a, b, anchorA, anchorB, distance);
+    return joint;
 }
 
 spBool 
@@ -135,6 +140,12 @@ spConstraintCastDistanceJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a distance joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spDistanceJointGetImpulse(spConstraint* constraint)
+{
+    return distanceJoint->lambdaAccum;
 }
 
 spVector 

@@ -30,23 +30,14 @@ spAngularSpringJoint* spAngularSpringJointAlloc();
 /// create an angular spring on the heap with 2 bodies, an invert rot variable, spring frequency/damping, and the rest angle of the bodies
 spConstraint* spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle);
 
-/// free an angular spring on the heap
-void spAngularSpringJointFree(spAngularSpringJoint** joint);
-
-/// setup the angular spring to be solved
-void spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h);
-
-/// warm start spring joint from last timestep
-void spAngularSpringJointApplyCachedImpulse(spAngularSpringJoint* joint);
-
-/// solve the angular spring and apply the impulses
-void spAngularSpringJointSolve(spAngularSpringJoint* joint);
-
 /// check if a constraint is a angular spring joint
 spBool spConstraintIsAngularSpringJoint(spConstraint* constraint);
 
 /// safely cast a constraint to an angular spring joint if its that type
 spAngularSpringJoint* spConstraintCastAngularSpringJoint(spConstraint* constraint);
+
+/// get the joints impulse
+spFloat spAngularSpringJointGetImpulse(spConstraint* constraint);
 
 /// get the angular springs rest angle
 spFloat spAngularSpringJointGetRestAngle(spConstraint* constraint);

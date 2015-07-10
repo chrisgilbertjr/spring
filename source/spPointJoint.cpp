@@ -6,44 +6,15 @@
 /// convenience macro for getters/setters
 #define pointJoint spConstraintCastPointJoint(constraint)
 
-void 
-spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB)
-{
-    NULLCHECK(joint);
-    joint->constraint = spConstraintConstruct(a, b, SP_POINT_JOINT);
-    joint->anchorA = anchorA;
-    joint->anchorB = anchorB;
-    joint->lambdaAccum = spVectorZero();
-    joint->bias = spVectorZero();
-    joint->rA = spVectorZero();
-    joint->rB = spVectorZero();
-    joint->eMass = spMatrixZero();
-}
-
-spPointJoint* 
-spPointJointAlloc()
-{
-    return (spPointJoint*) spMalloc(sizeof(spPointJoint));
-}
-
-spPointJoint* 
-spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB)
-{
-    spPointJoint* joint = spPointJointAlloc();
-    NULLCHECK(joint);
-    spPointJointInit(joint, a, b, anchorA, anchorB);
-    return joint;
-}
-
-void 
-spPointJointFree(spPointJoint** joint)
+static void 
+Free(spPointJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spPointJointPreSolve(spPointJoint* joint, const spFloat h)
+static void 
+PreSolve(spPointJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -81,8 +52,8 @@ spPointJointPreSolve(spPointJoint* joint, const spFloat h)
     joint->bias = spMult(C, -spBaumgarte / h); 
 }
 
-void 
-spPointJointApplyCachedImpulse(spPointJoint* joint)
+static void 
+WarmStart(spPointJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -90,7 +61,7 @@ spPointJointApplyCachedImpulse(spPointJoint* joint)
 
     /// get the impulses
     spVector impulseB = joint->lambdaAccum;
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulses
     spBodyApplyImpulse(a, joint->rA, impulseA);
@@ -100,8 +71,8 @@ spPointJointApplyCachedImpulse(spPointJoint* joint)
     joint->lambdaAccum = spVectorZero();
 }
 
-void 
-spPointJointSolve(spPointJoint* joint)
+static void 
+Solve(spPointJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -117,11 +88,45 @@ spPointJointSolve(spPointJoint* joint)
 
     /// compute the impulses
     spVector impulseB = spSub(joint->lambdaAccum, lambdaOld);
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulses
     spBodyApplyImpulse(a, joint->rA, impulseA);
     spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
+void 
+spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB)
+{
+    NULLCHECK(joint);
+    joint->constraint = spConstraintConstruct(a, b, SP_POINT_JOINT);
+    joint->anchorA = anchorA;
+    joint->anchorB = anchorB;
+    joint->lambdaAccum = spVectorZero();
+    joint->bias = spVectorZero();
+    joint->rA = spVectorZero();
+    joint->rB = spVectorZero();
+    joint->eMass = spMatrixZero();
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spPointJoint* 
+spPointJointAlloc()
+{
+    return (spPointJoint*) spMalloc(sizeof(spPointJoint));
+}
+
+spPointJoint* 
+spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB)
+{
+    spPointJoint* joint = spPointJointAlloc();
+    NULLCHECK(joint);
+    spPointJointInit(joint, a, b, anchorA, anchorB);
+    return joint;
 }
 
 spBool 
@@ -142,6 +147,12 @@ spConstraintCastPointJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a point joint\n");
         return NULL;
     }
+}
+
+spVector 
+spPointJointGetImpulse(spConstraint* constraint)
+{
+    return pointJoint->lambdaAccum;
 }
 
 spVector 
@@ -177,7 +188,7 @@ spPointJointGetImpulseA(spConstraint* constraint)
 spVector 
 spPointJointGetImpulseB(spConstraint* constraint)
 {
-    return spNegate(pointJoint->lambdaAccum);
+    return spNegative(pointJoint->lambdaAccum);
 }
 
 spVector 

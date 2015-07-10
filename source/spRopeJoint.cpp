@@ -5,6 +5,88 @@
 /// convenience macro for getters/setters
 #define ropeJoint spConstraintCastRopeJoint(constraint)
 
+
+static void 
+Free(spRopeJoint** joint)
+{
+    NULLCHECK(*joint);
+    spFree(joint);
+}
+
+static void 
+PreSolve(spRopeJoint* joint, const spFloat h)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// compute anchors in world space
+    spVector anchorA = spMult(a->xf, joint->anchorA);
+    spVector anchorB = spMult(b->xf, joint->anchorB);
+
+    /// compute relative velocity and normal direction
+    joint->rA = spSub(anchorA, a->p);
+    joint->rB = spSub(anchorB, b->p);
+    joint->n = spSub(anchorA, anchorB);
+    spFloat length = spLength(joint->n);
+    joint->n = spMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
+
+    /// compute the effective mass
+    spFloat nrA = spCross(joint->n, joint->rA);
+    spFloat nrB = spCross(joint->n, joint->rB);
+    joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
+    joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
+
+    /// compute the position constraint, and compute baumgarte velocity bias
+    spFloat C = length - joint->maxDistance;
+    joint->bias = C * (spBaumgarte / h);
+}
+
+static void 
+WarmStart(spRopeJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// compute impulse
+    spVector impulseB = spMult(joint->n, joint->lambdaAccum);
+    spVector impulseA = spNegative(impulseB);
+
+    /// apply the impulse
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+
+    /// reset the lagrange multiplier
+    joint->lambdaAccum = 0.0f;
+}
+
+static void 
+Solve(spRopeJoint* joint)
+{
+    /// get the bodies
+    spBody* a = joint->constraint.bodyA;
+    spBody* b = joint->constraint.bodyB;
+
+    /// compute the velocity constraint
+    spVector rvA = spAdd(a->v, spCross(a->w, joint->rA));
+    spVector rvB = spAdd(b->v, spCross(b->w, joint->rB));
+    spFloat Cdot = spDot(joint->n, spSub(rvB, rvA));
+
+    /// accumulate the impulse
+    spFloat lambda = (joint->bias - Cdot) * joint->eMass;
+    spFloat lambdaOld = joint->lambdaAccum;
+    joint->lambdaAccum += lambda;
+
+    /// compute the impulses
+    spVector impulseA = spMult(joint->n, joint->lambdaAccum - lambdaOld);
+    spVector impulseB = spNegative(impulseA);
+
+    /// apply the impulse
+    spBodyApplyImpulse(a, joint->rA, impulseA);
+    spBodyApplyImpulse(b, joint->rB, impulseB);
+}
+
 void 
 spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
 {
@@ -19,6 +101,11 @@ spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVe
     joint->lambdaAccum = 0.0f;
     joint->eMass = 0.0f;
     joint->bias = 0.0f;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
 }
 
 void 
@@ -50,86 +137,6 @@ spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, sp
     return joint;
 }
 
-void 
-spRopeJointFree(spRopeJoint** joint)
-{
-    NULLCHECK(*joint);
-    spFree(joint);
-}
-
-void 
-spRopeJointPreSolve(spRopeJoint* joint, const spFloat h)
-{
-    /// get the bodies
-    spBody* a = joint->constraint.bodyA;
-    spBody* b = joint->constraint.bodyB;
-
-    /// compute anchors in world space
-    spVector anchorA = spMult(a->xf, joint->anchorA);
-    spVector anchorB = spMult(b->xf, joint->anchorB);
-
-    /// compute relative velocity and normal direction
-    joint->rA = spSub(anchorA, a->p);
-    joint->rB = spSub(anchorB, b->p);
-    joint->n = spSub(anchorA, anchorB);
-    spFloat length = spLength(joint->n);
-    joint->n = spMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
-
-    /// compute the effective mass
-    spFloat nrA = spCross(joint->n, joint->rA);
-    spFloat nrB = spCross(joint->n, joint->rB);
-    joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
-    joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
-
-    /// compute the position constraint, and compute baumgarte velocity bias
-    spFloat C = length - joint->maxDistance;
-    joint->bias = C * (spBaumgarte / h);
-}
-
-void 
-spRopeJointApplyCachedImpulse(spRopeJoint* joint)
-{
-    /// get the bodies
-    spBody* a = joint->constraint.bodyA;
-    spBody* b = joint->constraint.bodyB;
-
-    /// compute impulse
-    spVector impulseB = spMult(joint->n, joint->lambdaAccum);
-    spVector impulseA = spNegate(impulseB);
-
-    /// apply the impulse
-    spBodyApplyImpulse(a, joint->rA, impulseA);
-    spBodyApplyImpulse(b, joint->rB, impulseB);
-
-    /// reset the lagrange multiplier
-    joint->lambdaAccum = 0.0f;
-}
-
-void 
-spRopeJointSolve(spRopeJoint* joint)
-{
-    /// get the bodies
-    spBody* a = joint->constraint.bodyA;
-    spBody* b = joint->constraint.bodyB;
-
-    /// compute the velocity constraint
-    spVector rvA = spAdd(a->v, spCross(a->w, joint->rA));
-    spVector rvB = spAdd(b->v, spCross(b->w, joint->rB));
-    spFloat Cdot = spDot(joint->n, spSub(rvB, rvA));
-
-    /// accumulate the impulse
-    spFloat lambda = (joint->bias - Cdot) * joint->eMass;
-    spFloat lambdaOld = joint->lambdaAccum;
-    joint->lambdaAccum += lambda;
-
-    /// compute the impulses
-    spVector impulseA = spMult(joint->n, joint->lambdaAccum - lambdaOld);
-    spVector impulseB = spNegate(impulseB);
-
-    /// apply the impulse
-    spBodyApplyImpulse(a, joint->rA, impulseA);
-    spBodyApplyImpulse(b, joint->rB, impulseB);
-}
 
 spBool 
 spConstraintIsRopeJoint(spConstraint* constraint)
@@ -149,6 +156,12 @@ spConstraintCastRopeJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a rope joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spRopeJointGetImpulse(spConstraint* constraint)
+{
+    return ropeJoint->lambdaAccum;
 }
 
 spVector 

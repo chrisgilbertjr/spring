@@ -35,15 +35,6 @@ spMouseJoint* spMouseJointAlloc();
 /// create a mouse joint on the heap given a body, frequency, damping, anchor point, and target point
 spMouseJoint* spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
 
-/// free a mouse joint from the heap
-void spMouseJointFree();
-
-/// setup a mouse joint to be solved
-void spMouseJointPreSolve(spMouseJoint* joint, const spFloat h);
-
-/// solve the mouse joint, and apply impulses to the body
-void spMouseJointSolve(spMouseJoint* joint);
-
 /// check if a constraint is a mouse joint
 spBool spConstraintIsMouseJoint(spConstraint* constraint);
 
@@ -55,6 +46,9 @@ void spMouseJointStart(spConstraint* constraint, spBody* a, spVector point);
 
 /// end a mouse drag 
 void spMouseJointEnd(spConstraint* constraint);
+
+/// get the mouse joints impulse
+spVector spMouseJointGetImpulse(spConstraint* constraint);
 
 /// get the body anchor in local space
 spVector spMouseJointGetAnchor(spConstraint* constraint);

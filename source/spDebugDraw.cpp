@@ -18,7 +18,7 @@ spDebugDrawPoint(const spVector& pos, const spColor& color)
 void 
 spDebugDrawPoint(const spFloat x, const spFloat y, const spColor& color)
 {
-    spDebugDrawPoint(spVector(x, y), color);
+    spDebugDrawPoint(spVectorConstruct(x, y), color);
 }
 
 void 
@@ -177,10 +177,10 @@ spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform& xf)
 {
     spVector c  = spMult(xf, bound->center);
     spVector hw = bound->halfWidth;
-    spVector p0 = spAdd(c, spVector(-hw.x,-hw.y));
-    spVector p1 = spAdd(c, spVector( hw.x,-hw.y));
-    spVector p2 = spAdd(c, spVector( hw.x, hw.y));
-    spVector p3 = spAdd(c, spVector(-hw.x, hw.y));
+    spVector p0 = spAdd(c, spVectorConstruct(-hw.x,-hw.y));
+    spVector p1 = spAdd(c, spVectorConstruct( hw.x,-hw.y));
+    spVector p2 = spAdd(c, spVectorConstruct( hw.x, hw.y));
+    spVector p3 = spAdd(c, spVectorConstruct(-hw.x, hw.y));
     spFloat alpha = 0.1f;
 
     glPushMatrix();

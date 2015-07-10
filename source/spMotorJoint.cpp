@@ -5,46 +5,22 @@
 /// convenience macro for getters/setters
 #define motorJoint spConstraintCastMotorJoint(constraint)
 
-void 
-spMotorJointInit(spMotorJoint* joint, spBody* a, spBody* b, spFloat w)
-{
-    joint->constraint = spConstraintConstruct(a, b, SP_MOTOR_JOINT);
-    joint->lambdaAccum = 0.0f;
-    joint->eMass = 0.0f;
-    joint->w = w;
-}
-
-spMotorJoint* 
-spMotorJointAlloc()
-{
-    return (spMotorJoint*) spMalloc(sizeof(spMotorJoint));
-}
-
-spConstraint* 
-spMotorJointNew(spBody* a, spBody* b, spFloat w)
-{
-    spMotorJoint* joint = spMotorJointAlloc();
-    NULLCHECK(joint);
-    spMotorJointInit(joint, a, b, w);
-    return (spConstraint*) joint;
-}
-
-void 
-spMotorJointFree(spMotorJoint** joint)
+static void 
+Free(spMotorJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spMotorJointPreSolve(spMotorJoint* joint, const spFloat h)
+static void 
+PreSolve(spMotorJoint* joint, const spFloat h)
 {
     /// compute the effective mass
     joint->eMass = 1.0f / (joint->constraint.bodyA->iInv + joint->constraint.bodyB->iInv);
 }
 
-void 
-spMotorJointApplyCachedImpulse(spMotorJoint* joint)
+static void 
+WarmStart(spMotorJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -57,8 +33,8 @@ spMotorJointApplyCachedImpulse(spMotorJoint* joint)
     joint->lambdaAccum = 0.0f;
 }
 
-void 
-spMotorJointSolve(spMotorJoint* joint)
+static void 
+Solve(spMotorJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -76,6 +52,35 @@ spMotorJointSolve(spMotorJoint* joint)
     /// apply the impulse
     a->w -= impulse * a->iInv;
     b->w += impulse * b->iInv;
+}
+
+void 
+spMotorJointInit(spMotorJoint* joint, spBody* a, spBody* b, spFloat w)
+{
+    joint->constraint = spConstraintConstruct(a, b, SP_MOTOR_JOINT);
+    joint->lambdaAccum = 0.0f;
+    joint->eMass = 0.0f;
+    joint->w = w;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spMotorJoint* 
+spMotorJointAlloc()
+{
+    return (spMotorJoint*) spMalloc(sizeof(spMotorJoint));
+}
+
+spConstraint* 
+spMotorJointNew(spBody* a, spBody* b, spFloat w)
+{
+    spMotorJoint* joint = spMotorJointAlloc();
+    NULLCHECK(joint);
+    spMotorJointInit(joint, a, b, w);
+    return (spConstraint*) joint;
 }
 
 spBool 
@@ -96,6 +101,12 @@ spConstraintCastMotorJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a motor joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spMotorJointGetImpulse(spConstraint* constraint)
+{
+    return motorJoint->lambdaAccum;
 }
 
 spFloat 

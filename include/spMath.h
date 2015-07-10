@@ -68,7 +68,7 @@ inline void spSwap(spVector* a, spVector* b)
 }
 
 /// "faked" constructor for creating vectors
-inline spVector _spVector(const spFloat x, const spFloat y)
+inline spVector spVectorConstruct(const spFloat x, const spFloat y)
 {
     return 
     { 
@@ -85,74 +85,74 @@ inline void spVectorSet(spVector* a, const spFloat x, const spFloat y)
 }
 
 /// check for equality between two vectors
-inline spBool spEqual(const spVector& a, const spVector& b)
+inline spBool spEqual(const spVector a, const spVector b)
 {
     return a.x == b.x && a.y == b.y;
 }
 
 /// checks if a is less than b component wise
-inline spBool spLessThan(const spVector& a, const spVector& b)
+inline spBool spLessThan(const spVector a, const spVector b)
 {
     return a.x < b.x && a.y < b.y;
 }
 
 /// dot product between vector a and b
-inline spFloat spDot(const spVector& a, const spVector& b)
+inline spFloat spDot(const spVector a, const spVector b)
 {
     return a.x*b.x + a.y*b.y;
 }
 
 /// returns the length of the vector
-inline spFloat spLength(const spVector& a)
+inline spFloat spLength(const spVector a)
 {
     return spsqrt(spDot(a, a));
 }
 
 /// returns the squared length of the vector
-inline spFloat spLengthSquared(const spVector& a)
+inline spFloat spLengthSquared(const spVector a)
 {
     return spDot(a, a);
 }
 
 /// skew a vector to be perp with itself (counter-clockwise rotation)
-inline spVector spSkew(const spVector& a)
+inline spVector spSkew(const spVector a)
 {
-    return spVector(-a.y, a.x);
+    return spVectorConstruct(-a.y, a.x);
 }
 
 /// transpose skew a vector to be perp with itself (clockwise rotation)
-inline spVector spSkewT(const spVector& a)
+inline spVector spSkewT(const spVector a)
 {
-    return spVector(a.y, -a.x);
+    return spVectorConstruct(a.y, -a.x);
 }
 
 /// add two vectors component wise
-inline spVector spAdd(const spVector& a, const spVector& b)
+inline spVector spAdd(const spVector a, const spVector b)
 {
-    return spVector(a.x+b.x, a.y+b.y);
+    return spVectorConstruct(a.x+b.x, a.y+b.y);
 }
 
 /// subtract two vectors component wise
-inline spVector spSub(const spVector& a, const spVector& b)
+inline spVector spSub(const spVector a, const spVector b)
 {
-    return spVector(a.x-b.x, a.y-b.y);
+    return spVectorConstruct(a.x-b.x, a.y-b.y);
 }
 
 /// multiply a vector by a scalar value
-inline spVector spMult(const spVector& a, const spFloat& b)
+inline spVector spMult(const spVector a, const spFloat b)
 {
-    return spVector(a.x*b, a.y*b);
+    return spVectorConstruct(a.x*b, a.y*b);
 }
 
 /// multiply a vector by a scalar value
-inline spVector spMult(const spFloat& a, const spVector& b)
+inline spVector spMult(const spFloat a, const spVector b)
 {
     return spMult(b, a);
 }
 
 inline spVector spRotate(const spVector a, const spVector b)
 {
-    return spVector(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
+    return spVectorConstruct(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
 }
 
 /// normalize a vector
@@ -169,33 +169,33 @@ inline spVector spNormal(spVector a)
 }
 
 /// returns the distance squared between two vectors
-inline spFloat spDistanceSquared(const spVector& a, const spVector& b)
+inline spFloat spDistanceSquared(const spVector a, const spVector b)
 {
     return spLengthSquared(spSub(a, b));
 }
 
 /// returns the distance between two vectors
-inline spFloat spDistance(const spVector& a, const spVector& b)
+inline spFloat spDistance(const spVector a, const spVector b)
 {
     return spLength(spSub(a, b));
 }
 
 /// cross two vectors
-inline spFloat spCross(const spVector& a, const spVector& b)
+inline spFloat spCross(const spVector a, const spVector b)
 {
     return a.x*b.y - a.y*b.x;
 }
 
 /// cross a vector and a scalar
-inline spVector spCross(const spVector& a, const spFloat& b)
+inline spVector spCross(const spVector a, const spFloat b)
 {
-    return spVector(b*a.y, -b*a.x);
+    return spVectorConstruct(b*a.y, -b*a.x);
 }
 
 /// cross a vector and a scalar
 inline spVector spCross(const spFloat a, const spVector b)
 {
-    return spVector(-a*b.y, a*b.x);
+    return spVectorConstruct(-a*b.y, a*b.x);
 }
 
 /// negate a vector
@@ -205,10 +205,10 @@ inline void spNegate(spVector* a)
     a->y = -a->y;
 }
 
-/// return a negated vector
-inline spVector spNegate(const spVector& a)
+inline spVector spNegative(spVector a)
 {
-    return spVector(-a.x, -a.y);
+    spNegate(&a);
+    return a;
 }
 
 inline void spVectorLog(spVector* vector, spInt8* msg = "")
@@ -222,7 +222,7 @@ inline void spVectorLog(spVector* vector, spInt8* msg = "")
 /// @{
 
 /// "faked" constructor function for creating matrices
-inline spMatrix _spMatrix(const spFloat& a, const spFloat& b, const spFloat& c, const spFloat& d)
+inline spMatrix spMatrixConstruct(const spFloat a, const spFloat b, const spFloat c, const spFloat d)
 {
     spMatrix matrix;
     matrix.a = a;
@@ -233,104 +233,104 @@ inline spMatrix _spMatrix(const spFloat& a, const spFloat& b, const spFloat& c, 
 }
 
 /// matrix setter
-inline void spMatrixSet(spMatrix* m, const spFloat& a, const spFloat& b, const spFloat& c, const spFloat& d)
+inline void spMatrixSet(spMatrix* m, const spFloat a, const spFloat b, const spFloat c, const spFloat d)
 {
     m->a = a;  m->b = b;
     m->c = c;  m->d = d;
 }
 
 /// check for absolute equality between two matrix2's
-inline spBool spEqual(const spMatrix& a, const spMatrix& b)
+inline spBool spEqual(const spMatrix a, const spMatrix b)
 {
     return a.a == b.a && a.b == b.b && a.c == b.c && a.d == b.d;
 }
 
 /// add two matrices together component wise
-inline spMatrix spAdd(const spMatrix& a, const spMatrix& b)
+inline spMatrix spAdd(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a+b.a, a.b+b.b, a.c+b.c, a.d+b.d);
 }
 
 /// sub two matrices together component wise
-inline spMatrix spSub(const spMatrix& a, const spMatrix& b)
+inline spMatrix spSub(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a-b.a, a.b-b.b, a.c-b.c, a.d-b.d);
 }
 
 /// multiply two matrix2's together
-inline spMatrix spMult(const spMatrix& a, const spMatrix& b)
+inline spMatrix spMult(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a*b.a + a.b*b.c,  a.a*b.b + a.b*b.d,
                     a.c*b.a + a.d*b.c,  a.c*b.b + a.d*b.d);
 }
 
 /// transform a vector by a matrix
-inline spVector spMult(const spMatrix& a, const spVector& b)
+inline spVector spMult(const spMatrix a, const spVector b)
 {
-    return spVector(a.a*b.x + a.b*b.y, a.c*b.x + a.d*b.y);
+    return spVectorConstruct(a.a*b.x + a.b*b.y, a.c*b.x + a.d*b.y);
 }
 
 /// multiply a matrix by a scalar
-inline spMatrix spMult(const spMatrix& a, const spFloat& b)
+inline spMatrix spMult(const spMatrix a, const spFloat b)
 {
     return spMatrix(a.a*b, a.b*b, a.c*b, a.d*b);
 }
 
 /// multiply a matrix by a scalar
-inline spMatrix spMult(const spFloat& b, const spMatrix& a)
+inline spMatrix spMult(const spFloat b, const spMatrix a)
 {
     return spMult(b, a);
 }
 
 /// multiply the transpose of a matrix times a matrix
-inline spMatrix spTMult(const spMatrix& a, const spMatrix& b)
+inline spMatrix spTMult(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a*b.a + a.c*b.c, a.a*b.b + a.c*b.d,
                     a.b*b.a + a.d*b.c, a.b*b.b + a.d*b.d);
 }
 
 /// multiply a matrix by the trapose of a matrix
-inline spMatrix spMultT(const spMatrix& a, const spMatrix& b)
+inline spMatrix spMultT(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a*b.a + a.b*b.b, a.a*b.c + a.b*b.d,
                     a.c*b.a + a.d*b.b, a.c*b.c + a.d*b.d);
 }
 
 /// multiply the transpose of two matrices together
-inline spMatrix spTMultT(const spMatrix& a, const spMatrix& b)
+inline spMatrix spTMultT(const spMatrix a, const spMatrix b)
 {
     return spMatrix(a.a*b.a + a.c*b.b, a.a*b.c + a.c*b.d,
                     a.b*b.a + a.d*b.b, a.b*b.c + a.d*b.d);
 }
 
 /// divide a matrix by a scalar
-inline spMatrix spDiv(const spMatrix& a, const spFloat& b)
+inline spMatrix spDiv(const spMatrix a, const spFloat b)
 {
-    spFloat ib = 1.0f / b;
+    spFloat ib = 1.0f / (b + SP_FLT_EPSILON);
     return spMatrix(a.a*ib, a.b*ib, a.c*ib, a.d*ib);
 }
 
 /// get a specified axis from the matrix
-inline spVector spGetAxis(const spMatrix& a, spAxis axis)
+inline spVector spGetAxis(const spMatrix a, spAxis axis)
 {
     switch (axis)
     {
     case spAxis::x:
-        return spVector(a.a, a.c);
+        return spVectorConstruct(a.a, a.c);
     case spAxis::y:
-        return spVector(a.b, a.d);
+        return spVectorConstruct(a.b, a.d);
     }
-    spAssert(false, "Invalide axis specification!");
+    spAssert(false, "Invalid axis specification!");
 }
 
 /// get the determinant of the matrix
-inline spFloat spDeterminant(const spMatrix& a)
+inline spFloat spDeterminant(const spMatrix a)
 {
     return a.a * a.d - a.b * a.c;
 }
 
 /// get the transpose of a matrix
-inline spMatrix spTranspose(const spMatrix& a)
+inline spMatrix spTranspose(const spMatrix a)
 {
     return spMatrix(a.a, a.c, a.b, a.d);
 }
@@ -344,7 +344,7 @@ inline void spTranspose(spMatrix* a)
 }
 
 /// get the inverse of a matrix
-inline spMatrix spInverse(const spMatrix& a)
+inline spMatrix spInverse(const spMatrix a)
 {
     spFloat d = spDeterminant(a);
     if (d == 0.0f) return spMatrixZero();
@@ -375,13 +375,13 @@ inline spFloat spDegrees(const spFloat radians)
 }
 
 /// gets the angle of a rotation
-inline spFloat spRotationGetAngle(const spRotation& a)
+inline spFloat spRotationGetAngle(const spRotation a)
 {
     return spatan2(a.s, a.c);
 }
 
 /// gets the angle of a rotation in degrees
-inline spFloat spRotationGetAngleDeg(const spRotation& a)
+inline spFloat spRotationGetAngleDeg(const spRotation a)
 {
     return spDegrees(spatan2(a.s, a.c));
 }
@@ -400,16 +400,16 @@ inline void spRotationSet(spRotation* r, const spFloat s, const spFloat c)
     r->c = c;
 }
 
-/// "faked" constructor for creating rotations given and angle
-inline spRotation _spRotation(const spFloat angle)
+/// stack constructor
+inline spRotation spRotationConstruct(const spFloat angle)
 {
     spRotation rot;
     spRotationSet(&rot, angle);
     return rot;
 }
 
-/// "faked" constructor for creating rotations given sin and cos in radians
-inline spRotation _spRotation(const spFloat s, const spFloat c)
+/// stack constructor
+inline spRotation spRotationConstruct(const spFloat s, const spFloat c)
 {
     spRotation rot;
     spRotationSet(&rot, s, c);
@@ -417,27 +417,27 @@ inline spRotation _spRotation(const spFloat s, const spFloat c)
 }
 
 /// transform a vector by a rotation
-inline spVector spMult(const spRotation& a, const spVector& b)
+inline spVector spMult(const spRotation a, const spVector b)
 {
     // mod
-    return spVector(a.c*b.x - a.s*b.y, a.s*b.x + a.c*b.y);
+    return spVectorConstruct(a.c*b.x - a.s*b.y, a.s*b.x + a.c*b.y);
 }
 
 /// combine two rotations
-inline spRotation spMult(const spRotation& a, const spRotation& b)
+inline spRotation spMult(const spRotation a, const spRotation b)
 {
     return spRotationRadians(a.s*b.c + a.c*b.s, a.c*b.c - a.s*b.s);
 }
 
 /// inverse rotate a vector
-inline spVector spTMult(const spRotation& a, const spVector& b)
+inline spVector spTMult(const spRotation a, const spVector b)
 {
     /// mod
-    return spVector(a.c*b.x + a.s*b.y, -a.s*b.x + a.c*b.y);
+    return spVectorConstruct(a.c*b.x + a.s*b.y, -a.s*b.x + a.c*b.y);
 }
 
 /// inverse rotate another rotation
-inline spRotation spTMult(const spRotation& a, const spRotation& b)
+inline spRotation spTMult(const spRotation a, const spRotation b)
 {
     return spRotationRadians(a.c*b.s - a.s*b.c, a.c*b.c + a.s*b.s);
 }
@@ -447,41 +447,41 @@ inline spRotation spTMult(const spRotation& a, const spRotation& b)
 /// @ingroup spTransform
 /// @{
 
-/// "faked" constructor for creating transforms
-inline spTransform _spTransform(const spVector& p, const spRotation& q)
+/// stack constructor
+inline spTransform spTransformConstruct(const spVector p, const spRotation q)
 {
     return { p, q };
 }
 
 /// setter for transforms
-inline spTransform spTransformSet(spTransform* a, const spVector& p, const spRotation& q)
+inline spTransform spTransformSet(spTransform* a, const spVector p, const spRotation q)
 {
     a->p = p;
     a->q = q;
 }
 
 /// transform a vector
-inline spVector spMult(const spTransform& a, const spVector& b)
+inline spVector spMult(const spTransform a, const spVector b)
 {
     return spAdd(spMult(a.q, b), a.p);
 }
 
 /// transform another transform. put it into a's coordinate system
-inline spTransform spMult(const spTransform& a, const spTransform& b)
+inline spTransform spMult(const spTransform a, const spTransform b)
 {
-    return spTransform(spAdd(spMult(a.q, b.p), a.p), spMult(a.q, b.q));
+    return spTransformConstruct(spAdd(spMult(a.q, b.p), a.p), spMult(a.q, b.q));
 }
 
 /// inverse transform a vector
-inline spVector spTMult(const spTransform& a, const spVector& b)
+inline spVector spTMult(const spTransform a, const spVector b)
 {
     return spTMult(a.q, spSub(b, a.p));
 }
 
 /// inverse transform another transform. removes it froms a's coordinate system
-inline spTransform spTMult(const spTransform& a, const spTransform& b)
+inline spTransform spTMult(const spTransform a, const spTransform b)
 {
-    return spTransform(spTMult(a.q, spSub(b.p, a.p)), spTMult(a.q, b.q));
+    return spTransformConstruct(spTMult(a.q, spSub(b.p, a.p)), spTMult(a.q, b.q));
 }
 
 /// @}
@@ -494,7 +494,7 @@ inline spFloat spLerp(spFloat a, spFloat b, spFloat t)
 }
 
 /// linearly interpolate between two vectors
-inline spVector spLerp(const spVector& a, const spVector& b, spFloat t)
+inline spVector spLerp(const spVector a, const spVector b, spFloat t)
 {
     return spAdd(a, spMult(t, spSub(b, a)));
 }

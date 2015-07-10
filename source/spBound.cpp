@@ -6,7 +6,7 @@ void spBoundInit(spBound* bound, spVector center, spFloat radius)
 {
     NULLCHECK(bound);
     bound->center = center;
-    bound->halfWidth = spVector(radius, radius);
+    bound->halfWidth = spVectorConstruct(radius, radius);
     bound->radius = radius;
 }
 
@@ -98,5 +98,5 @@ spBoundSetRadius(spBound* bound, spFloat radius)
 {
     NULLCHECK(bound);
     bound->radius = radius;
-    bound->halfWidth = spVector(radius, radius);
+    bound->halfWidth = spVectorConstruct(radius, radius);
 }

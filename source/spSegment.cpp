@@ -29,8 +29,8 @@ spSegmentComputeBound(const spSegment* segment, spBound* bound)
     spVector pointB = segment->pointB;
 
     /// get the min and max vectors and calculate the delta between them
-    spVector max = spVector(spMax(pointA.x, pointB.x), spMax(pointA.y, pointB.y));
-    spVector min = spVector(spMin(pointA.x, pointB.x), spMin(pointA.y, pointB.y));
+    spVector max = spVectorConstruct(spMax(pointA.x, pointB.x), spMax(pointA.y, pointB.y));
+    spVector min = spVectorConstruct(spMin(pointA.x, pointB.x), spMin(pointA.y, pointB.y));
     spVector delta = spSub(max, min);
 
     /// compute the center and radius

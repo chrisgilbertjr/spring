@@ -47,8 +47,14 @@ struct spBody
 /// initialize a rigid body
 void spBodyInit(spBody* body, spBodyType type);
 
+/// frees the body and all shapes attached to the body
+void spBodyDestroyShapes(spBody* body);
+
+/// frees the body and all constraints attached to the body
+void spBodyDestroyConstraints(spBody* body);
+
 /// frees the body and all shapes/constraints attached to the body
-void spBodyDestroy(spBody** body);
+void spBodyDestroy(spBody** bodyPtr);
 
 /// allocates space for a rigid body on the heap
 spBody* spBodyAlloc();

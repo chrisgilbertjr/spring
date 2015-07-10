@@ -31,23 +31,14 @@ spPointJoint* spPointJointAlloc();
 /// create a point joint on the heap from 2 bodies and 2 local space anchors
 spPointJoint* spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB);
 
-/// free a point joint from the heap
-void spPointJointFree(spPointJoint** joint);
-
-/// setup the point joint to be solved
-void spPointJointPreSolve(spPointJoint* joint, const spFloat h);
-
-/// warm start the joint from last timestep
-void spPointJointApplyCachedImpulse(spPointJoint* joint);
-
-/// solve the point joint and apply impulses
-void spPointJointSolve(spPointJoint* joint);
-
 /// check if a constraint is a point joint
 spBool spConstraintIsPointJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a point joint if its that type
 spPointJoint* spConstraintCastPointJoint(spConstraint* constraint);
+
+/// get the point joints impulse
+spVector spPointJointGetImpulse(spConstraint* constraint);
 
 /// get the point joints first anchor in body A's local space
 spVector spPointJointGetAnchorA(spConstraint* constraint);

@@ -6,62 +6,16 @@
 /// convenience macro for getters/setters
 #define springJoint spConstraintCastSpringJoint(constraint)
 
-void 
-spSpringJointInit(
-    spSpringJoint* joint, 
-	spBody*        a, 
-	spBody*        b, 
-	spVector       anchorA, 
-	spVector       anchorB, 
-	spFloat        frequency, 
-	spFloat        damping, 
-	spFloat        restLength)
-{
-    joint->constraint = spConstraintConstruct(a, b, SP_SPRING_JOINT);
-    joint->anchorA = anchorA;
-    joint->anchorB = anchorB;
-    joint->rA = spVectorZero();
-    joint->rB = spVectorZero();
-    joint->n = spVectorZero();
-    joint->lambdaAccum = 0.0f;
-    joint->restLength = restLength;
-    joint->frequency = frequency;
-    joint->damping = damping;
-    joint->gamma = 0.0f;
-    joint->bias = 0.0f;
-}
 
-spSpringJoint* 
-spSpringJointAlloc()
-{
-    return (spSpringJoint*) spMalloc(sizeof(spSpringJoint));
-}
-
-spConstraint* 
-spSpringJointNew(
-	spBody*        a, 
-	spBody*        b, 
-	spVector       anchorA, 
-	spVector       anchorB, 
-	spFloat        frequency, 
-	spFloat        damping, 
-	spFloat        restLength)
-{
-    spSpringJoint* spring = spSpringJointAlloc();
-    NULLCHECK(spring);
-    spSpringJointInit(spring, a, b, anchorA, anchorB, frequency, damping, restLength);
-    return (spConstraint*) spring;
-}
-
-void 
-spSpringJointFree(spSpringJoint** joint)
+static void 
+Free(spSpringJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spSpringJointPreSolve(spSpringJoint* joint, const spFloat h)
+static void 
+PreSolve(spSpringJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -99,8 +53,8 @@ spSpringJointPreSolve(spSpringJoint* joint, const spFloat h)
     joint->eMass = 1.0f / (iMass + SP_FLT_EPSILON);
 }
 
-void 
-spSpringJointApplyCachedImpulse(spSpringJoint* joint)
+static void 
+WarmStart(spSpringJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -108,7 +62,7 @@ spSpringJointApplyCachedImpulse(spSpringJoint* joint)
 
     /// compute the impulses
     spVector impulseB = spMult(joint->n, joint->lambdaAccum);
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
@@ -118,8 +72,8 @@ spSpringJointApplyCachedImpulse(spSpringJoint* joint)
     joint->lambdaAccum = 0.0f;
 }
 
-void 
-spSpringJointSolve(spSpringJoint* joint)
+static void 
+Solve(spSpringJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -136,12 +90,64 @@ spSpringJointSolve(spSpringJoint* joint)
 
     /// compute the impulse
     spVector impulseB = spMult(joint->n, lambda);
-    spVector impulseA = spNegate(impulseB);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
     spBodyApplyImpulse(b, joint->rB, impulseB);
 
+}
+
+void 
+spSpringJointInit(
+    spSpringJoint* joint, 
+	spBody*        a, 
+	spBody*        b, 
+	spVector       anchorA, 
+	spVector       anchorB, 
+	spFloat        frequency, 
+	spFloat        damping, 
+	spFloat        restLength)
+{
+    joint->constraint = spConstraintConstruct(a, b, SP_SPRING_JOINT);
+    joint->anchorA = anchorA;
+    joint->anchorB = anchorB;
+    joint->rA = spVectorZero();
+    joint->rB = spVectorZero();
+    joint->n = spVectorZero();
+    joint->lambdaAccum = 0.0f;
+    joint->restLength = restLength;
+    joint->frequency = frequency;
+    joint->damping = damping;
+    joint->gamma = 0.0f;
+    joint->bias = 0.0f;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spSpringJoint* 
+spSpringJointAlloc()
+{
+    return (spSpringJoint*) spMalloc(sizeof(spSpringJoint));
+}
+
+spConstraint* 
+spSpringJointNew(
+	spBody*        a, 
+	spBody*        b, 
+	spVector       anchorA, 
+	spVector       anchorB, 
+	spFloat        frequency, 
+	spFloat        damping, 
+	spFloat        restLength)
+{
+    spSpringJoint* spring = spSpringJointAlloc();
+    NULLCHECK(spring);
+    spSpringJointInit(spring, a, b, anchorA, anchorB, frequency, damping, restLength);
+    return (spConstraint*) spring;
 }
 
 spBool 
@@ -162,6 +168,12 @@ spConstraintCastSpringJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a spring joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spSpringJointGetImpulse(spConstraint* constraint)
+{
+    return springJoint->lambdaAccum;
 }
 
 spVector 

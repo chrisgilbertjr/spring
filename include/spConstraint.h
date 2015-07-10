@@ -25,16 +25,40 @@ enum spConstraintType
     SP_JOINT_SIZE
 };
 
+typedef void (*spFreeFunc)(spConstraint* constraint);
+typedef void (*spPreSolveFunc)(spConstraint* constraint);
+typedef void (*spWarmStartFunc)(spConstraint* constraint);
+typedef void (*spSolveFunc)(spConstraint* constraint);
+
+/// constraint function pointers
+struct spConstraintFuncs
+{
+    spFreeFunc      free;      ///< constraint free func
+    spPreSolveFunc  preSolve;  ///< constraint pre solve func
+    spWarmStartFunc warmStart; ///< warm start func
+    spSolveFunc     solve;     ///< solve func
+};
+
 /// a constraint is a limit put between two bodies
 /// check the joints for more detailed descriptions of what limits they place on bodies
 struct spConstraint
 {
-    spConstraintType type; ///< the joint type
-    spConstraint* next;    ///< the next constraint in the doubly linked list
-    spConstraint* prev;    ///< the prev constraint in the doubly linked list
-    spBody* bodyA;         ///< the first body of the joint
-    spBody* bodyB;         ///< the second body of the joint
+    spConstraintFuncs funcs; ///< constraint functions (solve, free, etc...)
+    spConstraintType type;   ///< the joint type
+    spConstraint* next;      ///< the next constraint in the doubly linked list
+    spConstraint* prev;      ///< the prev constraint in the doubly linked list
+    spBody* bodyA;           ///< the first body of the joint
+    spBody* bodyB;           ///< the second body of the joint
+    spWorld* world;          ///< world the constraint is in
 };
+
+inline void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve)
+{
+    funcs->free = free;
+    funcs->preSolve = preSolve;
+    funcs->warmStart = warmStart;
+    funcs->solve = solve;
+}
 
 /// initialize a constraint given two bodies and a type
 void spConstraintInit(spConstraint* constraint, struct spBody* a, struct spBody* b, spConstraintType type); 
@@ -44,15 +68,6 @@ void spConstraintFree(spConstraint* constraint);
 
 /// construct a constraint on the stack given two bodies and a type
 spConstraint spConstraintConstruct(struct spBody* a, struct spBody* b, spConstraintType type);
-
-/// warm start the constraint given the timestep
-void spConstraintApplyCachedImpulse(spConstraint* constraint);
-
-/// setup the constraint to be solved
-void spConstraintPreSolve(spConstraint* constraint, const spFloat h);
-
-/// solve the constraint and apply the impulse
-void spConstraintSolve(spConstraint* constraint);
 
 /// get the next constraint in the list
 spConstraint* spConstraintGetNext(spConstraint* constraint);

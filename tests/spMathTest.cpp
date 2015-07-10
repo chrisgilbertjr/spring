@@ -19,8 +19,8 @@ SP_TEST(vector)
 
     {
         SP_SUBTEST(spVector);
-        spVector ra = _spVector(a, b);
-        spVector rb = _spVector(0.123456f, 1.234567f);
+        spVector ra = spVectorConstruct(a, b);
+        spVector rb = spVectorConstruct(0.123456f, 1.234567f);
 
         SP_VECEQ(ra, rb);
         SP_VECEQ(ra, ab);
@@ -245,9 +245,9 @@ SP_TEST(vector)
     {
         SP_SUBTEST(spCross_vec_float);
         /// GNU octave does not have 2d cross functions
-        spVector cross_aa_a = spVector(a * a, -a * a);
-        spVector cross_aa_b = spVector(b * a, -b * a);
-        spVector cross_ba_d = spVector(d * a, -d * b);
+        spVector cross_aa_a = spVectorConstruct(a * a, -a * a);
+        spVector cross_aa_b = spVectorConstruct(b * a, -b * a);
+        spVector cross_ba_d = spVectorConstruct(d * a, -d * b);
 
         SP_VECEQ(cross_aa_a, spCross(aa, a));
         SP_VECEQ(cross_aa_b, spCross(aa, b));
@@ -263,8 +263,8 @@ SP_TEST(vector)
         spNegate(&neg_aa);
         spNegate(&neg_bb);
 
-        SP_VECEQ(neg_aa, spVector(-a, -a));
-        SP_VECEQ(neg_bb, spVector(-b, -b));
+        SP_VECEQ(neg_aa, spVectorConstruct(-a, -a));
+        SP_VECEQ(neg_bb, spVectorConstruct(-b, -b));
         SP_VECNEQ(neg_aa, aa);
         SP_SUBTEST_RESULT();
     }

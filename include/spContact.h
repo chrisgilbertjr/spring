@@ -56,7 +56,7 @@ void spContactFree(spContact** contact);
 void spContactPreSolve(spContact* contact, const spFloat h);
 
 /// warm start contacts from last frame
-void spContactApplyCachedImpulse(spContact* contact);
+void spContactWarmStart(spContact* contact);
 
 /// calculate and apply an impulse to each body in the contact
 void spContactSolve(spContact* contact);

@@ -5,44 +5,15 @@
 /// convenience macro for getters/setters
 #define angularSpringJoint spConstraintCastAngularSpringJoint(constraint)
 
-void 
-spAngularSpringJointInit(spAngularSpringJoint* joint, spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle)
-{
-    NULLCHECK(joint);
-    joint->constraint = spConstraintConstruct(a, b, SP_ANGULAR_SPRING_JOINT);
-    joint->lambdaAccum = 0.0f;
-    joint->restAngle = restAngle;
-    joint->frequency = frequency;
-    joint->damping = damping;
-    joint->eMass = 0.0f;
-    joint->gamma = 0.0f;
-    joint->bias = 0.0f;
-    joint->inverse = inverse;
-}
-
-spAngularSpringJoint* 
-spAngularSpringJointAlloc()
-{
-    return (spAngularSpringJoint*) spMalloc(sizeof(spAngularSpringJoint));
-}
-
-spConstraint* 
-spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle)
-{
-    spAngularSpringJoint* joint = spAngularSpringJointAlloc();
-    spAngularSpringJointInit(joint, a, b, inverse, frequency, damping, restAngle);
-    return (spConstraint*) joint;
-}
-
-void 
-spAngularSpringJointFree(spAngularSpringJoint** joint)
+static void 
+Free(spAngularSpringJoint** joint)
 {
     NULLCHECK(*joint);
     spFree(joint);
 }
 
-void 
-spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
+static void 
+PreSolve(spAngularSpringJoint* joint, const spFloat h)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -74,8 +45,8 @@ spAngularSpringJointPreSolve(spAngularSpringJoint* joint, const spFloat h)
     joint->eMass = iMass ? 1.0f / iMass : 0.0f;
 }
 
-void 
-spAngularSpringJointApplyCachedImpulse(spAngularSpringJoint* joint)
+static void 
+WarmStart(spAngularSpringJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -97,8 +68,8 @@ spAngularSpringJointApplyCachedImpulse(spAngularSpringJoint* joint)
     joint->lambdaAccum = 0.0f;
 }
 
-void 
-spAngularSpringJointSolve(spAngularSpringJoint* joint)
+static void 
+Solve(spAngularSpringJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -133,6 +104,41 @@ spAngularSpringJointSolve(spAngularSpringJoint* joint)
     }
 }
 
+void 
+spAngularSpringJointInit(spAngularSpringJoint* joint, spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle)
+{
+    NULLCHECK(joint);
+    joint->constraint = spConstraintConstruct(a, b, SP_ANGULAR_SPRING_JOINT);
+    joint->lambdaAccum = 0.0f;
+    joint->restAngle = restAngle;
+    joint->frequency = frequency;
+    joint->damping = damping;
+    joint->eMass = 0.0f;
+    joint->gamma = 0.0f;
+    joint->bias = 0.0f;
+    joint->inverse = inverse;
+
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
+}
+
+spAngularSpringJoint* 
+spAngularSpringJointAlloc()
+{
+    return (spAngularSpringJoint*) spMalloc(sizeof(spAngularSpringJoint));
+}
+
+spConstraint* 
+spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle)
+{
+    spAngularSpringJoint* joint = spAngularSpringJointAlloc();
+    spAngularSpringJointInit(joint, a, b, inverse, frequency, damping, restAngle);
+    return (spConstraint*) joint;
+}
+
 spBool 
 spConstraintIsAngularSpringJoint(spConstraint* constraint)
 {
@@ -151,6 +157,12 @@ spConstraintCastAngularSpringJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not an angular spring joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spAngularSpringJointGetImpulse(spConstraint* constraint)
+{
+    return angularSpringJoint->lambdaAccum;
 }
 
 spFloat 

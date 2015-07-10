@@ -32,23 +32,14 @@ spDistanceJoint* spDistanceConstraintAlloc();
 /// create a distance joint on the heap given 2 bodies, 2 anchor points in local space, and a distance
 spDistanceJoint* spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
-/// free a distance joint from the heap
-void spDistanceJointFree(spDistanceJoint** Joint);
-
-/// setup a distance joint to be solved
-void spDistanceJointPreSolve(spDistanceJoint* joint, const spFloat h);
-
-/// warm start the distance joint from the last timestep
-void spDistanceJointApplyCachedImpulse(spDistanceJoint* joint);
-
-/// solve the distance joint and apply the impulses
-void spDistanceJointSolve(spDistanceJoint* joint);
-
 /// check if a constraint is a distance joint
 spBool spConstraintIsDistanceJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a distance joint if its that type
 spDistanceJoint* spConstraintCastDistanceJoint(spConstraint* constraint);
+
+/// get the distance joints impulse
+spFloat spDistanceJointGetImpulse(spConstraint* constraint);
 
 /// get the distance joints first anchor in body A's local space
 spVector spDistanceJointGetAnchorA(spConstraint* constraint);

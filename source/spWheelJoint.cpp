@@ -6,57 +6,16 @@
 /// convenience macro for getters/setters
 #define wheelJoint spConstraintCastWheelJoint(constraint)
 
-void 
-spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping)
-{
-    joint->constraint = spConstraintConstruct(a, b, SP_WHEEL_JOINT);
-    joint->anchorA = anchorA;
-    joint->anchorB = anchorB;
-    joint->nLocal = axis;
-    joint->tLocal = spSkewT(axis);
-    joint->tLocal = spCross(1.0f, axis);
-    joint->nWorld = spVectorZero();
-    joint->tWorld = spVectorZero();
-    joint->sAx = joint->sBx = joint->sAy = joint->sBy = 0.0f;
-    joint->lambdaAccumSpring = 0.0f;
-    joint->lambdaAccumMotor = 0.0f;
-    joint->lambdaAccumLine = 0.0f;
-    joint->maxMotorTorque = 0.0f;
-    joint->motorSpeed = 0.0f;
-    joint->eMassSpring = 0.0f;
-    joint->eMassMotor = 0.0f;
-    joint->eMassLine = 0.0f;
-    joint->frequency = frequency;
-    joint->damping = damping;
-    joint->gamma = 0.0f;
-    joint->beta = 0.0f;
-    joint->enableMotor = spFalse;
-}
 
-spWheelJoint* 
-spWheelJointAlloc()
-{
-    return (spWheelJoint*) spMalloc(sizeof(spWheelJoint));
-}
-
-spConstraint* 
-spWheelJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping)
-{
-    spWheelJoint* joint = spWheelJointAlloc();
-    NULLCHECK(joint);
-    spWheelJointInit(joint, a, b, anchorA, anchorB, axis, frequency, damping);
-    return (spConstraint*) joint;
-}
-
-void 
-spWheelJointFree(spWheelJoint** joint)
+static void 
+Free(spWheelJoint** joint)
 {
     NULLCHECK(joint);
     spFree(joint);
 }
 
-void 
-spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
+static void 
+PreSolve(spWheelJoint* joint, const spFloat h)
 {
     /// get the body
     spBody* a = joint->constraint.bodyA;
@@ -131,8 +90,8 @@ spWheelJointPreSolve(spWheelJoint* joint, const spFloat h)
     }
 }
 
-void 
-spWheelJointApplyCachedImpulse(spWheelJoint* joint)
+static void 
+WarmStart(spWheelJoint* joint)
 {
     /// get the body
     spBody* a = joint->constraint.bodyA;
@@ -179,8 +138,8 @@ spWheelJointApplyCachedImpulse(spWheelJoint* joint)
     joint->lambdaAccumLine = 0.0f;
 }
 
-void 
-spWheelJointSolve(spWheelJoint* joint)
+static void 
+Solve(spWheelJoint* joint)
 {
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
@@ -242,6 +201,48 @@ spWheelJointSolve(spWheelJoint* joint)
     }
 }
 
+
+void 
+spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping)
+{
+    joint->constraint = spConstraintConstruct(a, b, SP_WHEEL_JOINT);
+    joint->anchorA = anchorA;
+    joint->anchorB = anchorB;
+    joint->nLocal = axis;
+    joint->tLocal = spSkewT(axis);
+    joint->tLocal = spCross(1.0f, axis);
+    joint->nWorld = spVectorZero();
+    joint->tWorld = spVectorZero();
+    joint->sAx = joint->sBx = joint->sAy = joint->sBy = 0.0f;
+    joint->lambdaAccumSpring = 0.0f;
+    joint->lambdaAccumMotor = 0.0f;
+    joint->lambdaAccumLine = 0.0f;
+    joint->maxMotorTorque = 0.0f;
+    joint->motorSpeed = 0.0f;
+    joint->eMassSpring = 0.0f;
+    joint->eMassMotor = 0.0f;
+    joint->eMassLine = 0.0f;
+    joint->frequency = frequency;
+    joint->damping = damping;
+    joint->gamma = 0.0f;
+    joint->beta = 0.0f;
+    joint->enableMotor = spFalse;
+}
+
+spWheelJoint* 
+spWheelJointAlloc()
+{
+    return (spWheelJoint*) spMalloc(sizeof(spWheelJoint));
+}
+
+spConstraint* 
+spWheelJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping)
+{
+    spWheelJoint* joint = spWheelJointAlloc();
+    NULLCHECK(joint);
+    spWheelJointInit(joint, a, b, anchorA, anchorB, axis, frequency, damping);
+    return (spConstraint*) joint;
+}
 spBool 
 spConstraintIsWheelJoint(spConstraint* constraint)
 {
@@ -260,6 +261,32 @@ spConstraintCastWheelJoint(spConstraint* constraint)
         spWarning(spFalse, "constraint is not a wheel joint\n");
         return NULL;
     }
+}
+
+spFloat 
+spWheelJointGetImpulse(spConstraint* constraint)
+{
+    return wheelJoint->lambdaAccumLine  +
+           wheelJoint->lambdaAccumMotor +
+           wheelJoint->lambdaAccumSpring;
+}
+
+spFloat 
+spWheelJointGetSpringImpulse(spConstraint* constraint)
+{
+    return wheelJoint->lambdaAccumSpring;
+}
+
+spFloat 
+spWheelJointGetMotorImpulse(spConstraint* constraint)
+{
+    return wheelJoint->lambdaAccumMotor;
+}
+
+spFloat 
+spWheelJointGetLineImpulse(spConstraint* constraint)
+{
+    return wheelJoint->lambdaAccumLine;
 }
 
 spVector 
@@ -284,48 +311,6 @@ spVector
 spWheelJointGetWorldAnchorB(spConstraint* constraint)
 {
     return spMult(constraint->bodyB->xf, wheelJoint->anchorB);
-}
-
-spVector 
-spWheelJointGetSpringImpulse(spConstraint* constraint)
-{
-    return spMult(wheelJoint->nWorld, wheelJoint->lambdaAccumSpring);
-}
-
-spFloat 
-spWheelJointGetSpringImpulseA(spConstraint* constraint)
-{
-    return wheelJoint->lambdaAccumSpring * wheelJoint->sAx;
-}
-
-spFloat 
-spWheelJointGetSpringImpulseB(spConstraint* constraint)
-{
-    return wheelJoint->lambdaAccumSpring * wheelJoint->sBx;
-}
-
-spFloat 
-spWheelJointGetMotorImpulse(spConstraint* constraint)
-{
-    return wheelJoint->lambdaAccumMotor;
-}
-
-spVector 
-spWheelJointGetLineImpulse(spConstraint* constraint)
-{
-    return spMult(wheelJoint->lambdaAccumLine, wheelJoint->tWorld);
-}
-
-spFloat 
-spWheelJointGetLineImpulseA(spConstraint* constraint)
-{
-    return wheelJoint->sAy * wheelJoint->lambdaAccumLine;
-}
-
-spFloat 
-spWheelJointGetLineImpulseB(spConstraint* constraint)
-{
-    return wheelJoint->sBy * wheelJoint->lambdaAccumLine;
 }
 
 spFloat 

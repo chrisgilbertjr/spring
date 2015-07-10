@@ -57,7 +57,7 @@ spLerpRatio(spVector t, spVector h)
     /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
     /// lerp ratio of the origin onto the vector h - t
     spVector M = spSub(h, t);
-    return spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
+    return spClamp(spDot(M, spNegative(t))/spLengthSquared(M), 0.0f, 1.0f);
 }
 
 static inline spBool
@@ -79,8 +79,8 @@ spClosestPointToOrigin(spVector t, spVector h)
     /// P = origin (0, 0).
     /// B = t
     spVector M = spSub(h, t);
-    spFloat t0 = spClamp(spDot(M, spNegate(t))/spLengthSquared(M), 0.0f, 1.0f);
-    return spNegate(spAdd(t, spMult(M, t0)));
+    spFloat t0 = spClamp(spDot(M, spNegative(t))/spLengthSquared(M), 0.0f, 1.0f);
+    return spNegative(spAdd(t, spMult(M, t0)));
 }
 
 static inline spFloat
@@ -189,7 +189,7 @@ invertContacts(spCollisionResult* result)
 		result->pointA[i] = result->pointB[i];
 		result->pointB[i] = tmp;
     }
-    result->normal = spNegate(result->normal);
+    result->normal = spNegative(result->normal);
 }
 
 static spVector
@@ -349,7 +349,7 @@ supportPoint(const struct SupportPointContext* context, const spVector normal)
 {
     NULLCHECK(context);
     SupportPoint pointA = context->supportPointA(context->shapeA, normal);
-    SupportPoint pointB = context->supportPointB(context->shapeB, spNegate(normal));
+    SupportPoint pointB = context->supportPointB(context->shapeB, spNegative(normal));
 
     return spMinkowskiPointConstruct(pointA.point, pointB.point);
 }
@@ -373,7 +373,7 @@ edgesOverlap(const struct Edge* a, const struct Edge* b, spVector normal)
     NULLCHECK(a); NULLCHECK(b);
     /// get the tangents of the edges given a normal
     spVector tangentA = spSkew(normal);
-    spVector tangentB = spNegate(tangentA);
+    spVector tangentB = spNegative(tangentA);
 
     /// compute the distance in tangentA's and tangentB's
     spFloat minDistA = spMin(spDot(a->a, tangentA), spDot(a->b, tangentA));
@@ -535,7 +535,7 @@ GJK(const struct SupportPointContext* context)
 
     /// calculate normal directions for support points
     spVector normal = spSkew(spSub(cA, cB));
-    spVector negate = spNegate(normal);
+    spVector negate = spNegative(normal);
 
     /// calculate initial minkowski points
     /// TODO: cache points between frames
@@ -615,7 +615,7 @@ CircleToCircle(const spCircle* circleA, const spCircle* circleB)
     {
         /// calculate the penetration, and collision normal
         spFloat pen = spsqrt(distance2);
-        spVector normal = result.normal = pen != 0.0f ? spMult(delta, 1.0f/pen) : spVector(0.0f, 1.0f);
+        spVector normal = result.normal = pen != 0.0f ? spMult(delta, 1.0f/pen) : spVectorConstruct(0.0f, 1.0f);
 
         /// compute the contact points
         spVector pointA = spAdd(centerA, spMult(normal,  radiusA));
@@ -657,7 +657,7 @@ PolygonToCircle(const spPolygon* poly, const spCircle* circle)
 
         /// compute the contact points
         spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
-        spVector pointB = spAdd(points.b, spMult(circle->radius, spNegate(normal)));;
+        spVector pointB = spAdd(points.b, spMult(circle->radius, spNegative(normal)));;
 
         /// add the contact to the collision result
         addContact(&result, pointA, pointB);
@@ -693,7 +693,7 @@ PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
     {
         /// get the two normal directions
         spVector normal = mEdge.normal;
-        spVector negate = spNegate(normal);
+        spVector negate = spNegative(normal);
 
         /// compute the extreme edges in the normals directions
         Edge edgeA = extremalEdgePoly(polyA,  normal);
@@ -738,7 +738,7 @@ SegmentToCircle(const spSegment* segment, const spCircle* circle)
     {
         /// get the contact normal
         spVector normal = result.normal = mEdge.normal;
-        spVector negate = spNegate(normal);
+        spVector negate = spNegative(normal);
 
         /// compute the circles world space point since we test it as a point
         spVector pointA = spAdd(points.a, spMult(segment->radius, normal));
@@ -784,7 +784,7 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
     {
         /// get the normal directions
         spVector normal = mEdge.normal;
-        spVector negate = spNegate(normal);
+        spVector negate = spNegative(normal);
 
         /// compute the world space edges in a normal direction
         Edge edgeA = extremalEdgePoly(poly, normal);
@@ -804,7 +804,7 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
         else
         {
             spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
-            spVector pointB = spAdd(points.b, spMult(segment->radius, spNegate(normal)));;
+            spVector pointB = spAdd(points.b, spMult(segment->radius, spNegative(normal)));;
 
             spCollisionResult result = spCollisionResultConstruct();
             result.normal = normal;

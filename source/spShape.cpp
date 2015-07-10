@@ -39,6 +39,11 @@ void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType t
 void 
 spShapeFree(spShape* shape)
 {
+    if (shape->body)
+    {
+        spBodyRemoveShape(shape->body, shape);
+    }
+
     /// shape is a poly
     if (shape->type == SP_SHAPE_POLYGON)
     {

@@ -35,23 +35,14 @@ spSpringJoint* spSpringJointAlloc();
 /// create a spring joint on the heap with 2 bodies, 2 anchor points, damping, frequency, and damping.
 spConstraint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
 
-/// release the memory pointed at by a spring joint
-void spSpringJointFree(spSpringJoint** joint);
-
-/// setup a spring joint to be solved by the solver
-void spSpringJointPreSolve(spSpringJoint* joint, const spFloat h);
-
-/// warm start the joint from last timestep
-void spSpringJointApplyCachedImpulse(spSpringJoint* joint);
-
-/// solve and apply impulses to a spring joint 
-void spSpringJointSolve(spSpringJoint* joint);
-
 /// check if a constraint is a spring joint
 spBool spConstraintIsSpringJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a spring joint if its that type
 spSpringJoint* spConstraintCastSpringJoint(spConstraint* constraint);
+
+/// get the spring joints impulse
+spFloat spSpringJointGetImpulse(spConstraint* constraint);
 
 /// get the spring joints first anchor in body A's local space
 spVector spSpringJointGetAnchorA(spConstraint* constraint);

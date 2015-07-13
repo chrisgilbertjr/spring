@@ -95,7 +95,10 @@
     <ClInclude Include="..\..\include\spSegment.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\demo\spDebugDraw.h">
+    <ClInclude Include="..\..\demo\spDemo.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\demo\spDraw.h">
       <Filter>demo</Filter>
     </ClInclude>
   </ItemGroup>
@@ -189,6 +192,12 @@
     </ClCompile>
     <ClCompile Include="..\..\source\spBound.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\spDraw.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\spDemo.cpp">
+      <Filter>demo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

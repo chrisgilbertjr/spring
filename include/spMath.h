@@ -40,6 +40,8 @@ struct spVector
 /// @{
 
 /// 2x2 matrix 
+/// [ a, b ]
+/// [ c, d ]
 struct spMatrix
 {
     spFloat a, b, c, d;

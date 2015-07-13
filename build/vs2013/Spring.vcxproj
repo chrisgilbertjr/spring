@@ -11,7 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\demo\spDebugDraw.h" />
+    <ClInclude Include="..\..\demo\spDemo.h" />
+    <ClInclude Include="..\..\demo\spDraw.h" />
     <ClInclude Include="..\..\include\spAngularSpringJoint.h" />
     <ClInclude Include="..\..\include\spGearJoint.h" />
     <ClInclude Include="..\..\include\spMotorJoint.h" />
@@ -40,6 +41,8 @@
     <ClInclude Include="..\..\tests\spUnitTest.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\demo\spDemo.cpp" />
+    <ClCompile Include="..\..\demo\spDraw.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\spAngularSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />

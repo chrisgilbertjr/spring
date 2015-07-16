@@ -11,7 +11,7 @@ initGLFW3()
 static void
 initWindow()
 {
-    GLFWwindow* window = glfwCreateWindow(demo.viewport.width, demo.viewport.height, demo.title, 0, 0);
+    GLFWwindow* window = glfwCreateWindow((int)demo.viewport.width, (int)demo.viewport.height, NULL, 0, 0);
     spAssert(window != NULL, "window creation failed\n");
     glfwMakeContextCurrent(window);
 }
@@ -20,4 +20,20 @@ void spDrawInit()
 {
     initGLFW3();
     initWindow();
+}
+
+void spDrawPolygon()
+{
+}
+
+void spDrawSegment()
+{
+}
+
+void spDrawCircle(spVector center, spFloat angle, spFloat radius)
+{
+}
+
+void spDrawPoint()
+{
 }

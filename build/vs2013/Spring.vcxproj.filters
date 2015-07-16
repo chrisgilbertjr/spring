@@ -101,6 +101,9 @@
     <ClInclude Include="..\..\demo\spDraw.h">
       <Filter>demo</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\demo\spShader.h">
+      <Filter>demo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -197,6 +200,9 @@
       <Filter>demo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\demo\spDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\spShader.cpp">
       <Filter>demo</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,7 +8,6 @@
 
 struct spTriangle
 {
-    spVector a, b, c;
 };
 
 struct spRenderContext
@@ -26,8 +25,7 @@ struct spRenderContext
 void spDrawInit();
 void spDrawPolygon();
 void spDrawSegment();
-void spDrawCircle();
+void spDrawCircle(spVector center, spFloat angle, spFloat radius);
 void spDrawPoint();
-void spDrawCircle();
 
 #endif

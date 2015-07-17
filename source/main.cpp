@@ -138,10 +138,57 @@ struct vector { GLfloat x; GLfloat y; };
 struct bary { GLfloat x; GLfloat y; GLfloat z; };
 struct vertex { vector pos; vector aliasing; bary bary2; };
 struct triangle { vertex a, b, c; };
+#define aliasZero { 0.0f, 0.0f }
+#define baryZero { 0.0f, 0.0f, 0.0f }
+
+static GLint count = 0;
+static const GLint triangles = 24;
+static triangle data[triangles];
 
 static void 
-spDrawCircle(triangle* buffer, spVector center, spFloat angle, spFloat radius)
+addTriangle(vertex a, vertex b, vertex c)
 {
+    data[count++] = {a, b, c};
+}
+
+static void 
+spDrawCircle(spVector center, spFloat angle, spFloat radius)
+{
+    vertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero};
+    vertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero};
+    vertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero};
+    vertex d = {{center.x - radius, center.y + radius}, {-1.0f,+1.0f}, baryZero};
+
+    addTriangle(a, b, c);
+    addTriangle(c, d, a);
+}
+
+static void
+spDrawCapsule(spVector pos, spVector start, spVector end, spFloat radius)
+{
+    vertex a = {{start.x, start.y - radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
+    vertex b = {{end.x  , end.y   - radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
+    vertex c = {{end.x  , end.y   + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    addTriangle(a, b, c);
+
+    a = {{end.x  , end.y   + radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
+    b = {{start.x, start.y + radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
+    c = {{start.x, start.y - radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    addTriangle(a, b, c);
+
+    a        = {{start.x - radius, start.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    b        = {{start.x         , start.y - radius}, { 0.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    c        = {{start.x         , start.y + radius}, { 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
+    vertex d = {{start.x - radius, start.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+    addTriangle(a, b, c);
+    addTriangle(c, d, a);
+
+    a = {{end.x + radius, end.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    b = {{end.x         , end.y - radius}, { 0.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    c = {{end.x         , end.y + radius}, { 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
+    d = {{end.x + radius, end.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+    addTriangle(a, b, c);
+    addTriangle(c, d, a);
 }
 
 int main(void)
@@ -185,57 +232,7 @@ int main(void)
 
     GLuint vao;
     GLuint vbo;
-    struct vector { GLfloat x; GLfloat y; };
-    struct bary { GLfloat x; GLfloat y; GLfloat z; };
-    struct vertex { vector pos; vector aliasing; bary bary2; };
-    struct triangle { vertex a, b, c; };
     GLint program = CreateShaderProgramSrc(vertexShape, pixelShape);
-
-    GLfloat o = 0.3f;
-    GLfloat s0 = 0.2f;
-    vertex a0 = {{-s0-o,-s0}, {-1.0f,-1.0f},  { 0.0f, 0.0f, 0.0f}};
-    vertex b0 = {{ s0-o,-s0}, { 1.0f,-1.0f},  { 0.0f, 0.0f, 0.0f}};
-    vertex c0 = {{ s0-o, s0}, { 1.0f, 1.0f},  { 0.0f, 0.0f, 0.0f}};
-    vertex d0 = {{-s0-o, s0}, {-1.0f, 1.0f},  { 0.0f, 0.0f, 0.0f}};
-
-    vertex a1 = {{-s0+o,-s0}, { 0.0f, 0.0f},  { 1.0f, 1.0f, 0.0f}};
-    vertex b1 = {{ s0+o,-s0}, { 0.0f, 0.0f},  { 0.0f, 1.0f, 0.0f}};
-    vertex c1 = {{ s0+o, s0}, { 0.0f, 0.0f},  { 0.0f, 1.0f, 1.0f}};
-    vertex d1 = {{-s0+o, s0}, { 0.0f, 0.0f},  { 0.0f, 1.0f, 0.0f}};
-
-    vertex c2 = {{ s0+o, s0}, { 0.0f, 0.0f},  { 0.0f, 1.0f, 1.0f}};
-    vertex a2 = {{-s0+o,-s0}, { 0.0f, 0.0f},  { 1.0f, 1.0f, 0.0f}};
-
-    const float sqrt2 = 1.41421356237f;
-    spFloat radius = 0.2f;
-    spFloat r = radius * sqrt2;
-
-    vertex circ0 = {{-radius/SP_PI,0.0f}, { 1.0f,-1.0f},  { 0.0f, 0.0f, 0.0f}};
-    vertex circ1 = {{ radius,-r},   { 1.0f, 1.0f},  { 0.0f, 0.0f, 0.0f}};
-    vertex circ2 = {{ radius, r},   {-1.0f,-1.0f},  { 0.0f, 0.0f, 0.0f}};
-
-    vertex quad0 = circ0;
-    vertex quad1 = circ1;
-    vertex quad2 = circ2;
-
-    quad0.pos = {-radius/SP_PI, 0.0f};
-    quad1.pos = { radius,-radius};
-    quad2.pos = { radius, radius};
-
-    quad0.aliasing = {0.0f, 0.0f};
-    quad1.aliasing = {0.0f, 0.0f};
-    quad2.aliasing = {0.0f, 0.0f};
-
-    quad0.pos.x += 0.05f;
-    quad1.pos.x += 0.05f;
-    quad2.pos.x += 0.05f;
-
-    const GLint triangles = 4;
-    triangle data[triangles] = {
-            { circ0, circ1, circ2 },
-    };
-
-    const GLint size = sizeof(triangle) * triangles;
 
     glUseProgram(program);
 
@@ -244,7 +241,7 @@ int main(void)
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle) * triangles, 0, GL_STREAM_DRAW);
 
     GLint index = glGetAttribLocation(program, "v_position");
 	glEnableVertexAttribArray(index);
@@ -265,6 +262,11 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
+
+        spDrawCircle({0.0f, 0.0f}, 0.0f, 0.1f);
+        spDrawCapsule({0.5f, 0.1f}, {-0.1f, 0.0f}, {0.5f, 0.5f}, 0.2);
+
+        GLint size = sizeof(triangle) * count;
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         void* mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
@@ -277,6 +279,7 @@ int main(void)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        count = 0;
     }
 
     glfwDestroyWindow(window);

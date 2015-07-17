@@ -33,7 +33,7 @@ const char* pixelShape =
     "{\n"
     "    vec4 outline = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n"
 
-    "    float size = length(fwidth(p_aliasing))*0.99;\n"
+    "    float size = length(fwidth(p_aliasing));\n"
     "    if (size <= 1e-5)\n"
     "    {\n"
     //"        vec4 color = p_color;\n"
@@ -53,28 +53,24 @@ const char* pixelShape =
 
     "        if (p_barycentric.z > lerp)\n"
     "        {\n"
-    "            a = 1.0f - smoothstep(0.6f, 1.0f, q);\n"
+    "            a = 1.0f - smoothstep(0.65f, 1.0f, q);\n"
     "            float t = (p_barycentric.z - lerp)/q;\n"
-    "            color = mix(p_color, outline, max(t, t+o));\n"
+    "            color = mix(outline, p_color, a);\n"
     "        }\n"
     "        if (p_barycentric.y > lerp)\n"
     "        {\n"
-    "            a = 1.0f - smoothstep(0.6f, 1.0f, q);\n"
+    "            a = 1.0f - smoothstep(0.65f, 1.0f, q);\n"
     "            float t = (p_barycentric.y - lerp)/q;\n"
-    "            color = mix(p_color, outline, max(t, t+o));\n"
+    "            color = mix(p_color, outline, a);\n"
     "        }\n"
     "        if (p_barycentric.x > lerp)\n"
     "        {\n"
-    "            a = 1.0f - smoothstep(0.6f, 1.0f, q);\n"
+    "            a = 1.0f - smoothstep(0.65f, 1.0f, q);\n"
     "            float t = (p_barycentric.x - lerp)/q;\n"
-    "            color = mix(p_color, outline, max(t, t+o));\n"
+    "            color = mix(p_color, outline, a);\n"
     "        }\n"
 
-    ///      MAKE A NEW LERP VALUE TO MAKE THE AA FADE DOUBLE SIDED
-    "        pixel = color;\n"
-    //"        pixel = mix(color, outline, l);\n"
-    "        pixel *= a;\n"
-
+    "        pixel = color * a;\n"
 
     "    }\n"
 
@@ -85,7 +81,6 @@ const char* pixelShape =
     "       float alpha  = 1.0 - smoothstep(border, 1.0, lerp);\n"
 
     "       lerp   = smoothstep(max(border - size, 0.0), border, lerp);\n"
-    "       pixel  = mix(p_color, outline, lerp);\n"
-    "       pixel *= alpha;\n"
+    "       pixel  = mix(p_color, outline, lerp) * alpha;\n"
     "    }\n"
     "}\n";

@@ -7,6 +7,7 @@
 #include <cstring>
 #include "spMath.h"
 #include "spShader.h"
+#include "spDraw.h"
 
 #define STRINGIFY(string) #string
 #define BUFFER_OFFSET(i) ((char *)NULL + (i)) 
@@ -167,27 +168,68 @@ static void
 spDrawCapsule(spVector pos, spVector start, spVector end, spFloat radius)
 {
     vertex a = {{start.x, start.y - radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
-    vertex b = {{end.x  , end.y   - radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
-    vertex c = {{end.x  , end.y   + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    addTriangle(a, b, c);
+    vertex b = {{  end.x,   end.y - radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
+    vertex c = {{  end.x,   end.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    vertex d = {{start.x, start.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    vertex e = {{start.x - radius, start.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    vertex f = {{start.x - radius, start.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+    vertex g = {{end.x + radius, end.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+    vertex h = {{end.x + radius, end.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
 
-    a = {{end.x  , end.y   + radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
-    b = {{start.x, start.y + radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
-    c = {{start.x, start.y - radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    addTriangle(a, b, c);
-
-    a        = {{start.x - radius, start.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    b        = {{start.x         , start.y - radius}, { 0.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    c        = {{start.x         , start.y + radius}, { 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
-    vertex d = {{start.x - radius, start.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+    /// draw quad body
     addTriangle(a, b, c);
     addTriangle(c, d, a);
 
-    a = {{end.x + radius, end.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    b = {{end.x         , end.y - radius}, { 0.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    c = {{end.x         , end.y + radius}, { 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
-    d = {{end.x + radius, end.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+    a.aliasing = {0.0f,-1.0f};
+    b.aliasing = {0.0f,-1.0f};
+    c.aliasing = {0.0f, 1.0f};
+    d.aliasing = {0.0f, 1.0f};
+
+    /// draw endcaps
+    addTriangle(e, a, d);
+    addTriangle(d, f, e);
+    addTriangle(g, b, c);
+    addTriangle(c, h, g);
+}
+
+static void
+spDrawPolygon(spTransform xf, spVector* verts, spInt size, spVector center)
+{
+    spVector v0 = spMult(xf, center);
+    for(spInt i = 0; i < size; ++i)
+    {
+        spVector v1 = spMult(xf, verts[i]);
+        spVector v2 = spMult(xf, verts[(i+1)%size]);
+
+        vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 1.0f}};
+    	vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    	vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+        addTriangle(a, b, c);
+    }
+}
+
+static void
+spDrawLine(spVector start, spVector end, spFloat size)
+{
+    spFloat h = size * 0.5f;
+    spVector normal = spNormal(spSkew(spSub(end, start)));
+    spVector offset = spMult(normal, h);
+    spVector v0 = spSub(start, offset);
+    spVector v1 = spSub(  end, offset);
+    spVector v2 = spAdd(  end, offset);
+    spVector v3 = spAdd(start, offset);
+
+
+    vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 0.0f}};
+    vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
+    vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+    vertex d = {{v3.x, v3.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
+
     addTriangle(a, b, c);
+
+    c.bary2 = {1.0f, 1.0f, 0.0f};
+    a.bary2 = {0.0f, 1.0f, 1.0f};
+
     addTriangle(c, d, a);
 }
 
@@ -258,13 +300,17 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    spFloat s = 0.1f;
+    spVector poly[4] = {{-s,-s}, {s,-s}, {s,s}, {-s,s}};
+
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        spDrawCircle({0.0f, 0.0f}, 0.0f, 0.1f);
-        spDrawCapsule({0.5f, 0.1f}, {-0.1f, 0.0f}, {0.5f, 0.5f}, 0.2);
+        spDrawCircle({0.0f,-0.4f}, 0.0f, 0.1f);
+        spDrawCapsule({0.5f, 0.1f}, {-0.1f, 0.0f}, {0.5f, 0.0f}, 0.05f);
+        spDrawPolygon(spTransformConstruct({-0.3f,-0.3f}, spRotationConstruct(0.0f)), poly, 4, {0.0f, 0.0f});
 
         GLint size = sizeof(triangle) * count;
         glBindVertexArray(vao);

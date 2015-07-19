@@ -30,7 +30,6 @@ spContactKeyConstruct(spShape* shapeA, spShape* shapeB)
 spBool 
 spContactKeyExists(const spContactKey key, spContact* contactList)
 {
-    NULLCHECK(contactList);
     for (spContact* contact = contactList; contact != NULL; contact = contact->next)
     {
         if (spContactKeyEqual(key, contact->key) == spTrue)

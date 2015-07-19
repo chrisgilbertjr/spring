@@ -176,7 +176,20 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
 #ifdef SP_DEBUG
     #define NULLCHECK(ptr) spAssert(ptr != NULL, "pointer is NULL!\n")
     #define NANCHECK(val)  spAssert(val == val,  "value is NaN!\n")
-    #define spAssert  DEBUGAssert
+    //#define spAssert  DEBUGAssert
+    #define SP_LOG(file, msg)        \
+        va_list args;                \
+        va_start(args, msg);         \
+        DEBUGDoLog(file, msg, args); \
+        va_end(args);
+
+    #define spAssert(condition, msg)  \
+        if (condition == spFalse)\
+        {\
+            SP_LOG(stderr, msg);\
+            assert(false);\
+        }
+
     #define spWarning DEBUGWarning
     #define spLog     DEBUGLog
 

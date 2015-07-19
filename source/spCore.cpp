@@ -3,11 +3,11 @@
 
 /// debug functions
 #ifdef SP_DEBUG
-    #define SP_LOG(file, msg)        \
-        va_list args;                \
-        va_start(args, msg);         \
-        DEBUGDoLog(file, msg, args); \
-        va_end(args);
+//    #define SP_LOG(file, msg)        \
+//        va_list args;                \
+//        va_start(args, msg);         \
+//        DEBUGDoLog(file, msg, args); \
+//        va_end(args);
 
     void DEBUGDoLog(FILE* file, const char* msg, va_list args)
     {

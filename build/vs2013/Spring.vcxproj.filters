@@ -205,5 +205,8 @@
     <ClCompile Include="..\..\demo\spShader.cpp">
       <Filter>demo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\demo\testDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

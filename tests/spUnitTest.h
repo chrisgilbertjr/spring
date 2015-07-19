@@ -214,7 +214,6 @@ spStartSubtest(subtest_name); \
     { \
         spStartTest(test_name[i].name); \
         test_name[i].function(); \
-        spNewline; \
     } \
 
 

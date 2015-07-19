@@ -27,7 +27,7 @@ enum spConstraintType
 };
 
 typedef void (*spFreeFunc)(spConstraint* constraint);
-typedef void (*spPreSolveFunc)(spConstraint* constraint);
+typedef void (*spPreSolveFunc)(spConstraint* constraint, const spFloat h);
 typedef void (*spWarmStartFunc)(spConstraint* constraint);
 typedef void (*spSolveFunc)(spConstraint* constraint);
 

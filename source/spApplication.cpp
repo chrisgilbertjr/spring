@@ -181,7 +181,8 @@ default_loop(spApplication* app)
         app->mouseShape = NULL;
     }
 
-    spWorldStep(&app->world, app->timestep);
+    spWorldStep(&app->world, 1.0f/60.0f);
+    spWorldDraw(&app->world);
 }
 
 spInt 

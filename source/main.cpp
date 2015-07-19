@@ -7,7 +7,8 @@
 #include <cstring>
 #include "spMath.h"
 #include "spShader.h"
-#include "spDraw.h"
+//#include "spDraw.h"
+//#include "spDemo.h"
 
 #define STRINGIFY(string) #string
 #define BUFFER_OFFSET(i) ((char *)NULL + (i)) 
@@ -152,88 +153,148 @@ addTriangle(vertex a, vertex b, vertex c)
     data[count++] = {a, b, c};
 }
 
-static void 
-spDrawCircle(spVector center, spFloat angle, spFloat radius)
-{
-    vertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero};
-    vertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero};
-    vertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero};
-    vertex d = {{center.x - radius, center.y + radius}, {-1.0f,+1.0f}, baryZero};
+//static void 
+//spDrawCircle(spVector center, spFloat angle, spFloat radius)
+//{
+//    vertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero};
+//    vertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero};
+//    vertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero};
+//    vertex d = {{center.x - radius, center.y + radius}, {-1.0f,+1.0f}, baryZero};
 
-    addTriangle(a, b, c);
-    addTriangle(c, d, a);
+//    addTriangle(a, b, c);
+//    addTriangle(c, d, a);
+//}
+
+//static void
+//spDrawCapsule(spVector pos, spVector start, spVector end, spFloat radius)
+//{
+//    vertex a = {{start.x, start.y - radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
+//    vertex b = {{  end.x,   end.y - radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
+//    vertex c = {{  end.x,   end.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+//    vertex d = {{start.x, start.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
+//    vertex e = {{start.x - radius, start.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+//    vertex f = {{start.x - radius, start.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+//    vertex g = {{end.x + radius, end.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
+//    vertex h = {{end.x + radius, end.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
+
+//    /// draw quad body
+//    addTriangle(a, b, c);
+//    addTriangle(c, d, a);
+
+//    a.aliasing = {0.0f,-1.0f};
+//    b.aliasing = {0.0f,-1.0f};
+//    c.aliasing = {0.0f, 1.0f};
+//    d.aliasing = {0.0f, 1.0f};
+
+//    /// draw endcaps
+//    addTriangle(e, a, d);
+//    addTriangle(d, f, e);
+//    addTriangle(g, b, c);
+//    addTriangle(c, h, g);
+//}
+
+//static void
+//spDrawPolygon(spTransform xf, spVector* verts, spInt size, spVector center)
+//{
+//    spVector v0 = spMult(xf, center);
+//    for(spInt i = 0; i < size; ++i)
+//    {
+//        spVector v1 = spMult(xf, verts[i]);
+//        spVector v2 = spMult(xf, verts[(i+1)%size]);
+
+//        vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 1.0f}};
+//    	vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+//    	vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+//        addTriangle(a, b, c);
+//    }
+//}
+
+//static void
+//spDrawLine(spVector start, spVector end, spFloat size)
+//{
+//    spFloat h = size * 0.5f;
+//    spVector normal = spNormal(spSkew(spSub(end, start)));
+//    spVector offset = spMult(normal, h);
+//    spVector v0 = spSub(start, offset);
+//    spVector v1 = spSub(  end, offset);
+//    spVector v2 = spAdd(  end, offset);
+//    spVector v3 = spAdd(start, offset);
+
+
+//    vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 0.0f}};
+//    vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
+//    vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
+//    vertex d = {{v3.x, v3.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
+
+//    addTriangle(a, b, c);
+
+//    c.bary2 = {1.0f, 1.0f, 0.0f};
+//    a.bary2 = {0.0f, 1.0f, 1.0f};
+
+//    addTriangle(c, d, a);
+//}
+#include "spApplication.h"
+
+spShape* shapeA = NULL;
+spBody* bodyA = NULL;
+spShape* shapeB = NULL;
+spBody* bodyB = NULL;
+
+spShape* shapeC = NULL;
+spBody* bodyC = NULL;
+
+void 
+init(struct spApplication* app)
+{
+    spFloat w = 10.2f;
+    spFloat h = 0.2f;
+    spVector verts[4] = {{-w, -h}, {w, -h}, {w, h}, {-w, h}};
+    bodyA = spBodyNewStatic();
+    shapeA = spPolygonNew(verts, 4, 12.0f);
+    spShapeSetMaterial(shapeA, 1.0f, 0.8f);
+    spBodyAddShape(bodyA, shapeA);
+    spWorldAddBody(&app->world, bodyA);
+    spShapeSetMaterial(shapeA, 0.2f, 0.8f);
+    spBodySetTransform(bodyA, {0.0f, -5.0f}, 0.0f);
+
+    bodyB = spBodyNewDynamic();
+    shapeB = spCircleNew({0.0f, 0.0f}, 3.2f, 2.0f);
+    spShapeSetMaterial(shapeB, 0.2f, 0.8f);
+    spBodyAddShape(bodyB, shapeB);
+    spWorldAddBody(&app->world, bodyB);
+
+    w = 2.0f;
+    h = 2.0f;
+    spVector verts2[4] = {{-w, -h}, {w, -h}, {w, h}, {-w, h}};
+
+    bodyC = spBodyNewDynamic();
+    shapeC = spPolygonNew(verts2, 4, 1.0f);
+    spShapeSetMaterial(shapeC, 0.2f, 0.8f);
+    spBodyAddShape(bodyC, shapeC);
+    spWorldAddBody(&app->world, bodyC);
+    spBodySetTransform(bodyC, {7.0f, 0.0f}, 0.0f);
 }
 
-static void
-spDrawCapsule(spVector pos, spVector start, spVector end, spFloat radius)
-{
-    vertex a = {{start.x, start.y - radius}, aliasZero, {1.0f, 0.0f, 0.0f}};
-    vertex b = {{  end.x,   end.y - radius}, aliasZero, {1.0f, 1.0f, 0.0f}};
-    vertex c = {{  end.x,   end.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    vertex d = {{start.x, start.y + radius}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    vertex e = {{start.x - radius, start.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    vertex f = {{start.x - radius, start.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
-    vertex g = {{end.x + radius, end.y - radius}, {-1.0f,-1.0f}, {1.0f, 1.0f, 0.0f}};
-    vertex h = {{end.x + radius, end.y + radius}, {-1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}};
 
-    /// draw quad body
-    addTriangle(a, b, c);
-    addTriangle(c, d, a);
-
-    a.aliasing = {0.0f,-1.0f};
-    b.aliasing = {0.0f,-1.0f};
-    c.aliasing = {0.0f, 1.0f};
-    d.aliasing = {0.0f, 1.0f};
-
-    /// draw endcaps
-    addTriangle(e, a, d);
-    addTriangle(d, f, e);
-    addTriangle(g, b, c);
-    addTriangle(c, h, g);
-}
-
-static void
-spDrawPolygon(spTransform xf, spVector* verts, spInt size, spVector center)
-{
-    spVector v0 = spMult(xf, center);
-    for(spInt i = 0; i < size; ++i)
-    {
-        spVector v1 = spMult(xf, verts[i]);
-        spVector v2 = spMult(xf, verts[(i+1)%size]);
-
-        vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 1.0f}};
-    	vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    	vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
-        addTriangle(a, b, c);
-    }
-}
-
-static void
-spDrawLine(spVector start, spVector end, spFloat size)
-{
-    spFloat h = size * 0.5f;
-    spVector normal = spNormal(spSkew(spSub(end, start)));
-    spVector offset = spMult(normal, h);
-    spVector v0 = spSub(start, offset);
-    spVector v1 = spSub(  end, offset);
-    spVector v2 = spAdd(  end, offset);
-    spVector v3 = spAdd(start, offset);
-
-
-    vertex a = {{v0.x, v0.y}, aliasZero, {1.0f, 1.0f, 0.0f}};
-    vertex b = {{v1.x, v1.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
-    vertex c = {{v2.x, v2.y}, aliasZero, {0.0f, 1.0f, 1.0f}};
-    vertex d = {{v3.x, v3.y}, aliasZero, {0.0f, 1.0f, 0.0f}};
-
-    addTriangle(a, b, c);
-
-    c.bary2 = {1.0f, 1.0f, 0.0f};
-    a.bary2 = {0.0f, 1.0f, 1.0f};
-
-    addTriangle(c, d, a);
-}
+#include "../tests/spUnitTest.h"
 
 int main(void)
+{
+    spApplication* app = spApplicationNew(
+        "asd",
+        _spViewport(800, 600),  spFrustumUniform(10.0f),
+        spVectorConstruct(0.0f, -1.1f), 10, 1.0f/60.0f,
+        init, default_loop, default_main_loop, 0);
+
+    return run(app);
+
+
+
+    //spRunDemo(0);
+    //return 0;
+}
+
+int main2(void)
 {
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
@@ -306,11 +367,9 @@ int main(void)
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     while (!glfwWindowShouldClose(window))
     {
+        count = 0;
         glClear(GL_COLOR_BUFFER_BIT);
 
-        spDrawCircle({0.0f,-0.4f}, 0.0f, 0.1f);
-        spDrawCapsule({0.5f, 0.1f}, {-0.1f, 0.0f}, {0.5f, 0.0f}, 0.05f);
-        spDrawPolygon(spTransformConstruct({-0.3f,-0.3f}, spRotationConstruct(0.0f)), poly, 4, {0.0f, 0.0f});
 
         GLint size = sizeof(triangle) * count;
         glBindVertexArray(vao);
@@ -325,7 +384,6 @@ int main(void)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        count = 0;
     }
 
     glfwDestroyWindow(window);

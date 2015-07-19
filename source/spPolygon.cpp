@@ -115,11 +115,11 @@ spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
 {
     NULLCHECK(poly); NULLCHECK(vertices);
     spAssert(count > 2, "less than 3 vertices in spPolygonInit\n");
-    spMaterial material = { 0.6f, 0.2f };
+    spMaterial material = { 0.6f, 0.5f };
 
     poly->count = count;
     poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
-    poly->radius = 0.55f;
+    poly->radius = 0.05f;
     NULLCHECK(poly->edges);
 
     /// initialize vertices and normals

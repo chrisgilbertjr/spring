@@ -117,7 +117,7 @@ spWorldStep(spWorld* world, const spFloat h)
     /// pre step the constraints
     foreach_constraint(joint, world->jointList)
     {
-        joint->funcs.preSolve(joint);
+        joint->funcs.preSolve(joint, h);
     }
 
     /// pre step the contacts
@@ -135,13 +135,13 @@ spWorldStep(spWorld* world, const spFloat h)
     /// warm start the joints
     foreach_constraint(joint, world->jointList)
     {
-        joint->funcs.warmStart(joint);
+        //joint->funcs.warmStart(joint);
     }
 
     /// pre step the contacts
     foreach_contact(contact, world->contactList)
     {
-        spContactWarmStart(contact);
+        //spContactWarmStart(contact);
     }
 
     /// apply contact / joint impulses
@@ -164,7 +164,7 @@ spWorldStep(spWorld* world, const spFloat h)
         spBodyIntegratePosition(body, h);
     }
 
-    spWorldDraw(world);
+   // spWorldDraw(world);
 }
 
 void spWorldBroadPhase(spWorld* world)

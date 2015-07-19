@@ -1,45 +1,46 @@
 
 #include "spDraw.h"
+#include <GLFW/glfw3.h>
 
-struct spTimer
-{
-    spFloat dt;
-    spFloat ms;
-};
+typedef void (*initFunc)();
+typedef void (*updateFunc)(spFloat dt);
+typedef void (*destroyFunc)();
+typedef GLFWwindow spWindow;
+typedef spInt spDemoIndex;
 
 struct spMouse
 {
+    spConstraint* constraint;
+    spShape* shape;
     spFloat x;
     spFloat y;
 };
 
-struct spViewport
-{
-    spFloat width;
-    spFloat height;
-};
-
-struct spFrustum
-{
-    spFloat left;
-    spFloat right;
-    spFloat top;
-    spFloat bottom;
-    spFloat near;
-    spFloat far;
-};
-
 struct spDemo
 {
-    spRenderContext context;
-    spViewport viewport;
-    spFrustum frustum;
-    spTimer timer;
+    spWorld world;
     spMouse mouse;
+    spWindow* window;
+    initFunc initialize;
+    updateFunc update;
+    destroyFunc destroy;
+    spColor background;
+    spFloat timestep;
+    spFloat time;
+    spFloat timePrev;
+    spFloat timeAccum;
+    spBool paused;
 };
 
-typedef void (*initFunc)();
-typedef void (*updateFunc)();
-typedef void (*destroyFunc)();
+extern spDemo* demo;
+extern spDemo* test;
 
-extern spDemo demo;
+spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy);
+
+void spDemoDrawPolygon(spPolygon* poly, spTransform* xf);
+
+void spDemoDrawCircle(spCircle* circle, spTransform* xf);
+
+void spDemoFree(spDemo** demo);
+
+void spRunDemo(spDemoIndex demo);

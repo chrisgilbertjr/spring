@@ -364,13 +364,15 @@ inline spMatrix spInverse(const spMatrix a)
     spFloat d = spDeterminant(a);
     if (d == 0.0f) return spMatrixZero();
     spFloat d_inv =  1.0f / d;
-    return spMatrixConstruct(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
+    //return spMatrixConstruct(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
+    spMatrix m = spMatrixConstruct(+a.d*d_inv, -a.b*d_inv, -a.c*d_inv, +a.a*d_inv);
+    return m;
 }
 
 /// invert a matrix2
 inline void spInvert(spMatrix* a)
 {
-    spFloat d_inv = 1.0f / spDeterminant(*a) + SP_FLT_EPSILON;
+    spFloat d_inv = 1.0f / (spDeterminant(*a) + SP_FLT_EPSILON);
     spFloat tmp;
     tmp =  + a->a * d_inv;
     a->a = + a->d * d_inv;

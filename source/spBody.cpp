@@ -159,6 +159,7 @@ spBodyAddShape(spBody* body, spShape* shape)
     {
         spBodyComputeShapeMassData(body);
     }
+    shape->body = body;
 }
 
 void 
@@ -225,7 +226,7 @@ spBodyAcceleration(spBody* body, const spVector& gravity)
 void spBodyComputeShapeMassData(spBody* body)
 {
     spAssert(body != NULL, "body is null while computing its mass data");
-    spAssert(body->type == SP_BODY_DYNAMIC, "body type is not dynamic while computing its mass data");
+    spAssert(body->type == SP_BODY_DYNAMIC, "body type is not dynamic while computing 5its mass data");
     
     /// reset the bodys' mass data
     body->com = spVectorZero();

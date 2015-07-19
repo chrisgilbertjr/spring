@@ -45,6 +45,7 @@
     <ClCompile Include="..\..\demo\spDemo.cpp" />
     <ClCompile Include="..\..\demo\spDraw.cpp" />
     <ClCompile Include="..\..\demo\spShader.cpp" />
+    <ClCompile Include="..\..\demo\testDemo.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\spAngularSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />

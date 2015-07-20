@@ -70,24 +70,24 @@ spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& 
     spVector center = spMult(xf, circle->center);
 
     glPushMatrix();
-     glLoadIdentity();
-     glTranslatef(center.x, center.y, 0.0f);
-     glRotatef(spRotationGetAngleDeg(xf.q), 0.0f, 0.0f, 1.0f);
-     glScalef(radius, radius, 0.0f);
+    glLoadIdentity();
+    glTranslatef(center.x, center.y, 0.0f);
+    glRotatef(spRotationGetAngleDeg(xf.q), 0.0f, 0.0f, 1.0f);
+    glScalef(radius, radius, 0.0f);
 
-     glBegin(GL_LINES);
-     glVertex2f(0.f, 1.f);
-     glVertex2f(0.f, 0.f);
-     glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(0.f, 1.f);
+    glVertex2f(0.f, 0.f);
+    glEnd();
 
-     glBegin(GL_LINE_LOOP);
-     for (spFloat i = 0.f; i < iters; i += 1.0f)
-     {
-         spFloat s = i / iters * SP_PI * 2.0f;
-         spFloat c = i / iters * SP_PI * 2.0f;
-         glVertex2f(spsin(s), spcos(s));
-     }
-     glEnd();
+    glBegin(GL_LINE_LOOP);
+    for (spFloat i = 0.f; i < iters; i += 1.0f)
+    {
+        spFloat s = i / iters * SP_PI * 2.0f;
+        spFloat c = i / iters * SP_PI * 2.0f;
+        glVertex2f(spsin(s), spcos(s));
+    }
+    glEnd();
     glPopMatrix();
 }
 
@@ -96,24 +96,24 @@ void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTra
     spInt    count = polygon->count;
     spEdge*  edges = polygon->edges;
     spFloat  angle = spRotationGetAngleDeg(xf.q);
-    spVector pos   = xf.p;
-    
-    glPushMatrix();
-     glLoadIdentity();
-     glTranslatef(pos.x, pos.y, 0.0f);
-     glRotatef(angle, 0.0f, 0.0f, 1.0f);
+    spVector pos = xf.p;
 
-     glBegin(GL_LINES);
-     for(spInt i = 0; i < count; ++i)
-     {
-         spEdge* edge0 = edges + i;
-         spEdge* edge1 = edges + ((i+1) % count);
-         spVector v0 = edge0->vertex;
-         spVector v1 = edge1->vertex;
-         glVertex2f(v0.x, v0.y);
-         glVertex2f(v1.x, v1.y);
-     }
-     glEnd();
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(pos.x, pos.y, 0.0f);
+    glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+    glBegin(GL_LINES);
+    for (spInt i = 0; i < count; ++i)
+    {
+        spEdge* edge0 = edges + i;
+        spEdge* edge1 = edges + ((i + 1) % count);
+        spVector v0 = edge0->vertex;
+        spVector v1 = edge1->vertex;
+        glVertex2f(v0.x, v0.y);
+        glVertex2f(v1.x, v1.y);
+    }
+    glEnd();
     glPopMatrix();
 }
 

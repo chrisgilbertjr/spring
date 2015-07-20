@@ -2,8 +2,6 @@
 #include "spMouseJoint.h"
 #include "spBody.h"
 
-#include "spDebugDraw.h"
-
 /// convenience macro for getters/setters
 #define mouseJoint spConstraintCastMouseJoint(constraint)
 
@@ -47,10 +45,6 @@ PreSolve(spMouseJoint* joint, const spFloat h)
     spVector C = spAdd(a->p, spSub(joint->rA, joint->target));
     joint->bias = spMult(C, beta);
     joint->lambdaAccum = spVectorZero();
-
-    spDebugDrawPoint(spMult(a->xf, joint->anchor), spGreen(1.0f));
-    spDebugDrawPoint(joint->target, spRed(1.0f));
-    spDebugDrawLine(spMult(a->xf, joint->anchor), joint->target, spGreen(1.0f));
 }
 
 static void 

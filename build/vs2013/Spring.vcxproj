@@ -15,9 +15,10 @@
     <ClInclude Include="..\..\demo\spDraw.h" />
     <ClInclude Include="..\..\demo\spShader.h" />
     <ClInclude Include="..\..\include\spAngularSpringJoint.h" />
+    <ClInclude Include="..\..\include\spApplication.h" />
+    <ClInclude Include="..\..\include\spDebugDraw.h" />
     <ClInclude Include="..\..\include\spGearJoint.h" />
     <ClInclude Include="..\..\include\spMotorJoint.h" />
-    <ClInclude Include="..\..\include\spApplication.h" />
     <ClInclude Include="..\..\include\spBody.h" />
     <ClInclude Include="..\..\include\spBound.h" />
     <ClInclude Include="..\..\include\spCircle.h" />
@@ -30,7 +31,6 @@
     <ClInclude Include="..\..\include\spPointJoint.h" />
     <ClInclude Include="..\..\include\spSegment.h" />
     <ClInclude Include="..\..\include\spSpringJoint.h" />
-    <ClInclude Include="..\..\include\spDebugDraw.h" />
     <ClInclude Include="..\..\include\spDistanceJoint.h" />
     <ClInclude Include="..\..\include\spLinkedList.h" />
     <ClInclude Include="..\..\include\spMath.h" />
@@ -57,13 +57,13 @@
     <ClCompile Include="..\..\source\spContact.cpp" />
     <ClCompile Include="..\..\source\spContactKey.cpp" />
     <ClCompile Include="..\..\source\spCore.cpp" />
+    <ClCompile Include="..\..\source\spDebugDraw.cpp" />
     <ClCompile Include="..\..\source\spGearJoint.cpp" />
     <ClCompile Include="..\..\source\spMotorJoint.cpp" />
     <ClCompile Include="..\..\source\spMouseJoint.cpp" />
     <ClCompile Include="..\..\source\spPointJoint.cpp" />
     <ClCompile Include="..\..\source\spSegment.cpp" />
     <ClCompile Include="..\..\source\spSpringJoint.cpp" />
-    <ClCompile Include="..\..\source\spDebugDraw.cpp" />
     <ClCompile Include="..\..\source\spDistanceJoint.cpp" />
     <ClCompile Include="..\..\source\spPolygon.cpp" />
     <ClCompile Include="..\..\source\spRopeJoint.cpp" />

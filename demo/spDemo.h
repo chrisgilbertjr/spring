@@ -37,10 +37,8 @@ extern spDemo* test;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy);
 
-void spDemoDrawPolygon(spPolygon* poly, spTransform* xf);
-
-void spDemoDrawCircle(spCircle* circle, spTransform* xf);
-
 void spDemoFree(spDemo** demo);
+
+void spDemoDrawShape(spShape* shape);
 
 void spRunDemo(spDemoIndex demo);

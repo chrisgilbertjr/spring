@@ -120,14 +120,7 @@ default_main_loop(spApplication* app)
         }
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (PRESSED(' '))
-        {
-            app->loop(app);
-        }
-        else
-        {
-            app->loop(app);
-        }
+        app->loop(app);
 
         glfwSwapBuffers(app->window);
 

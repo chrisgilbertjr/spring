@@ -1,6 +1,5 @@
 
 #include "spConstraint.h"
-#include "spDebugDraw.h" ///< TEMP: need to create separate testbed
 #include "spWorld.h"
 
 /// for each iters
@@ -135,13 +134,13 @@ spWorldStep(spWorld* world, const spFloat h)
     /// warm start the joints
     foreach_constraint(joint, world->jointList)
     {
-        //joint->funcs.warmStart(joint);
+        joint->funcs.warmStart(joint);
     }
 
     /// pre step the contacts
     foreach_contact(contact, world->contactList)
     {
-        //spContactWarmStart(contact);
+        spContactWarmStart(contact);
     }
 
     /// apply contact / joint impulses
@@ -164,7 +163,8 @@ spWorldStep(spWorld* world, const spFloat h)
         spBodyIntegratePosition(body, h);
     }
 
-   // spWorldDraw(world);
+    spWorldDraw(world);
+    int x = 0;
 }
 
 void spWorldBroadPhase(spWorld* world)
@@ -234,28 +234,28 @@ void spWorldNarrowPhase(spWorld* world)
 
 void spWorldDraw(spWorld* world)
 {
-#ifdef SP_DEBUG_DRAW
-    spBody* body_list = world->bodyList;
-    foreach_body(body, body_list)
-    {
-        foreach_shape(shape, body->shapes)
-        {
-            spDebugDrawBound(0, &shape->bound, body->xf);
-            if (shape->type == SP_SHAPE_CIRCLE)
-            {
-                spDebugDrawCircle(0, (spCircle*)shape, body->xf);
-            }
-            if (shape->type == SP_SHAPE_POLYGON)
-            {
-                spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
-            }
-            if (shape->type == SP_SHAPE_SEGMENT)
-            {
-                spDebugDrawSegment(0, (spSegment*)shape);
-            }
-        }
-    }
-#endif
+//#ifdef SP_DEBUG_DRAW
+//    spBody* body_list = world->bodyList;
+//    foreach_body(body, body_list)
+//    {
+//        foreach_shape(shape, body->shapes)
+//        {
+//            spDebugDrawBound(0, &shape->bound, body->xf);
+//            if (shape->type == SP_SHAPE_CIRCLE)
+//            {
+//                spDebugDrawCircle(0, (spCircle*)shape, body->xf);
+//            }
+//            if (shape->type == SP_SHAPE_POLYGON)
+//            {
+//                spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
+//            }
+//            if (shape->type == SP_SHAPE_SEGMENT)
+//            {
+//                spDebugDrawSegment(0, (spSegment*)shape);
+//            }
+//        }
+//    }
+//#endif
 }
 
 spShape* 

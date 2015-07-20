@@ -7,151 +7,12 @@
 #include <cstring>
 #include "spMath.h"
 #include "spShader.h"
-//#include "spDraw.h"
-//#include "spDemo.h"
+#include "spDraw.h"
+#include "spDemo.h"
 
 #define STRINGIFY(string) #string
 #define BUFFER_OFFSET(i) ((char *)NULL + (i)) 
 #define FLUSH_ERRORS() glGetError()
-
-static void error_callback(int error, const char* description)
-{
-    fputs(description, stderr);
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-static void
-CheckGLErrors()
-{
-    while (GLenum error = glGetError())
-    {
-        if (error)
-        {
-            spWarning(error, "OpenGL Error: %s:%d - %s\n", 
-                __FILE__, 
-                __LINE__, 
-                (char*)glewGetErrorString(error));
-        }
-    }
-}
-
-static void
-PrintInfoLog(GLint object, GLint length)
-{
-    char* infoLog = (char*)spMalloc(length);
-    glGetProgramInfoLog(object, length, (GLsizei*)0, infoLog);
-    spWarning(spFalse, "Info Log: %s\n", infoLog);
-    spFree(&infoLog);
-}
-
-static spBool
-CompileSuccessful(GLint shader)
-{
-    /// get the compilse status
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    
-    /// if successful, return true
-    if (success)
-    {
-        return spTrue;
-    }
-
-    /// compile failed, get the info log and pring it
-    GLint length;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-    PrintInfoLog(shader, length);
-
-    return spFalse;
-}
-
-static spBool
-LinkSuccessful(GLint program)
-{
-    /// get the link status
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    
-    /// if successful, return true
-    if (success)
-    {
-        return spTrue;
-    }
-
-    /// link failed, get the info log and print it
-    GLint length;
-    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-    PrintInfoLog(program, length);
-
-    return spFalse;
-}
-
-static GLint
-CompileShader(GLenum type, const char* source)
-{
-    GLint shader = glCreateShader(type);
-    GLint length = (GLint)strlen(source);
-
-    glShaderSource(shader, 1, &source, &length);
-    glCompileShader(shader);
-
-    spAssert(CompileSuccessful(shader), "shader compilation failed\n");
-    CheckGLErrors();
-    return shader;
-}
-
-static GLint
-CreateVertexShader(const char* source)
-{
-    return CompileShader(GL_VERTEX_SHADER, source);
-}
-
-static GLint
-CreatePixelShader(const char* source)
-{
-    return CompileShader(GL_FRAGMENT_SHADER, source);
-}
-
-static GLint
-CreateShaderProgram(GLint vertex, GLint pixel)
-{
-    GLint program = glCreateProgram();
-    glAttachShader(program, vertex);
-    glAttachShader(program, pixel);
-    glLinkProgram(program);
-
-    spAssert(LinkSuccessful(program), "linking program failed\n");
-    CheckGLErrors();
-    return program;
-}
-
-static GLint
-CreateShaderProgramSrc(const char* vertex, const char* pixel)
-{
-    return CreateShaderProgram(CreateVertexShader(vertex), CreatePixelShader(pixel));
-}
-
-struct vector { GLfloat x; GLfloat y; };
-struct bary { GLfloat x; GLfloat y; GLfloat z; };
-struct vertex { vector pos; vector aliasing; bary bary2; };
-struct triangle { vertex a, b, c; };
-#define aliasZero { 0.0f, 0.0f }
-#define baryZero { 0.0f, 0.0f, 0.0f }
-
-static GLint count = 0;
-static const GLint triangles = 24;
-static triangle data[triangles];
-
-static void 
-addTriangle(vertex a, vertex b, vertex c)
-{
-    data[count++] = {a, b, c};
-}
 
 //static void 
 //spDrawCircle(spVector center, spFloat angle, spFloat radius)
@@ -233,160 +94,202 @@ addTriangle(vertex a, vertex b, vertex c)
 
 //    addTriangle(c, d, a);
 //}
-#include "spApplication.h"
 
-spShape* shapeA = NULL;
-spBody* bodyA = NULL;
-spShape* shapeB = NULL;
-spBody* bodyB = NULL;
+//#include <spring.h> 
+//#include "spApplication.h"
 
-spShape* shapeC = NULL;
-spBody* bodyC = NULL;
+//#define PRESSED(key) glfwGetKey(app->window, key) == GLFW_PRESS
+//#define RELEASED(key) glfwGetKey(app->window, key) == GLFW_RELEASE
 
-void 
-init(struct spApplication* app)
+//void init_test(spApplication* app)
+//{
+//    spBody* body;
+//    spShape* box;
+//    spFilter filter = spFilterCollideAll;
+
+//    spVector vertices[4];
+//    spVector size = spVectorConstruct(250.0f, 25.0f);
+//    spFloat mass = 25.0f;
+//    vertices[0] = spVectorConstruct(-size.x,-size.y); 
+//    vertices[1] = spVectorConstruct( size.x,-size.y);
+//    vertices[2] = spVectorConstruct( size.x, size.y);
+//    vertices[3] = spVectorConstruct(-size.x, size.y);
+
+//    body = spBodyNewStatic();
+//    box = spPolygonNew(vertices, 4, mass);
+//    box->material.restitution = 0.2f;
+//    box->material.friction = 0.8f;
+//    spShapeSetFilter(box, filter);
+//    spBodySetTransform(body, spVectorConstruct(0.0f, -100.0f), 0.0f);
+//    spBodyAddShape(body, box);
+//    spWorldAddBody(&app->world, body);
+
+//    spInt num = 6;
+//    spFloat w = 20.0f;
+//    spFloat h = 10.0f;
+//    for (spInt i = 0; i < num; ++i)
+//    {
+//        spFloat o = w * 2.2f;
+//        spFloat p = (spFloat)i;
+
+//        spFloat offsetx = (-num* o * 0.5f) + p*o * 2;
+
+//        mass = 250.0f;
+//        size = spVectorConstruct(p+12.0f, p+15.0f);
+//        vertices[0] = spVectorConstruct(-size.x,-size.y); 
+//        vertices[1] = spVectorConstruct( size.x,-size.y);
+//        vertices[2] = spVectorConstruct( size.x, size.y);
+//        vertices[3] = spVectorConstruct(-size.x, size.y);
+
+//        body = spBodyNewDynamic();
+//        box = spPolygonNew(vertices, 4, mass);
+//        box->material.restitution = 0.2f;
+//        box->material.friction = 0.8f;
+//        spBodySetTransform(body, spVectorConstruct(offsetx, 80.0f), w);
+//        spBodyAddShape(body, box);
+//        spWorldAddBody(&app->world, body);
+//    }
+
+//    body = spBodyNewStatic();
+//    box = spSegmentNew(spVectorConstruct(-10.0f, 0.0f), spVectorConstruct(10.0f, 0.0f), 5.0f, 10.0f);
+//    box->body = body;
+//    spBodySetTransform(body, spVectorConstruct(150.0f, 50.0f), 0.0f);
+//    spBodyAddShape(body, box);
+//    spWorldAddBody(&app->world, body);
+
+//    body = spBodyNewDynamic();
+//    box = spCircleNew(spVectorConstruct(0.0f, 0.0f), 40.0f, 100.0f);
+//    box->material.restitution = 0.4f;
+//    box->material.friction = 0.5f;
+//    spBodySetTransform(body, spVectorConstruct(50.0f, 200.0f), 0.0f);
+//    spBodyAddShape(body, box);
+//    spWorldAddBody(&app->world, body);
+
+//    body = spBodyNewDynamic();
+//    box = spCircleNew(spVectorConstruct(0.0f, 0.0f), 12.0f, 100.0f);
+//    box->material.restitution = 0.4f;
+//    box->material.friction = 0.5f;
+//    spBodySetTransform(body, spVectorConstruct(50.0f, 20.0f), 0.0f);
+//    spBodyAddShape(body, box);
+//    spWorldAddBody(&app->world, body);
+
+//    body = spBodyNewStatic();
+//    box = spSegmentNew(spVectorConstruct(-20.0f, 0.0f), spVectorConstruct(20.0f, 0.0f), 10.0f, 10.0f);
+//    box->material.restitution = 0.2f;
+//    box->material.friction = 0.8f;
+//    spBodySetTransform(body, spVectorConstruct(0.0f, 50.0f), 0.0f);
+//    spBodyAddShape(body, box);
+//    spWorldAddBody(&app->world, body);
+//}
+
+//spApplication* test()
+//{
+//    return spApplicationNew(
+//        "test app",
+//        spViewport(800, 800), spFrustumUniform(250),
+//        spVectorConstruct(0.f, -98.f), 5, 1.f / 60.f,
+//        init_test, default_loop, default_main_loop, NULL);
+//}
+
+int main()
 {
-    spFloat w = 10.2f;
-    spFloat h = 0.2f;
-    spVector verts[4] = {{-w, -h}, {w, -h}, {w, h}, {-w, h}};
-    bodyA = spBodyNewStatic();
-    shapeA = spPolygonNew(verts, 4, 12.0f);
-    spShapeSetMaterial(shapeA, 1.0f, 0.8f);
-    spBodyAddShape(bodyA, shapeA);
-    spWorldAddBody(&app->world, bodyA);
-    spShapeSetMaterial(shapeA, 0.2f, 0.8f);
-    spBodySetTransform(bodyA, {0.0f, -5.0f}, 0.0f);
-
-    bodyB = spBodyNewDynamic();
-    shapeB = spCircleNew({0.0f, 0.0f}, 3.2f, 2.0f);
-    spShapeSetMaterial(shapeB, 0.2f, 0.8f);
-    spBodyAddShape(bodyB, shapeB);
-    spWorldAddBody(&app->world, bodyB);
-
-    w = 2.0f;
-    h = 2.0f;
-    spVector verts2[4] = {{-w, -h}, {w, -h}, {w, h}, {-w, h}};
-
-    bodyC = spBodyNewDynamic();
-    shapeC = spPolygonNew(verts2, 4, 1.0f);
-    spShapeSetMaterial(shapeC, 0.2f, 0.8f);
-    spBodyAddShape(bodyC, shapeC);
-    spWorldAddBody(&app->world, bodyC);
-    spBodySetTransform(bodyC, {7.0f, 0.0f}, 0.0f);
+    spRunDemo(0);
+    return 0;
 }
 
+//int main2(void)
+//{
+//    GLFWwindow* window;
+//    glfwSetErrorCallback(error_callback);
 
-#include "../tests/spUnitTest.h"
+//    if (!glfwInit())
+//    {
+//        exit(EXIT_FAILURE);
+//    }
 
-int main(void)
-{
-    spApplication* app = spApplicationNew(
-        "asd",
-        _spViewport(800, 600),  spFrustumUniform(10.0f),
-        spVectorConstruct(0.0f, -1.1f), 10, 1.0f/60.0f,
-        init, default_loop, default_main_loop, 0);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//    
+//    window = glfwCreateWindow(800, 800, "Simple example", NULL, NULL);
 
-    return run(app);
+//    if (!window)
+//    {
+//        spAssert(spFalse, "\nWindow creationg failed.\n");
+//        glfwTerminate();
+//        exit(1);
+//    }
 
+//    glfwMakeContextCurrent(window);
 
+//    glewExperimental = GL_TRUE;
+//    GLenum err = glewInit();
+//    if (err != GLEW_OK)
+//    {
+//        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+//        spAssert(spFalse, "Error: cannot init GLEW.\n");
+//    }
+//    FLUSH_ERRORS();
 
-    //spRunDemo(0);
-    //return 0;
-}
+//    glfwSetKeyCallback(window, key_callback);
 
-int main2(void)
-{
-    GLFWwindow* window;
-    glfwSetErrorCallback(error_callback);
+//    glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-    if (!glfwInit())
-    {
-        exit(EXIT_FAILURE);
-    }
+//    GLuint vao;
+//    GLuint vbo;
+//    GLint program = CreateShaderProgramSrc(vertexShape, pixelShape);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
-    window = glfwCreateWindow(800, 800, "Simple example", NULL, NULL);
+//    glUseProgram(program);
 
-    if (!window)
-    {
-        spAssert(spFalse, "\nWindow creationg failed.\n");
-        glfwTerminate();
-        exit(1);
-    }
+//    glGenVertexArrays(1, &vao);
+//    glBindVertexArray(vao);
 
-    glfwMakeContextCurrent(window);
+//    glGenBuffers(1, &vbo);
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle) * triangles, 0, GL_STREAM_DRAW);
 
-    glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if (err != GLEW_OK)
-    {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        spAssert(spFalse, "Error: cannot init GLEW.\n");
-    }
-    FLUSH_ERRORS();
+//    GLint index = glGetAttribLocation(program, "v_position");
+//	glEnableVertexAttribArray(index);
+//	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), 0);
 
-    glfwSetKeyCallback(window, key_callback);
+//    index = glGetAttribLocation(program, "v_aliasing");
+//	glEnableVertexAttribArray(index);
+//	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), BUFFER_OFFSET(sizeof(vector)));
 
-    glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+//    index = glGetAttribLocation(program, "v_barycentric");
+//	glEnableVertexAttribArray(index);
+//	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), BUFFER_OFFSET(sizeof(vector)*2));
 
-    GLuint vao;
-    GLuint vbo;
-    GLint program = CreateShaderProgramSrc(vertexShape, pixelShape);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindVertexArray(0);
 
-    glUseProgram(program);
+//    spFloat s = 0.1f;
+//    spVector poly[4] = {{-s,-s}, {s,-s}, {s,s}, {-s,s}};
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle) * triangles, 0, GL_STREAM_DRAW);
-
-    GLint index = glGetAttribLocation(program, "v_position");
-	glEnableVertexAttribArray(index);
-	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), 0);
-
-    index = glGetAttribLocation(program, "v_aliasing");
-	glEnableVertexAttribArray(index);
-	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), BUFFER_OFFSET(sizeof(vector)));
-
-    index = glGetAttribLocation(program, "v_barycentric");
-	glEnableVertexAttribArray(index);
-	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), BUFFER_OFFSET(sizeof(vector)*2));
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    spFloat s = 0.1f;
-    spVector poly[4] = {{-s,-s}, {s,-s}, {s,s}, {-s,s}};
-
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    while (!glfwWindowShouldClose(window))
-    {
-        count = 0;
-        glClear(GL_COLOR_BUFFER_BIT);
+//    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+//    while (!glfwWindowShouldClose(window))
+//    {
+//        count = 0;
+//        glClear(GL_COLOR_BUFFER_BIT);
 
 
-        GLint size = sizeof(triangle) * count;
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        void* mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(mem, data, size);
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        GLint size = sizeof(triangle) * count;
+//        glBindVertexArray(vao);
+//        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//        void* mem = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+//        memcpy(mem, data, size);
+//        glUnmapBuffer(GL_ARRAY_BUFFER);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glDrawArrays(GL_TRIANGLES, 0, size);
-        glBindVertexArray(0);
+//        glDrawArrays(GL_TRIANGLES, 0, size);
+//        glBindVertexArray(0);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+//        glfwSwapBuffers(window);
+//        glfwPollEvents();
+//    }
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
-}
+//    glfwDestroyWindow(window);
+//    glfwTerminate();
+//    exit(EXIT_SUCCESS);
+//}

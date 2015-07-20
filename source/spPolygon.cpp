@@ -119,7 +119,7 @@ spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
 
     poly->count = count;
     poly->edges = (spEdge*) spMalloc(sizeof(spEdge) * count);
-    poly->radius = 0.05f;
+    poly->radius = 0.00f;
     NULLCHECK(poly->edges);
 
     /// initialize vertices and normals

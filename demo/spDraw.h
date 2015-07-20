@@ -35,8 +35,9 @@ struct spRenderContext
 };
     
 void spDrawInit();
+void spDrawLine(spVector start, spVector end, spFloat size);
 void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt count, spVector center, spColor color, spColor border);
-void spDrawSegment();
+void spDrawSegment(spVector a, spVector b, spFloat radius);
 void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border);
 
 void spClearBuffers();

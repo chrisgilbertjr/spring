@@ -395,7 +395,7 @@ inline spFloat spDeg2Rad(spFloat val)
 /// convert radians to degrees
 inline spFloat spRad2Deg(spFloat val)
 {
-    return val * SP_DEG_TO_RAD;
+    return val * SP_RAD_TO_DEG;
 }
 
 inline spFloat spDegrees(const spFloat radians)
@@ -423,7 +423,7 @@ inline void spRotationSet(spRotation* r, const spFloat a)
 }
 
 /// sets the cos and sin in radians of a rotation
-inline void spRotationSet(spRotation* r, const spFloat s, const spFloat c)
+inline void spRotationSetRadians(spRotation* r, const spFloat s, const spFloat c)
 {
     r->s = s;
     r->c = c;
@@ -441,7 +441,7 @@ inline spRotation spRotationConstruct(const spFloat angle)
 inline spRotation spRotationRadiansConstruct(const spFloat s, const spFloat c)
 {
     spRotation rot;
-    spRotationSet(&rot, s, c);
+    spRotationSetRadians(&rot, s, c);
     return rot;
 }
 

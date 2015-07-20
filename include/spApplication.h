@@ -4,7 +4,6 @@
 
 #include "spWorld.h"
 #include "spMouseJoint.h"
-#include "spDebugDraw.h"
 #include <GLFW\glfw3.h>
 
 /// viewport size

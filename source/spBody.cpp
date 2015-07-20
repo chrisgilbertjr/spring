@@ -39,8 +39,8 @@ spBodyInit(spBody* body, spBodyType type)
     body->f = spVectorZero();
     body->v = spVectorZero();
     body->gScale = 1.0f;
-    body->vDamp = 0.02f;
-    body->wDamp = 0.02f;
+    body->vDamp = 0.0f;
+    body->wDamp = 0.0f;
     body->iInv = 0.0f;
     body->mInv = 0.0f;
     body->i = 0.0f;
@@ -437,7 +437,7 @@ void
 spBodySetTransform(spBody* body, const spVector& position, spFloat angle)
 {
     body->p = spAdd(spMult(body->xf.q, body->com), position);
-    body->a = spDeg2Rad(angle);
+    body->a = angle * SP_DEG_TO_RAD;
     updateTransform(body);
 }
 
@@ -458,7 +458,7 @@ spBodySetRotation(spBody* body, spRotation rotate)
 void 
 spBodySetAngle(spBody* body, spFloat angle)
 {
-    body->a = spDeg2Rad(angle);
+    body->a = angle * SP_DEG_TO_RAD;
     updateTransform(body);
 }
 

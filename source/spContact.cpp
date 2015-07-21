@@ -2,8 +2,8 @@
 #include "spContact.h"
 #include "spBody.h"
 
-static spFloat baumgarte = 0.15f;
-spFloat spSlop = 1.2f;
+static spFloat baumgarte = 0.2f;
+spFloat spSlop = 0.15f;
 
 void 
 spContactPointInit(spContactPoint* point)
@@ -31,6 +31,7 @@ spContactInit(spContact* contact, const spContactKey key)
     contact->normal      = spVectorZero();
     contact->restitution = 0.0f;
     contact->friction    = 0.0f;
+    contact->flags       = 0x0;
     contact->count       = 0;
 }
 
@@ -55,6 +56,8 @@ spContactFree(spContact** contact)
     NULLCHECK(*contact);
     spFree(contact);
 }
+
+spVector spGravity = {0.0f, -98.0f};
 
 void 
 spContactPreSolve(spContact* contact, const spFloat h)
@@ -96,7 +99,7 @@ spContactPreSolve(spContact* contact, const spFloat h)
 
         /// compute bounce bias and velocity bias (compute position constraint)
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;
-        point->bias = (penetration > spSlop) ? (-baumgarte * (penetration + spSlop) / h) : 0.0f;
+        point->bias = (penetration > -spSlop) ? (-baumgarte * (penetration + -spSlop) / h) : 0.0f;
 
         /// reset accumulated multipliers
         point->lambdaAccumNorm = 0.0f;
@@ -125,8 +128,8 @@ spContactWarmStart(spContact* contact)
         //spBodyApplyImpulse(b, point->rB, impulseB);
 
         /// reset accumulated multipliers
-        point->lambdaAccumNorm = 0.0f;
-        point->lambdaAccumTang = 0.0f;
+        //point->lambdaAccumNorm = 0.0f;
+        //point->lambdaAccumTang = 0.0f;
     }
 }
 

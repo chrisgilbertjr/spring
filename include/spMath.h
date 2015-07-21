@@ -75,7 +75,7 @@ struct spTransform
 /// @{
 
 /// swap two vectors
-inline void spSwap(spVector* a, spVector* b)
+inline void spvSwap(spVector* a, spVector* b)
 {
     spVector tmp = *a;
     *a = *b;

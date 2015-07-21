@@ -24,8 +24,8 @@ initContact(spCollisionResult* result, spContact* contact, spShape* shapeA, spSh
     /// init the contact info
     contact->count = result->count;
 	contact->normal = result->normal;
-    contact->friction = spsqrt(shapeA->material.friction * shapeB->material.friction);
-    contact->restitution = spMax(shapeA->material.restitution, shapeB->material.restitution);
+    contact->friction = spsqrt(matA->friction * matB->friction);
+    contact->restitution = spMax(matA->restitution, matB->restitution);
 
     /// get rel velocity of contact points
 	for (spInt i = 0; i < contact->count; i++)
@@ -202,6 +202,7 @@ void spWorldBroadPhase(spWorld* world)
 void spWorldNarrowPhase(spWorld* world)
 {
     spContact* contact = world->contactList;
+    spInt i = 0;
     while (contact != NULL)
     {
         /// get the contact key and shapes to collide
@@ -226,6 +227,14 @@ void spWorldNarrowPhase(spWorld* world)
         /// they are colliding, init the contact with the collision result
         else
         {
+            if (result.count == 2)
+            {
+                contact->flags = contact->flags ^ SP_CONTACT_DO_SWAP_FLAG;
+            }
+            else
+            {
+                contact->flags = (contact->flags & ~SP_CONTACT_DO_SWAP_FLAG);
+            }
             initContact(&result, contact, shapeA, shapeB);
             contact = contact->next;
         }

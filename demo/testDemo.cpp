@@ -3,92 +3,113 @@
 #include "spCircle.h"
 #include "spPolygon.h"
 
-spShape* shapeA = NULL;
-spBody* bodyA = NULL;
-spShape* shapeB = NULL;
-spBody* bodyB = NULL;
+struct DemoShape { spShape* shape; spBody* body; spColor color, border; };
 
-static void setup() 
+spFilter filter = spFilterCollideAll;
+DemoShape shapes[100] = {0};
+spInt count = 0;
+
+static void
+CreateBox(spVector pos, spFloat angle, spVector size, spFloat mass, spColor color, spColor border)
 {
-    spBody* body;
-    spShape* box;
-    spFilter filter = spFilterCollideAll;
-
     spVector vertices[4];
-    spVector size = spVectorConstruct(100.0f, 25.0f);
-    spFloat mass = 25.0f;
     vertices[0] = spVectorConstruct(-size.x,-size.y); 
     vertices[1] = spVectorConstruct( size.x,-size.y);
     vertices[2] = spVectorConstruct( size.x, size.y);
     vertices[3] = spVectorConstruct(-size.x, size.y);
 
-    body = spBodyNewStatic();
-    box = spPolygonNew(vertices, 4, 0.0f);
-    box->material.restitution = 0.2f;
-    box->material.friction = 0.8f;
-    spShapeSetFilter(box, filter);
-    spBodySetTransform(body, spVectorConstruct(0.0f, -100.0f), 0.0f);
-    spBodyAddShape(body, box);
-    spWorldAddBody(&demo->world, body);
+    shapes[count].body = spBodyNewDynamic();
+    shapes[count].shape = spPolygonNew(vertices, 4, mass);
+    shapes[count].shape->material.restitution = 0.2f;
+    shapes[count].shape->material.friction = 0.8f;
+    spShapeSetFilter(shapes[count].shape, filter);
+    spBodySetTransform(shapes[count].body, pos, angle);
+    spBodyAddShape(shapes[count].body, shapes[count].shape);
+    spWorldAddBody(&demo->world, shapes[count].body);
 
-    //body = spBodyNewStatic();
-    //box = spSegmentNew(spVectorConstruct(-10.0f, 0.0f), spVectorConstruct(10.0f, 0.0f), 5.0f, 10.0f);
-    //box->body = body;
-    //spBodySetTransform(body, spVectorConstruct(150.0f, 50.0f), 0.0f);
-    //spBodyAddShape(body, box);
-    //spWorldAddBody(&demo->world, body);
+    shapes[count].color = color;
+    shapes[count].border = border;
 
-    body = spBodyNewDynamic();
-    box = spCircleNew(spVectorConstruct(0.0f, 0.0f), 20.0f, 5.0f);
-    box->material.restitution = 0.4f;
-    box->material.friction = 0.5f;
-    spBodySetTransform(body, spVectorConstruct(-50.0f, 0.0f), 0.0f);
-    spBodyAddShape(body, box);
-    spWorldAddBody(&demo->world, body);
-
-    body = spBodyNewDynamic();
-    box = spCircleNew(spVectorConstruct(0.0f, 0.0f), 11.0f, 8.0f);
-    box->material.restitution = 0.4f;
-    box->material.friction = 0.5f;
-    spBodySetTransform(body, spVectorConstruct(-45.0f, 50.0f), 0.0f);
-    spBodyAddShape(body, box);
-    spWorldAddBody(&demo->world, body);
-
-    //body = spBodyNewStatic();
-    //box = spSegmentNew(spVectorConstruct(-20.0f, 0.0f), spVectorConstruct(20.0f, 0.0f), 10.0f, 10.0f);
-    //box->material.restitution = 0.2f;
-    //box->material.friction = 0.8f;
-    //spBodySetTransform(body, spVectorConstruct(0.0f, 50.0f), 0.0f);
-    //spBodyAddShape(body, box);
-    //spWorldAddBody(&demo->world, body);
+    count++;
 }
 
-spFloat gy = 0.0f;
+static void
+CreateStaticBox(spVector pos, spFloat angle, spVector size, spColor color, spColor border)
+{
+    spVector vertices[4];
+    vertices[0] = spVectorConstruct(-size.x,-size.y); 
+    vertices[1] = spVectorConstruct( size.x,-size.y);
+    vertices[2] = spVectorConstruct( size.x, size.y);
+    vertices[3] = spVectorConstruct(-size.x, size.y);
+
+    shapes[count].body = spBodyNewStatic();
+    shapes[count].shape = spPolygonNew(vertices, 4, 0.0f);
+    spShapeSetFilter(shapes[count].shape, filter);
+    spBodySetTransform(shapes[count].body, pos, angle);
+    spBodyAddShape(shapes[count].body, shapes[count].shape);
+    spWorldAddBody(&demo->world, shapes[count].body);
+
+    shapes[count].color = color;
+    shapes[count].border = border;
+
+    count++;
+}
+
+static void
+CreateCircle(spVector pos, spFloat radius, spFloat mass, spColor color, spColor border)
+{
+    shapes[count].body = spBodyNewDynamic();
+    shapes[count].shape = spCircleNew(spVectorConstruct(0.0f, 0.0f), radius, mass);
+    shapes[count].shape->material.restitution = 0.2f;
+    shapes[count].shape->material.friction = 0.8f;
+    spBodySetTransform(shapes[count].body, pos, 0.0f);
+    spBodyAddShape(shapes[count].body, shapes[count].shape);
+    spWorldAddBody(&demo->world, shapes[count].body);
+
+    shapes[count].color = color;
+    shapes[count].border = border;
+
+    count++;
+}
+
+static void 
+setup() 
+{
+    spSlop = 0.3f;
+
+    spColor color  = {0.8f, 0.8f, 0.8f, 1.0f};
+    spColor border = {1.0f, 1.0f, 1.0f, 1.0f};
+
+    CreateStaticBox({0.0f, -100.0f}, 0.0f, {200.0f, 5.0f}, color, border);
+    CreateStaticBox({-100.0f, 0.0f}, 0.0f, {5.0f, 200.0f}, color, border);
+    CreateStaticBox({ 100.0f, 0.0f}, 0.0f, {5.0f, 200.0f}, color, border);
+
+    //CreateCircle({-20.0f, 25.0f},  8.0f, 10.0f, RED(), WHITE());
+    //CreateCircle({  0.0f, 10.0f}, 10.0f, 10.0f, RED(), WHITE());
+    //CreateCircle({ 20.0f, 25.0f}, 12.0f, 10.0f, RED(), WHITE());
+
+    //CreateBox({-10.0f,-10.0f}, 0.0f, {6.0f, 6.0f}, 25.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f,-10.0f}, 1.0f, {7.0f, 6.0f}, 25.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f, 10.0f}, 2.0f, {8.0f, 6.0f}, 25.0f, BLUE(), WHITE());
+    //CreateBox({-10.0f, 10.0f}, 3.0f, {9.0f, 6.0f}, 25.0f, BLUE(), WHITE());
+
+    CreateBox({-40.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    CreateBox({ 40.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    CreateBox({ 40.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    CreateBox({-40.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+
+}
 
 static void update(spFloat dt) 
 { 
     spWorldStep(&demo->world, dt);
 
-    spBody* bodies = spWorldGetBodyList(&demo->world);
-    while (bodies)
-    {
-        spBody* body = bodies;
-        spShape* shapes = spBodyGetShapeList(body);
-        while(shapes)
-        {
-            spShape* shape = shapes;
-            spDemoDrawShape(shape);
-            shapes = shape->next;
-        }
-        bodies = spBodyGetNext(body);
-    }
-    spFloat s = 5.0f;
-    spVector vertices[4] = {{-s, -s}, {s, -s}, {s, s+5.0f}, {-s, s}};
-    spVector center = {0.0f, 0.0f};
-    spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, GREEN(), WHITE());
 
-    spDrawLine({-10.0f, 0.0f}, {10.0f, gy}, 1.0f);
-    gy += 0.1f;
+    for (spInt i = 0; i < count; ++i)
+    {
+        spDemoDrawShape(shapes[i].shape, shapes[i].color, shapes[i].border);
+    }
+
 }
 
 static void destroy() 

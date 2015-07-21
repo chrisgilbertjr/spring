@@ -293,9 +293,9 @@ void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt coun
         spVector v1 = verts[i];
         spVector v2 = verts[(i+1)%count];
 
-        spVertex p0 = {{v0.x, v0.y}, {0.0f, -1.0f}, baryBorder, color, border};
-        spVertex p1 = {{v1.x, v1.y}, {0.0f,  1.0f}, baryBorder, color, border}; 
-        spVertex p2 = {{v2.x, v2.y}, {0.0f,  1.0f}, baryBorder, color, border};
+        spVertex p0 = {{v0.x, v0.y}, {0.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, color, border};
+        spVertex p1 = {{v1.x, v1.y}, {0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, color, border}; 
+        spVertex p2 = {{v2.x, v2.y}, {0.0f,  1.0f}, {0.0f, 1.0f, 1.0f}, color, border};
         AddTriangle(&p0, &p1, &p2);
     }
 }
@@ -352,57 +352,35 @@ void spDrawSegment(spVector a, spVector b, spFloat radius)
 }
 
 void
-spDrawLine(spVector start, spVector end, spFloat size)
+spDrawLine(spVector start, spVector end, spFloat size, spColor color)
 {
-    /// TODO: FIX@!!
     spVector a = start;
     spVector b = end;
     spVector n = spNormal(spSkew(spSub(b, a)));
     spVector t = spSkew(n);
 
-    spFloat r = size;
-    spColor fillColor = WHITE();
-    spColor outlineColor = WHITE();
+    spFloat r = size * 0.5f;
 
     spVector nw = (spMult(n, r));
     spVector tw = (spMult(t, r));
-    spVector v0 = spSub(b, spAdd(nw, tw));
-    spVector v1 = spAdd(b, spSub(nw, tw));
     spVector v2 = spSub(b, nw);
     spVector v3 = spAdd(b, nw);
     spVector v4 = spSub(a, nw);
     spVector v5 = spAdd(a, nw);
-    spVector v6 = spSub(a, spSub(nw, tw));
-    spVector v7 = spAdd(a, spAdd(nw, tw));
 
-    spVertex p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, fillColor, outlineColor };
-    spVertex p1 = { { v1.x, v1.y }, { 0.0f, 1.0f }, baryZero, fillColor, outlineColor };
-    spVertex p2 = { { v2.x, v2.y }, { 0.0f,-1.0f }, baryZero, fillColor, outlineColor };
+    spVertex p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color, color };
+    spVertex p1 = { { v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color, color };
+    spVertex p2 = { { v2.x, v2.y }, { 0.0f,-1.0f }, baryZero, color, color };
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, fillColor, outlineColor };
-    p1 = { { v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, fillColor, outlineColor };
-    p2 = { { v2.x, v2.y }, { 0.0f,-1.0f }, baryZero, fillColor, outlineColor };
-    AddTriangle(&p0, &p1, &p2);
-
-    p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, fillColor, outlineColor };
-    p1 = { { v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, fillColor, outlineColor };
-    p2 = { { v5.x, v5.y }, { 0.0f, 1.0f }, baryZero, fillColor, outlineColor };
-    AddTriangle(&p0, &p1, &p2);
-
-    p0 = { { v6.x, v6.y }, {0.0f,-1.0f }, baryZero, fillColor, outlineColor };
-    p1 = { { v4.x, v4.y }, {0.0f,-1.0f }, baryZero, fillColor, outlineColor };
-    p2 = { { v5.x, v5.y }, {0.0f, 1.0f }, baryZero, fillColor, outlineColor };
+    p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color, color };
+    p1 = { { v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color, color };
+    p2 = { { v5.x, v5.y }, { 0.0f, 1.0f }, baryZero, color, color };
     AddTriangle(&p0, &p1, &p2);
 }
 
 void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border)
 {
-    //spVertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero, color, border};
-    //spVertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero, color, border};
-    //spVertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero, color, border};
-    //spVertex d = {{center.x - radius, center.y + radius}, {-1.0f,+1.0f}, baryZero, color, border};
-
     spVertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero, color, border};
     spVertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero, color, border};
     spVertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero, color, border};

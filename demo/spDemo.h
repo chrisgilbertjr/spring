@@ -39,6 +39,6 @@ spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy);
 
 void spDemoFree(spDemo** demo);
 
-void spDemoDrawShape(spShape* shape);
+void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 
 void spRunDemo(spDemoIndex demo);

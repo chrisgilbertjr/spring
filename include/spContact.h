@@ -11,6 +11,13 @@
 /// penetration slop
 extern spFloat spSlop;
 
+enum spContactFlag
+{
+    SP_CONTACT_SHOULD_SWAP_FLAG = 1<<0,
+    SP_CONTACT_DO_SWAP_FLAG     = 1<<1,
+    SP_CONTACT_IS_SENSOR_FLAG   = 1<<2,
+};
+
 /// a point of contact between two shapes
 struct spContactPoint
 {
@@ -34,6 +41,7 @@ struct spContact
     spVector normal;          ///< shared contact normal
     spFloat restitution;      ///< 'bounciness' of the contact
     spFloat friction;         ///< friction of the contact
+    spMask flags;             ///< contacts flags
     spInt count;              ///< number of contact points
 };
 

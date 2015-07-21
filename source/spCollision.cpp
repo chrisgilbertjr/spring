@@ -427,6 +427,7 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
             addContact(&result, pointA, pointB);
         }
     }
+
     return result;
 }
 
@@ -538,9 +539,9 @@ GJK(const struct SupportPointContext* context)
     /// make sure the origin is always to the left of the edge
     if (spOriginToRight(m0.v, m1.v)) 
     {
-        spSwap(&m0.v, &m1.v);
-        spSwap(&m0.a, &m1.a);
-        spSwap(&m0.b, &m1.b);
+        spvSwap(&m0.v, &m1.v);
+        spvSwap(&m0.a, &m1.a);
+        spvSwap(&m0.b, &m1.b);
     }
 
     static const spInt max_iters = 16;

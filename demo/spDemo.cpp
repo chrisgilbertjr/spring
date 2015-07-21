@@ -124,7 +124,7 @@ Destroy()
 }
 
 void 
-spDemoDrawShape(spShape* shape)
+spDemoDrawShape(spShape* shape, spColor color, spColor border)
 {
     if (shape->type == SP_SHAPE_CIRCLE)
     {
@@ -132,15 +132,10 @@ spDemoDrawShape(spShape* shape)
         spTransform* xf = &shape->body->xf;
         spVector pos = spMult(*xf, circle->center);
         spFloat scale = 0.95f;
-        spVector line0 = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
-        spVector line1 = spMult(*xf, spSub(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
-        spVector line2 = spMult(*xf, spAdd(circle->center, spVectorConstruct(circle->radius*scale, 0.0f)));
-        spVector line3 = spMult(*xf, spSub(circle->center, spVectorConstruct(circle->radius*scale, 0.0f)));
+        spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
-        spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, RED(), WHITE());
-        //spDrawSegment(pos, line1, 1.0f);
-        spDrawLine(line0, line1, 1.5f);
-        spDrawLine(line2, line3, 1.5f);
+        spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, color, border);
+        spDrawLine(line, pos, 1.0f, border);
     }
     if (shape->type == SP_SHAPE_POLYGON)
     {
@@ -156,7 +151,7 @@ spDemoDrawShape(spShape* shape)
             vertices[i] = spMult(scale, vertices[i]);
         }
 
-        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, GREEN(), WHITE());
+        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, color, border);
     }
 }
 

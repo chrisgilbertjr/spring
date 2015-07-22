@@ -13,7 +13,112 @@ spRenderContext context;
 #define FLUSH_GL_ERRORS() glGetError()
 #define BUFFER_OFFSET(index) ((char *)NULL + (index)) 
 
-struct mat4 { spFloat m[16]; };
+static void
+MultMatrix4Vector4(const spFloat m[16], const spFloat v[4], spFloat result[4])
+{
+    result[0] = v[0]*m[0]  + v[1]*m[1]  + v[2]*m[2]  + v[3]*m[3];
+    result[1] = v[0]*m[4]  + v[1]*m[5]  + v[2]*m[6]  + v[3]*m[7];
+    result[2] = v[0]*m[8]  + v[1]*m[9]  + v[2]*m[10] + v[3]*m[11];
+    result[3] = v[0]*m[12] + v[1]*m[13] + v[2]*m[14] + v[3]*m[15];
+}
+
+static void 
+MultMatrix4(const spFloat a[16], const spFloat b[16], spFloat result[16])
+{
+    result[0]  = a[0]*b[0]  +  a[1]*b[4]  + a[2]*b[8]   + a[3]*b[12];
+    result[1]  = a[0]*b[1]  +  a[1]*b[5]  + a[2]*b[9]   + a[3]*b[13];
+    result[2]  = a[0]*b[2]  +  a[1]*b[6]  + a[2]*b[10]  + a[3]*b[14];
+    result[3]  = a[0]*b[3]  +  a[1]*b[7]  + a[2]*b[11]  + a[3]*b[15];
+
+    result[4]  = a[4]*b[0]  +  a[5]*b[4]  + a[6]*b[8]   + a[7]*b[12];
+    result[5]  = a[4]*b[1]  +  a[5]*b[5]  + a[6]*b[9]   + a[7]*b[13];
+    result[6]  = a[4]*b[2]  +  a[5]*b[6]  + a[6]*b[10]  + a[7]*b[14];
+    result[7]  = a[4]*b[3]  +  a[5]*b[7]  + a[6]*b[11]  + a[7]*b[15];
+
+    result[8]  = a[8]*b[0]  +  a[9]*b[4]  + a[10]*b[8]  + a[11]*b[12];
+    result[9]  = a[8]*b[1]  +  a[9]*b[5]  + a[10]*b[9]  + a[11]*b[13];
+    result[10] = a[8]*b[2]  +  a[9]*b[6]  + a[10]*b[10] + a[11]*b[14];
+    result[11] = a[8]*b[3]  +  a[9]*b[7]  + a[10]*b[11] + a[11]*b[15];
+
+    result[12] = a[12]*b[0] +  a[13]*b[4] + a[14]*b[8]  + a[15]*b[12];
+    result[13] = a[12]*b[1] +  a[13]*b[5] + a[14]*b[9]  + a[15]*b[13];
+    result[14] = a[12]*b[2] +  a[13]*b[6] + a[14]*b[10] + a[15]*b[14];
+    result[15] = a[12]*b[3] +  a[13]*b[7] + a[14]*b[11] + a[15]*b[15];
+}
+
+static void
+InverseMatrix4(const spFloat m[16], spFloat result[16])
+{
+    /// laplace expansion theorem
+    /// http://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
+
+    /// 2x2 cofactor matrices calculated only once 
+    spFloat s0 = m[0] * m[5]  - m[1]  * m[4];
+    spFloat s1 = m[0] * m[6]  - m[2]  * m[4];
+    spFloat s2 = m[0] * m[7]  - m[3]  * m[4];
+    spFloat s3 = m[1] * m[6]  - m[2]  * m[5];
+    spFloat s4 = m[1] * m[7]  - m[3]  * m[5];
+    spFloat s5 = m[2] * m[7]  - m[3]  * m[6];
+    spFloat c0 = m[8] * m[13] - m[9]  * m[12];
+    spFloat c1 = m[8] * m[14] - m[10] * m[12];
+    spFloat c2 = m[8] * m[15] - m[11] * m[12];
+    spFloat c3 = m[9] * m[14] - m[10] * m[13];
+    spFloat c4 = m[9] * m[15] - m[11] * m[13];
+    spFloat c5 = m[10]* m[15] - m[11] * m[14];
+
+    /// compute the determinant
+    spFloat determinant = s0*c5 - s1*c4 + s2*c3 + s3*c2 - s4*c1 + s5*c0;
+
+    /// check if the determinant if position
+    if (determinant <= 0.0f + SP_FLT_EPSILON) { spMemset(result, 0, 16*sizeof(spFloat)); return; }
+
+    /// get the inv determinant
+    float invDeterminant = 1.0f / determinant;
+
+    /// compute the inverse of the matrix
+    result[0]  = (+m[5]  * c5 - m[6]  * c4 + m[7]  * c3) * invDeterminant;
+    result[1]  = (-m[1]  * c5 - m[2]  * c4 + m[3]  * c3) * invDeterminant;
+    result[2]  = (+m[13] * s5 - m[14] * s4 + m[15] * s3) * invDeterminant;
+    result[3]  = (-m[9]  * s5 - m[10] * s4 + m[11] * s3) * invDeterminant;
+
+    result[4]  = (-m[4]  * c5 - m[6]  * c2 + m[7]  * c1) * invDeterminant;
+    result[5]  = (+m[0]  * c5 - m[2]  * c2 + m[3]  * c1) * invDeterminant;
+    result[6]  = (-m[12] * s5 - m[14] * s2 + m[15] * s1) * invDeterminant;
+    result[7]  = (+m[8]  * s5 - m[10] * s2 + m[11] * s1) * invDeterminant;
+
+    result[8]  = (+m[4]  * c4 - m[5]  * c2 + m[7]  * c0) * invDeterminant;
+    result[9]  = (-m[0]  * c4 - m[1]  * c2 + m[3]  * c0) * invDeterminant;
+    result[10] = (+m[12] * s4 - m[13] * s2 + m[15] * s0) * invDeterminant;
+    result[11] = (-m[8]  * s4 - m[9]  * s2 + m[11] * s0) * invDeterminant;
+
+    result[12] = (-m[4]  * c3 - m[5]  * c1 + m[6]  * c0) * invDeterminant;
+    result[13] = (+m[0]  * c3 - m[1]  * c1 + m[2]  * c0) * invDeterminant;
+    result[14] = (-m[12] * s3 - m[13] * s1 + m[14] * s0) * invDeterminant;
+    result[15] = (+m[8]  * s3 - m[9]  * s1 + m[10] * s0) * invDeterminant;
+}
+
+spVector
+spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view)
+{
+    /// project mouse coords from screen space to world space
+    spFloat inverse[16] = {0};
+    spFloat camera[16] = {0};
+    spFloat screen[4] = {(position.x / view.width)  * 2.0f - 1.0f, (position.y / view.height) * 2.0f - 1.0f, 0.0f, 1.0f};
+    spFloat world[4] = {0};
+
+    MultMatrix4(model, proj, camera);
+    InverseMatrix4(camera, inverse);
+    MultMatrix4Vector4(inverse, screen, world);
+
+    /// shouldnt divide by 0
+    if (world[3] == 0.0f) { return spVectorZero(); }
+
+    world[0] /= world[3];
+    world[1] /= world[3];
+
+    /// return world space coords
+    return spVectorConstruct(world[0], world[1]);
+}
 
 ///* Render context buffer functions
 /// @{
@@ -98,16 +203,9 @@ ShrinkTriangleBuffer()
 static void
 UpdateBufferSize()
 {
-    while (context.capacity <= BufferGrowSize)
+    while (context.triangles >= context.capacity)
     {
-        if (context.triangles >= context.capacity)
-    	{
-    	    GrowTriangleBuffer();
-    	}
-    	else 
-    	{ 
-    	    break; 
-    	}
+        GrowTriangleBuffer();
     }
 }
 
@@ -411,13 +509,13 @@ void spDrawDemo()
     spFloat near  = -size;
     spFloat far   =  size;
 
-    mat4 ortho = {
+    spFloat ortho[16] = {
         2.0f/(right-left), 0.0f,           0.0f,            -(right+left)/(right-left),
         0.0f,              2.0f/(top-bot), 0.0f,            -(top+bot)/(top-bot),
         0.0f,              0.0f,           2.0f/(far-near), -(far+near)/(far-near),
         0.0f,              0.0f,           0.0f,             1.0f };
 
-    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_FALSE, &ortho.m[0]);
+    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_FALSE, ortho);
 
     /// bind the vertex array and draw the scene
     glBindVertexArray(context.vertexArray);

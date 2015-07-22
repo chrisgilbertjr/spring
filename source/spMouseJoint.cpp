@@ -99,13 +99,13 @@ spMouseJointAlloc()
     return (spMouseJoint*) spMalloc(sizeof(spMouseJoint));
 }
 
-spMouseJoint* 
+spConstraint* 
 spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target)
 {
     spMouseJoint* joint = spMouseJointAlloc();
     NULLCHECK(joint);
     spMouseJointInit(joint, a, frequency, damping, anchor, target);
-    return joint;
+    return (spConstraint*) joint;
 }
 
 spBool 

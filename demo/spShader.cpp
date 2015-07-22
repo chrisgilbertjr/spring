@@ -45,7 +45,7 @@ const char* pixelShape =
     "void main(void)\n"
     "{\n"
     "    float size = length(fwidth(p_aliasing));\n"
-    "    if (p_barycentric.y == 1.0f) { size = size * 1.5f; }\n"
+    "    if (p_barycentric.y == 1.0f) { size = size * 1.2f; }\n"
     "    float lerp   = length(p_aliasing);\n"
     "    float border = 1.0 - size;\n"
     "    float alpha  = 1.0 - smoothstep(border, 1.0, lerp);\n"

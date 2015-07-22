@@ -13,14 +13,12 @@ static void init() {};
 static void update(spFloat dt) { spDrawCircle({0.0f, 0.0f}, 0.0f, 0.2f, RED(), WHITE()); };
 static void destroy() {};
 
-struct
-
 spDemo*
 spDemoNew(initFunc init, updateFunc update, destroyFunc destroy)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
     Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, -98.0f));
-    Demo->mouse = { NULL, NULL, 0.0f, 0.0f };
+    Demo->mouse = { spMouseJointNew(NULL, 2.0f, 0.5f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
     Demo->window = NULL;
     Demo->initialize = init;
     Demo->update = update;
@@ -41,6 +39,87 @@ spDemoFree(spDemo** demo)
     spFree(demo);
 }
 
+static spVector
+MousePosition()
+{
+    double x, y;
+    int xx, yy;
+    glfwGetCursorPos(demo->window, &x, &y);
+    glfwGetWindowSize(demo->window, &xx, &yy);
+    return spVectorConstruct((spFloat)x, (spFloat)yy - (spFloat)y);
+}
+
+static spVector
+ScreenToWorld(spVector position)
+{
+    spFloat IDENTITY[16] = {1.0f, 0.0f, 0.0f, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 1.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f};
+    spFloat size = 100.0f;
+    spFloat right =  size;
+    spFloat left  = -size;
+    spFloat top   =  size;
+    spFloat bot   = -size;
+    spFloat near  = -size;
+    spFloat far   =  size;
+
+    spFloat ortho[16] = {
+        2.0f/(right-left), 0.0f,           0.0f,            -(right+left)/(right-left),
+        0.0f,              2.0f/(top-bot), 0.0f,            -(top+bot)/(top-bot),
+        0.0f,              0.0f,           2.0f/(far-near), -(far+near)/(far-near),
+        0.0f,              0.0f,           0.0f,             1.0f };
+
+    int ww, wh;
+    glfwGetWindowSize(demo->window, &ww, &wh);
+
+    spViewport view = {800.0f, 800.0f};
+
+    return spDeproject(position, IDENTITY, ortho, view);
+}
+
+static void
+MouseClick(spWindow* window, int button, int state, int mods)
+{
+    spMouse* mouse = &demo->mouse;
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS)
+    {
+        if (mouse->shape != NULL) return;
+
+        spShape* shape = spWorldTestPoint(&demo->world, mouse->position);
+        if (shape != NULL && shape->body->type == SP_BODY_DYNAMIC)
+        {
+            spMouseJointStart(mouse->constraint, shape->body, mouse->position);
+            spWorldAddConstraint(&demo->world, mouse->constraint);
+            mouse->shape = shape;
+        }
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_RELEASE)
+    {
+        if (mouse->shape != NULL)
+        {
+            spMouseJointEnd(mouse->constraint);
+            spWorldRemoveConstraint(&demo->world, mouse->constraint);
+            mouse->shape = NULL;
+        }
+    }
+}
+
+static void
+Mouse(spWindow* window, double, double)
+{
+    spMouse* mouse = &demo->mouse;
+
+    mouse->position = ScreenToWorld(MousePosition());
+
+    if (mouse->shape != NULL)
+    {
+        spMouseJointSetTarget(mouse->constraint, mouse->position);
+    }
+}
+
 static void
 SetupGLFW()
 {
@@ -48,11 +127,11 @@ SetupGLFW()
     spAssert(glfwInit(), "Error: cannot init GLFW3\n");
 
     /// make sure we can get a core profile context
-    //glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
+    /// create the window
     demo->window = glfwCreateWindow(800, 800, "Simple example", NULL, NULL);
 
     if (!demo->window)
@@ -61,6 +140,9 @@ SetupGLFW()
         glfwTerminate();
         spAssert(spFalse, "GLFW window creation failed.\n");
     }
+
+    glfwSetMouseButtonCallback(demo->window, (GLFWmousebuttonfun)MouseClick);
+    glfwSetCursorPosCallback(demo->window, (GLFWcursorposfun)Mouse);
 
     glfwMakeContextCurrent(demo->window);
     glfwSetTime(0.0f);

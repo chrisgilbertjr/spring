@@ -33,6 +33,8 @@ struct spRenderContext
     GLint vertexShader, pixelShader, shaderProgram;
     GLint triangles, capacity;
 };
+
+spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
     
 void spDrawInit();
 void spDrawLine(spVector start, spVector end, spFloat size, spColor color);

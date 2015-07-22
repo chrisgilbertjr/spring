@@ -31,7 +31,7 @@ spApplicationInit(
     app->loop = loop;
     app->main = main;
     app->data = data;
-    app->mouse = spMouseJointNew(NULL, 1.5f, 0.5f, spVectorZero(), spVectorZero());
+    app->mouse = (spMouseJoint*)spMouseJointNew(NULL, 1.5f, 0.5f, spVectorZero(), spVectorZero());
     app->mouseShape = NULL;
 }
 

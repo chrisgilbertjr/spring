@@ -187,7 +187,8 @@ void spWorldBroadPhase(spWorld* world)
             spContactKey key = spContactKeyConstruct(shape_a, shape_b);
 
             /// check if the contact key is currently in the contact list
-            if (spContactKeyExists(key, world->contactList) == spFalse)
+            if (spContactKeyExists(key, world->contactList) == spFalse && 
+               (body_a->type != SP_BODY_STATIC || body_b->type != SP_BODY_STATIC))
             {
                 /// the contact key is not in the list, create a new contact with the key
                 spContact* contact = spContactNew(key);
@@ -227,18 +228,11 @@ void spWorldNarrowPhase(spWorld* world)
         /// they are colliding, init the contact with the collision result
         else
         {
-            if (result.count == 2)
-            {
-                contact->flags = contact->flags ^ SP_CONTACT_DO_SWAP_FLAG;
-            }
-            else
-            {
-                contact->flags = (contact->flags & ~SP_CONTACT_DO_SWAP_FLAG);
-            }
             initContact(&result, contact, shapeA, shapeB);
             contact = contact->next;
         }
     }
+    spLog("\n\n");
 }
 
 void spWorldDraw(spWorld* world)

@@ -31,7 +31,7 @@ void spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat
 spMouseJoint* spMouseJointAlloc();
 
 /// create a mouse joint on the heap given a body, frequency, damping, anchor point, and target point
-spMouseJoint* spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
+spConstraint* spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
 
 /// check if a constraint is a mouse joint
 spBool spConstraintIsMouseJoint(spConstraint* constraint);

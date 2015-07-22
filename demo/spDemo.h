@@ -12,8 +12,7 @@ struct spMouse
 {
     spConstraint* constraint;
     spShape* shape;
-    spFloat x;
-    spFloat y;
+    spVector position;
 };
 
 struct spDemo

@@ -232,7 +232,6 @@ void spWorldNarrowPhase(spWorld* world)
             contact = contact->next;
         }
     }
-    spLog("\n\n");
 }
 
 void spWorldDraw(spWorld* world)

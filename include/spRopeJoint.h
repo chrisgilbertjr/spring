@@ -7,6 +7,8 @@
 /// @defgroup spRopeJoint spRopeJoint
 /// @{
 
+extern spFloat spRopeJointDistBias;
+
 /// a rope joint is a hard constraint with a max distance between two anchor points
 struct spRopeJoint
 {
@@ -32,7 +34,7 @@ void spRopeJointWorldInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anc
 spRopeJoint* spRopeJointAlloc();
 
 /// allocate a rope joint on the heap, and init it with two bodies, two anchor points in local space, and a max distance
-spRopeJoint* spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance);
+spConstraint* spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance);
 
 /// allocate a rope joint on the heap, and init it with two bodies, two anchor points in world space, and a max distance
 spRopeJoint* spRopeJointWorldNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance);

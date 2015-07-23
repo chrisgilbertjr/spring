@@ -18,7 +18,7 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
     Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, -98.0f));
-    Demo->mouse = { spMouseJointNew(NULL, 2.0f, 0.5f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
+    Demo->mouse = { spMouseJointNew(NULL, 1.5f, 0.5f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
     Demo->window = NULL;
     Demo->initialize = init;
     Demo->update = update;
@@ -217,7 +217,7 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
         spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, color, border);
-        spDrawLine(line, pos, 1.0f, border);
+        spDrawLine(line, pos, 1.0f, border, border);
     }
     if (shape->type == SP_SHAPE_POLYGON)
     {
@@ -234,6 +234,49 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         }
 
         spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, color, border);
+    }
+}
+
+void 
+spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
+{
+    if (spConstraintIsMouseJoint(constraint))
+    {
+        spMouseJoint* mouseJoint = spConstraintCastMouseJoint(constraint);
+        spBody* bodyA = mouseJoint->constraint.bodyA;
+        spVector pointA = spMult(bodyA->xf, mouseJoint->anchor);
+        spVector pointB = mouseJoint->target;
+        spDrawCircle(pointA, 0.0f, 1.5f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+        spDrawSpring(pointA, pointB, 1.5f, 2.0f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+        spDrawCircle(pointB, 0.0f, 2.0f, WHITE(), BLACK());
+    }
+    else if(spConstraintIsRopeJoint(constraint))
+    {
+        spRopeJoint* ropeJoint = spConstraintCastRopeJoint(constraint);
+
+        spBody* bodyA = ropeJoint->constraint.bodyA;
+        spBody* bodyB = ropeJoint->constraint.bodyB;
+
+        spVector pointA = spMult(bodyA->xf, ropeJoint->anchorA);
+        spVector pointB = spMult(bodyB->xf, ropeJoint->anchorB);
+
+        spDrawCircle(pointA, 0.0f, 1.5f, RGB(1,1,0), BLACK());
+        spDrawCircle(pointB, 0.0f, 1.5f, RGB(1,1,0), BLACK());
+        spDrawRope(pointA, pointB, 8, 1.5f, RGB(0.5f,0.5f,0), RGB(1.0f,1.0f,0), BLACK());
+    }
+    else if (spConstraintIsDistanceJoint(constraint))
+    {
+        spDistanceJoint* distanceJoint = spConstraintCastDistanceJoint(constraint);
+
+        spBody* bodyA = distanceJoint->constraint.bodyA;
+        spBody* bodyB = distanceJoint->constraint.bodyB;
+
+        spVector pointA = spMult(bodyA->xf, distanceJoint->anchorA);
+        spVector pointB = spMult(bodyB->xf, distanceJoint->anchorB);
+
+        spDrawCircle(pointA, 0.0f, 1.5f, RGB(1,0,0), BLACK());
+        spDrawCircle(pointB, 0.0f, 1.5f, RGB(1,0,0), BLACK());
+        spDrawLine(pointA, pointB, 2.0f, RGB(1,0,0), BLACK());
     }
 }
 

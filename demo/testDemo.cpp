@@ -9,7 +9,7 @@ spFilter filter = spFilterCollideAll;
 DemoShape shapes[100] = {0};
 spInt count = 0;
 
-static void
+static spInt
 CreateBox(spVector pos, spFloat angle, spVector size, spFloat mass, spColor color, spColor border)
 {
     spVector vertices[4];
@@ -31,6 +31,8 @@ CreateBox(spVector pos, spFloat angle, spVector size, spFloat mass, spColor colo
     shapes[count].border = border;
 
     count++;
+
+    return count-1;
 }
 
 static void
@@ -84,84 +86,100 @@ setup()
     CreateStaticBox({-100.0f, 0.0f}, 0.0f, {5.0f, 200.0f}, color, border);
     CreateStaticBox({ 100.0f, 0.0f}, 0.0f, {5.0f, 200.0f}, color, border);
 
-    CreateCircle({-25.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
-    CreateCircle({  9.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 60.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
-    CreateCircle({-30.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 10.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 90.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
-    CreateCircle({-20.0f, 35.0f},  8.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({  0.0f, 90.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({ 20.0f, 15.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({-20.0f, 25.0f},  8.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({  0.0f, 40.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({ 20.0f, 35.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
+    spConstraint* constraint;
+    spInt a, b;
 
-    CreateBox({-10.0f,-10.0f}, 0.0f, {6.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({ 10.0f,-10.0f}, 1.0f, {7.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({ 10.0f, 10.0f}, 2.0f, {8.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({-10.0f, 10.0f}, 3.0f, {9.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateCircle({-25.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({  9.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 60.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({-30.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 10.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 90.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({-20.0f, 35.0f},  8.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({  0.0f, 90.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({ 20.0f, 15.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({-20.0f, 25.0f},  8.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({  0.0f, 40.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({ 20.0f, 35.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
 
-    CreateBox({-40.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({ 40.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({ 40.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({-40.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({-10.0f,-10.0f}, 0.0f, {6.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f,-10.0f}, 1.0f, {7.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f, 10.0f}, 2.0f, {8.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({-10.0f, 10.0f}, 3.0f, {9.0f, 6.0f}, 100.0f, BLUE(), WHITE());
 
-    CreateBox({-50.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({ 50.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({ 50.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({-50.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({-40.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({ 40.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({ 40.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({-40.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
 
-    CreateBox({-60.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({ 60.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({ 60.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({-60.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    //CreateBox({-50.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({ 50.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({ 50.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({-50.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, BLUE(), WHITE());
 
-    CreateCircle({-25.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
-    CreateCircle({  9.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 60.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
-    CreateCircle({-30.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 10.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
-    CreateCircle({ 90.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
-    CreateCircle({-20.0f, 35.0f},  8.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({  0.0f, 90.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({ 20.0f, 15.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({-20.0f, 25.0f},  8.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({  0.0f, 40.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
-    CreateCircle({ 20.0f, 35.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
+    //CreateBox({-60.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    //CreateBox({ 60.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    //CreateBox({ 60.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    //CreateBox({-60.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, GREEN(), WHITE());
 
-    CreateBox({-10.0f,-10.0f}, 0.0f, {6.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({ 10.0f,-10.0f}, 1.0f, {7.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({ 10.0f, 10.0f}, 2.0f, {8.0f, 6.0f}, 100.0f, BLUE(), WHITE());
-    CreateBox({-10.0f, 10.0f}, 3.0f, {9.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateCircle({-25.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({  9.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 60.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({-30.0f, 25.0f},  8.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 10.0f, 10.0f}, 10.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({ 90.0f, 25.0f}, 12.0f, 50.0f, RED(), WHITE());
+    //CreateCircle({-20.0f, 35.0f},  8.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({  0.0f, 90.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({ 20.0f, 15.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({-20.0f, 25.0f},  8.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({  0.0f, 40.0f}, 10.0f, 50.0f, YELLOW(), WHITE());
+    //CreateCircle({ 20.0f, 35.0f}, 12.0f, 50.0f, YELLOW(), WHITE());
 
-    CreateBox({-40.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({ 40.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({ 40.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
-    CreateBox({-40.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({-10.0f,-10.0f}, 0.0f, {6.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f,-10.0f}, 1.0f, {7.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({ 10.0f, 10.0f}, 2.0f, {8.0f, 6.0f}, 100.0f, BLUE(), WHITE());
+    //CreateBox({-10.0f, 10.0f}, 3.0f, {9.0f, 6.0f}, 100.0f, BLUE(), WHITE());
 
-    CreateBox({-50.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({ 50.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({ 50.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, BLUE(), WHITE());
-    CreateBox({-50.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({-40.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({ 40.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({ 40.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
+    //CreateBox({-40.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 200.0f, PURPLE(), WHITE());
 
-    CreateBox({-60.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({ 60.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({ 60.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, GREEN(), WHITE());
-    CreateBox({-60.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    //CreateBox({-50.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({ 50.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({ 50.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, BLUE(), WHITE());
+    //CreateBox({-50.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, BLUE(), WHITE());
 
+    a = CreateBox({-60.0f,-40.0f}, 0.0f, {12.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    b = CreateBox({ 60.0f,-40.0f}, 1.0f, {11.0f, 10.0f}, 75.0f, GREEN(), WHITE());
+    constraint = spRopeJointNew(shapes[a].body, shapes[b].body, spVectorZero(), spVectorZero(), 50.0f);
+    spWorldAddConstraint(&demo->world, constraint);
+
+    a = CreateBox({ 60.0f, 40.0f}, 2.0f, {10.0f, 10.0f}, 75.0f, RGB(0.2,0.2,0.5), WHITE());
+    b = CreateBox({-60.0f, 40.0f}, 3.0f, { 9.0f, 10.0f}, 75.0f, RGB(0.2,0.2,0.5), WHITE());
+    constraint = spDistanceJointNew(shapes[a].body, shapes[b].body, spVectorZero(), spVectorZero(), 50.0f);
+    spWorldAddConstraint(&demo->world, constraint);
 }
 
 static void update(spFloat dt) 
 { 
-    spWorldStep(&demo->world, dt);
+    spWorld* world = &demo->world;
 
+    spWorldStep(world, dt);
 
     for (spInt i = 0; i < count; ++i)
     {
         spDemoDrawShape(shapes[i].shape, shapes[i].color, shapes[i].border);
     }
 
+    spConstraint* constraints = world->jointList;
+    spConstraint* constraint = NULL;
+    while(constraints != NULL)
+    {
+        constraint = constraints;
+        spDemoDrawConstraint(constraint, GREEN(), GREEN());
+        constraints = constraint->next;
+    }
 }
 
 static void destroy() 

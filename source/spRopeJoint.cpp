@@ -5,6 +5,8 @@
 /// convenience macro for getters/setters
 #define ropeJoint spConstraintCastRopeJoint(constraint)
 
+spFloat spRopeJointDistBias = 1.0f;
+
 static void 
 Free(spRopeJoint** joint)
 {
@@ -23,11 +25,18 @@ PreSolve(spRopeJoint* joint, const spFloat h)
     spVector anchorA = spMult(a->xf, joint->anchorA);
     spVector anchorB = spMult(b->xf, joint->anchorB);
 
-    /// compute relative velocity and normal direction
+    /// compute relative velocity
     joint->rA = spSub(anchorA, a->p);
     joint->rB = spSub(anchorB, b->p);
+
+    /// compute the normal
     joint->n = spSub(anchorA, anchorB);
     spFloat length = spLength(joint->n);
+    if (length <= (joint->maxDistance + spRopeJointDistBias))
+    {
+        joint->n = spVectorZero();
+        return;
+    }
     joint->n = spMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
 
     /// compute the effective mass
@@ -39,6 +48,7 @@ PreSolve(spRopeJoint* joint, const spFloat h)
     /// compute the position constraint, and compute baumgarte velocity bias
     spFloat C = length - joint->maxDistance;
     joint->bias = C * (spBaumgarte / h);
+    joint->lambdaAccum = 0.0f;
 }
 
 static void 
@@ -63,6 +73,9 @@ WarmStart(spRopeJoint* joint)
 static void 
 Solve(spRopeJoint* joint)
 {
+    /// exit if the distance was closer than the max distance
+    if (spEqual(joint->n, spVectorZero())) { return; }
+
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
@@ -74,12 +87,11 @@ Solve(spRopeJoint* joint)
 
     /// accumulate the impulse
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
-    spFloat lambdaOld = joint->lambdaAccum;
     joint->lambdaAccum += lambda;
 
     /// compute the impulses
-    spVector impulseA = spMult(joint->n, joint->lambdaAccum - lambdaOld);
-    spVector impulseB = spNegative(impulseA);
+    spVector impulseB = spMult(joint->n, lambda);
+    spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulseA);
@@ -119,12 +131,12 @@ spRopeJointAlloc()
     return (spRopeJoint*) spMalloc(sizeof(spRopeJoint));
 }
 
-spRopeJoint* 
+spConstraint* 
 spRopeJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
 {
     spRopeJoint* joint = spRopeJointAlloc();
     spRopeJointInit(joint, a, b, anchorA, anchorB, maxDistance);
-    return joint;
+    return (spConstraint*)joint;
 }
 
 spRopeJoint* 

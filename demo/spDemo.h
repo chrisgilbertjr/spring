@@ -40,4 +40,6 @@ void spDemoFree(spDemo** demo);
 
 void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 
+void spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border);
+
 void spRunDemo(spDemoIndex demo);

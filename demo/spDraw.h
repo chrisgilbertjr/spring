@@ -15,6 +15,7 @@ struct spViewport { spFloat width, height; };
 struct spFrustum { spFloat left, right, top, bottom, near, far; };
 
 /// some useful colors
+#define RGB(r, g, b)     {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)1 }
 #define RGBA(r, g, b, a) {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a }
 #define COLA(c, a)       {(GLfloat)c, (GLfloat)c, (GLfloat)c, (GLfloat)a }
 
@@ -37,10 +38,12 @@ struct spRenderContext
 spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
     
 void spDrawInit();
-void spDrawLine(spVector start, spVector end, spFloat size, spColor color);
+void spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor border);
 void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt count, spVector center, spColor color, spColor border);
-void spDrawSegment(spVector a, spVector b, spFloat radius);
+void spDrawSegment(spVector a, spVector b, spFloat radius, spColor color, spColor border);
 void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border);
+void spDrawSpring(spVector start, spVector end, spFloat linewidth, spFloat springWidth, spColor color, spColor border);
+void spDrawRope(spVector start, spVector end, spInt iterations, spFloat size, spColor colorA, spColor colorB, spColor border);
 
 void spClearBuffers();
 void spDrawDemo();

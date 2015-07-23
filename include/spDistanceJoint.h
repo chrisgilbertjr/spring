@@ -26,10 +26,10 @@ struct spDistanceJoint
 void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 /// allocate a distance joint on the heap
-spDistanceJoint* spDistanceConstraintAlloc();
+spDistanceJoint* spDistanceJointAlloc();
 
 /// create a distance joint on the heap given 2 bodies, 2 anchor points in local space, and a distance
-spDistanceJoint* spDistanceConstraintNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
+spConstraint* spDistanceJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 /// check if a constraint is a distance joint
 spBool spConstraintIsDistanceJoint(spConstraint* constraint);

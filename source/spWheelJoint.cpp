@@ -1,6 +1,7 @@
 
 #include "spWheelJoint.h" 
 #include "spBody.h"
+#include "spDraw.h"
 
 /// convenience macro for getters/setters
 #define wheelJoint spConstraintCastWheelJoint(constraint)
@@ -37,8 +38,12 @@ PreSolve(spWheelJoint* joint, const spFloat h)
 
         spFloat rvA = a->mInv + a->iInv * joint->sAy * joint->sAy;
         spFloat rvB = b->mInv + b->iInv * joint->sBy * joint->sBy;
+        spFloat relVelocity = rvA + rvB;
 
-        joint->eMassLine = rvA + rvB;
+        spFloat C = spDot(dir, joint->tWorld);
+        joint->biasLine = C * (spBaumgarte / h);
+
+        joint->eMassLine = relVelocity;
         joint->eMassLine = joint->eMassLine ? 1.0f / joint->eMassLine : 0.0f;
     }
 
@@ -70,7 +75,8 @@ PreSolve(spWheelJoint* joint, const spFloat h)
             joint->beta = joint->gamma * C * h * k;
 
             /// compute effective mass
-            joint->eMassSpring += joint->gamma;
+            //joint->eMassSpring += joint->gamma;
+            joint->eMassSpring = iMass + joint->gamma;
             joint->eMassSpring  = joint->eMassSpring ? 1.0f / joint->eMassSpring : 0.0f;
         }
     }
@@ -86,6 +92,9 @@ PreSolve(spWheelJoint* joint, const spFloat h)
     {
         joint->eMassMotor = 0.0f;
     }
+    joint->lambdaAccumSpring = 0.0f;
+    joint->lambdaAccumMotor = 0.0f;
+    joint->lambdaAccumLine = 0.0f;
 }
 
 static void 
@@ -95,45 +104,45 @@ WarmStart(spWheelJoint* joint)
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
 
-    /// spring impulses
-    {
-        /// compute the impulse
-        spVector impulse = spMult(joint->nWorld, joint->lambdaAccumSpring);
-        spFloat impulseA = joint->lambdaAccumSpring * joint->sAx;
-        spFloat impulseB = joint->lambdaAccumSpring * joint->sBx;
+    ///// spring impulses
+    //{
+    //    /// compute the impulse
+    //    spVector impulse = spMult(joint->nWorld, joint->lambdaAccumSpring);
+    //    spFloat impulseA = joint->lambdaAccumSpring * joint->sAx;
+    //    spFloat impulseB = joint->lambdaAccumSpring * joint->sBx;
 
-        /// apply the impulse
-        a->v = spSub(a->v, spMult(a->mInv, impulse));
-        b->v = spAdd(b->v, spMult(b->mInv, impulse));
-        a->w -= a->iInv * impulseA;
-        b->w += b->iInv * impulseB;
-    }
+    //    /// apply the impulse
+    //    a->v = spSub(a->v, spMult(a->mInv, impulse));
+    //    b->v = spAdd(b->v, spMult(b->mInv, impulse));
+    //    a->w -= a->iInv * impulseA;
+    //    b->w += b->iInv * impulseB;
+    //}
 
-    /// motor impulses
-    {
-        /// apply the impulse
-        a->w -= a->iInv * joint->lambdaAccumMotor;
-        b->w += b->iInv * joint->lambdaAccumMotor;
-    }
+    ///// motor impulses
+    //{
+    //    /// apply the impulse
+    //    a->w -= a->iInv * joint->lambdaAccumMotor;
+    //    b->w += b->iInv * joint->lambdaAccumMotor;
+    //}
 
-    /// point/line impulses
-    {
-        /// compute the impulses
-        spVector impulse = spMult(joint->lambdaAccumLine, joint->tWorld);
-        spFloat impulseA = joint->sAy * joint->lambdaAccumLine;
-        spFloat impulseB = joint->sBy * joint->lambdaAccumLine;
+    ///// point/line impulses
+    //{
+    //    /// compute the impulses
+    //    spVector impulse = spMult(joint->lambdaAccumLine, joint->tWorld);
+    //    spFloat impulseA = joint->sAy * joint->lambdaAccumLine;
+    //    spFloat impulseB = joint->sBy * joint->lambdaAccumLine;
 
-        /// apply the impulses
-        a->v = spSub(a->v, spMult(a->mInv, impulse));
-        b->v = spAdd(b->v, spMult(b->mInv, impulse));
-        a->w -= a->iInv * impulseA;
-        b->w += b->iInv * impulseB;
-    }
+    //    /// apply the impulses
+    //    a->v = spSub(a->v, spMult(a->mInv, impulse));
+    //    b->v = spAdd(b->v, spMult(b->mInv, impulse));
+    //    a->w -= a->iInv * impulseA;
+    //    b->w += b->iInv * impulseB;
+    //}
 
     /// reset lagrange multipliers
-    joint->lambdaAccumSpring = 0.0f;
-    joint->lambdaAccumMotor = 0.0f;
-    joint->lambdaAccumLine = 0.0f;
+    //joint->lambdaAccumSpring = 0.0f;
+    //joint->lambdaAccumMotor = 0.0f;
+    //joint->lambdaAccumLine = 0.0f;
 }
 
 static void 
@@ -143,10 +152,15 @@ Solve(spWheelJoint* joint)
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
 
+    spFloat wA = a->w;
+    spFloat wB = b->w;
+    spVector vA = a->v;
+    spVector vB = b->v;
+
     /// solve spring constraint
     {
         /// compute the velocity constraint and compute the multiplier
-        spFloat Cdot = spDot(joint->nWorld, spSub(b->v, a->v)) + joint->sBx * b->w - joint->sAx * a->w;
+        spFloat Cdot = spDot(joint->nWorld, spSub(vB, vA)) + joint->sBx * wB - joint->sAx * wA;
         spFloat lambda = -joint->eMassSpring * (Cdot + joint->beta + joint->gamma * joint->lambdaAccumSpring);
         joint->lambdaAccumSpring += lambda;
 
@@ -165,7 +179,7 @@ Solve(spWheelJoint* joint)
     /// solve motor constraint
     {
         /// compute the velocity constraint and compute the multiplier
-        spFloat Cdot = b->w - a->w + joint->motorSpeed;
+        spFloat Cdot = wB - wA + joint->motorSpeed;
         spFloat lambda = -Cdot * joint->motorSpeed;
         spFloat lambdaMax = joint->maxMotorTorque * 1.0f / 60.0f;
         spFloat lambdaOld = joint->lambdaAccumMotor;
@@ -182,8 +196,8 @@ Solve(spWheelJoint* joint)
     /// solve point/line constraint
     {
         /// compute the velocity constraint and compute the multiplier
-        spFloat Cdot = spDot(joint->tWorld, spSub(b->v, a->v)) + joint->sBy * b->w - joint->sAy * a->w;
-        spFloat lambda = -joint->eMassLine * Cdot;
+        spFloat Cdot = spDot(joint->tWorld, spSub(vB, vA)) + joint->sBy * wB - joint->sAy * wA;
+        spFloat lambda = -joint->eMassLine * (Cdot + joint->biasLine);
         joint->lambdaAccumLine += lambda;
 
         /// compute the impulses
@@ -206,9 +220,8 @@ spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, sp
     joint->constraint = spConstraintConstruct(a, b, SP_WHEEL_JOINT);
     joint->anchorA = anchorA;
     joint->anchorB = anchorB;
-    joint->nLocal = axis;
+    joint->nLocal = spNormal(axis);
     joint->tLocal = spSkewT(axis);
-    joint->tLocal = spCross(1.0f, axis);
     joint->nWorld = spVectorZero();
     joint->tWorld = spVectorZero();
     joint->sAx = joint->sBx = joint->sAy = joint->sBy = 0.0f;
@@ -224,7 +237,13 @@ spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, sp
     joint->damping = damping;
     joint->gamma = 0.0f;
     joint->beta = 0.0f;
+    joint->biasLine = 0.0f;
     joint->enableMotor = spFalse;
+    spConstraintInitFuncs(&joint->constraint.funcs, 
+        (spFreeFunc)Free, 
+        (spPreSolveFunc)PreSolve, 
+        (spWarmStartFunc)WarmStart, 
+        (spSolveFunc)Solve);
 }
 
 spWheelJoint* 

@@ -119,13 +119,13 @@ spPointJointAlloc()
     return (spPointJoint*) spMalloc(sizeof(spPointJoint));
 }
 
-spPointJoint* 
+spConstraint* 
 spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB)
 {
     spPointJoint* joint = spPointJointAlloc();
     NULLCHECK(joint);
     spPointJointInit(joint, a, b, anchorA, anchorB);
-    return joint;
+    return (spConstraint*) joint;
 }
 
 spBool 

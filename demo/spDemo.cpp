@@ -18,7 +18,7 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
     Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, -98.0f));
-    Demo->mouse = { spMouseJointNew(NULL, 1.5f, 0.5f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
+    Demo->mouse = { spMouseJointNew(NULL, 1.5f, 0.4f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
     Demo->window = NULL;
     Demo->initialize = init;
     Demo->update = update;
@@ -274,9 +274,56 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, distanceJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, distanceJoint->anchorB);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, RGB(1,0,0), BLACK());
-        spDrawCircle(pointB, 0.0f, 1.5f, RGB(1,0,0), BLACK());
-        spDrawLine(pointA, pointB, 2.0f, RGB(1,0,0), BLACK());
+        spDrawSegment(pointA, pointB, 2.0f, RGB(1,0,0), BLACK());
+    }
+    else if (spConstraintIsPointJoint(constraint))
+    {
+        spPointJoint* pointJoint = spConstraintCastPointJoint(constraint);
+
+        spBody* bodyA = pointJoint->constraint.bodyA;
+        spBody* bodyB = pointJoint->constraint.bodyB;
+
+        spVector pointA = spMult(bodyA->xf, pointJoint->anchorA);
+        spVector pointB = spMult(bodyB->xf, pointJoint->anchorB);
+
+        spDrawCircle(bodyB->p, 0.0f, 1.5f, RGB(0,0.5f,1), BLACK());
+        spDrawCircle(bodyA->p, 0.0f, 1.5f, RGB(0,0.5f,1), BLACK());
+        spDrawLine(pointA, bodyA->p, 1.5f, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+        spDrawLine(pointB, bodyB->p, 1.5f, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+        spDrawCircle(pointB, 0.0f, 2.5f, RGB(0,0.5f,1), RGBA(0.0f, 0.5, 1.0, 1.0));
+    }
+    else if (spConstraintIsSpringJoint(constraint))
+    {
+        spSpringJoint* springJoint = spConstraintCastSpringJoint(constraint);
+
+        spBody* bodyA = springJoint->constraint.bodyA;
+        spBody* bodyB = springJoint->constraint.bodyB;
+
+        spVector pointA = spMult(bodyA->xf, springJoint->anchorA);
+        spVector pointB = spMult(bodyB->xf, springJoint->anchorB);
+
+        spDrawCircle(pointA, 0.0f, 1.5f, RGB(0,1,0), BLACK());
+        spDrawCircle(pointB, 0.0f, 1.5f, RGB(0,1,0), BLACK());
+        spDrawSpring(pointA, pointB, 1.5f, 3.f, RGB(0,1,0), BLACK());
+    }
+    else if (spConstraintIsWheelJoint(constraint))
+    {
+        spWheelJoint* wheelJoint = spConstraintCastWheelJoint(constraint);
+
+        spBody* bodyA = wheelJoint->constraint.bodyA;
+        spBody* bodyB = wheelJoint->constraint.bodyB;
+
+        spVector normal = wheelJoint->tWorld;
+        spVector direction = spMult(bodyA->xf.q, wheelJoint->anchorA);
+        spFloat  dist = spDot(normal, direction);
+
+        spVector pointB = spMult(bodyB->xf, wheelJoint->anchorB);
+        spVector pointA = spAdd(spMult(normal, dist), bodyA->p);
+
+        spColor c = RGB(0,1,0);
+        spDrawCircle(pointA, 0.0f, 1.5f, c, BLACK());
+        spDrawCircle(pointB, 0.0f, 1.5f, c, BLACK());
+        spDrawSpring(pointA, pointB, 1.5f, 3.f, c, BLACK());
     }
 }
 

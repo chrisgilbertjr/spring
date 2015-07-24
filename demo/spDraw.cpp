@@ -484,16 +484,20 @@ void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color,
     AddTriangle(&c, &d, &a);
 }
 
-static const spInt size = 8;
+static const spInt size = 12;
 static spVector spring[size] = 
 {
     { 0.0f, 0.00f},
-    { 0.0f, 0.25f},
+    { 0.0f, 0.10f},
+    { 0.5f, 0.15f},
+    {-1.0f, 0.25f},
     { 1.0f, 0.35f},
     {-1.0f, 0.45f},
     { 1.0f, 0.55f},
     {-1.0f, 0.65f},
-    { 0.0f, 0.75f},
+    { 1.0f, 0.75f},
+    {-0.5f, 0.85f},
+    { 0.0f, 0.90f},
     { 0.0f, 1.00f}
 };
 
@@ -544,28 +548,6 @@ spDrawRope(spVector start, spVector end, spInt segments, spFloat size, spColor c
         p1 = { { v4.x, v4.y }, { 0.0f, -1.0f }, baryZero, color1, border };
         p2 = { { v5.x, v5.y }, { 0.0f, 1.0f }, baryZero, color1, border };
         AddTriangle(&p0, &p1, &p2);;
-
-        //spFloat radius = size * 0.5f;
-
-        //spVector offset = spMult(normal, radius);
-        //spVector v0 = spSub(pointB, offset);
-        //spVector v1 = spAdd(pointB, offset);
-        //spVector v2 = spSub(pointA, offset);
-        //spVector v3 = spAdd(pointA, offset);
-
-        //spDrawCircle(v0, 0.0f, 1.0f, RED(), BLACK());
-        //spDrawCircle(v1, 0.0f, 1.0f, RED(), BLACK());
-        //spDrawCircle(v2, 0.0f, 1.0f, RED(), BLACK());
-
-        //spVertex p0 = {{v1.x, v1.y}, { 0.0f, 1.0f }, baryZero, color0, border };
-        //spVertex p1 = {{v2.x, v2.y}, { 0.0f,-1.0f }, baryZero, color0, border };
-        //spVertex p2 = {{v0.x, v0.y}, { 0.0f,-1.0f }, baryZero, color0, border };
-        //AddTriangle(&p0, &p1, &p2);
-
-        //p0 = {{v1.x, v1.y}, { 0.0f, 1.0f }, baryZero, color1, border };
-        //p1 = {{v2.x, v2.y}, { 0.0f,-1.0f }, baryZero, color1, border };
-        //p2 = {{v3.x, v3.y}, { 0.0f, 1.0f }, baryZero, color1, border };
-        //AddTriangle(&p0, &p1, &p2);
 
         /// swap the colors
         spColor tmp = color0;

@@ -28,7 +28,7 @@ void spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchor
 spPointJoint* spPointJointAlloc();
 
 /// create a point joint on the heap from 2 bodies and 2 local space anchors
-spPointJoint* spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB);
+spConstraint* spPointJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB);
 
 /// check if a constraint is a point joint
 spBool spConstraintIsPointJoint(spConstraint* constraint);

@@ -31,6 +31,7 @@ struct spWheelJoint
     spFloat damping;            ///< spring damping
     spFloat gamma;              ///< spring solver variable
     spFloat beta;               ///< spring solver variable
+    spFloat biasLine;           ///< spring solver variable
     spBool enableMotor;         ///< enable motor flag
 };
 

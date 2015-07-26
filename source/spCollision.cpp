@@ -5,6 +5,9 @@
 #include "spCircle.h"
 #include "spBody.h"
 
+/// TEMP
+#include "spDraw.h"
+
 /// an edge of two points
 struct Edge
 {
@@ -372,6 +375,9 @@ edgesOverlap(const struct Edge* a, const struct Edge* b, spVector normal)
     spFloat minDistA = spMin(spDot(a->a, tangentA), spDot(a->b, tangentA));
     spFloat minDistB = spMin(spDot(a->a, tangentB), spDot(a->b, tangentB));
 
+    spDrawLine(a->a, a->b, 2.0f, RED(), BLACK());
+    spDrawLine(b->a, b->b, 2.0f, RED(), BLACK());
+
     /// check if the edges overlap in the normal direction by checking if both points are > or < both tangents
     return (spDot(b->a, tangentA) > minDistA && spDot(b->b, tangentA) > minDistA) ||
            (spDot(b->a, tangentB) > minDistB && spDot(b->b, tangentB) > minDistB);
@@ -409,6 +415,8 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
+            //spDrawCircle(pointA, 0.0f, 2.0f, RED(), BLACK());
+            //spDrawCircle(pointB, 0.0f, 2.0f, YELLOW(), BLACK());
             addContact(&result, pointA, pointB);
         }
     } {
@@ -424,6 +432,8 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
+            //spDrawCircle(pointA, 0.0f, 2.0f, RED(), BLACK());
+            //spDrawCircle(pointB, 0.0f, 2.0f, YELLOW(), BLACK());
             addContact(&result, pointA, pointB);
         }
     }
@@ -768,45 +778,36 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
 
     struct MinkowskiEdge mEdge = GJK(&context);
 
-    /// compute the closest points in world space
-    ClosestPoints points = MinkowskiEdgeComputePoints(&mEdge);
-
-    /// correct the normal and distance
-    vertexVertexCorrection(&mEdge, points);
-
     if (mEdge.distance + segment->radius + poly->radius >= 0.0f)
     {
-        /// get the normal directions
         spVector normal = mEdge.normal;
         spVector negate = spNegative(normal);
+
+        ClosestPoints points = MinkowskiEdgeComputePoints(&mEdge);
+        if (spAlmostEqual(points.b, spMult(segment->shape.body->xf, segment->pointA), 1e-2f) ||
+            spAlmostEqual(points.b, spMult(segment->shape.body->xf, segment->pointB), 1e-2f))
+        {
+            spCollisionResult result = spCollisionResultConstruct();
+            vertexVertexCorrection(&mEdge, points);
+            if (mEdge.distance + segment->radius + poly->radius >= 0.0f)
+            {
+                result.normal = mEdge.normal;
+                normal = mEdge.normal;
+                negate = spNegative(mEdge.normal);
+
+                spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
+                spVector pointB = spAdd(points.b, spMult(segment->radius, negate));
+
+                /// add the contact to the collision result
+                addContact(&result, pointA, pointB);
+            }
+            return result;
+        }
 
         /// compute the world space edges in a normal direction
         Edge edgeA = extremalEdgePoly(poly, normal);
         Edge edgeB = extremalEdgeSegment(segment, negate);
-
-        /// get the segments normal in world space
-        spVector segNormal = spMult(segment->shape.body->xf.q, segment->normal);
-
-        /// check if the edges overlap
-        if (edgesOverlap(&edgeA, &edgeB, segNormal))
-        {
-            /// they overlap, clip the edges to get the contact points
-            return clipEdges(&edgeA, &edgeB, &mEdge, poly->radius, segment->radius);
-        }
-
-        /// the edges dont overlap, treat it as a poly circle collision with a end segment point
-        else
-        {
-            spVector pointA = spAdd(points.a, spMult(poly->radius, normal));
-            spVector pointB = spAdd(points.b, spMult(segment->radius, spNegative(normal)));;
-
-            spCollisionResult result = spCollisionResultConstruct();
-            result.normal = normal;
-
-        	/// add the contact to the collision result
-            addContact(&result, pointA, pointB);
-            return result;
-        }
+        return clipEdges(&edgeA, &edgeB, &mEdge, poly->radius, segment->radius);
     }
 
     /// there is no collision

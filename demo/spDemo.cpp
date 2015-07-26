@@ -8,6 +8,7 @@
 spDemo* demo;
 
 #define MAX_DT 0.25f
+#define ALPHA 1.0f
 
 static void init() {};
 static void update(spFloat dt) { spDrawCircle({0.0f, 0.0f}, 0.0f, 0.2f, RED(), WHITE()); };
@@ -208,6 +209,10 @@ Destroy()
 void 
 spDemoDrawShape(spShape* shape, spColor color, spColor border)
 {
+    spColor Color = color;
+    spColor Border = border;
+    Color.a = Border.a = ALPHA;
+
     if (shape->type == SP_SHAPE_CIRCLE)
     {
         spCircle* circle = spShapeCastCircle(shape);
@@ -216,8 +221,8 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         spFloat scale = 0.95f;
         spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
-        spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, color, border);
-        spDrawLine(line, pos, 1.0f, border, border);
+        spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, Color, Border);
+        spDrawLine(line, pos, 1.0f, Border, Border);
     }
     if (shape->type == SP_SHAPE_POLYGON)
     {
@@ -233,7 +238,21 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
             vertices[i] = spMult(scale, vertices[i]);
         }
 
-        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, color, border);
+        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, Color, Border);
+    }
+    if (shape->type == SP_SHAPE_SEGMENT)
+    {
+        spSegment* segment = spShapeCastSegment(shape);
+        spTransform* xf = &shape->body->xf;
+
+        spFloat radius = segment->radius * 2.0f;
+        spVector pointA = spMult(*xf, segment->pointA);
+        spVector pointB = spMult(*xf, segment->pointB);
+
+        pointA = segment->pointA;
+        pointB = segment->pointB;
+
+        spDrawSegment(pointA, pointB, radius, Color, Border);
     }
 }
 
@@ -247,7 +266,7 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, mouseJoint->anchor);
         spVector pointB = mouseJoint->target;
         spDrawCircle(pointA, 0.0f, 1.5f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
-        spDrawSpring(pointA, pointB, 1.5f, 2.0f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+        spDrawSpring(pointA, pointB, 1.5f, 1.5f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
         spDrawCircle(pointB, 0.0f, 2.0f, WHITE(), BLACK());
     }
     else if(spConstraintIsRopeJoint(constraint))
@@ -274,7 +293,7 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, distanceJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, distanceJoint->anchorB);
 
-        spDrawSegment(pointA, pointB, 2.0f, RGB(1,0,0), BLACK());
+        spDrawSegment(pointA, pointB, 2.0f, RGB(0.8,0,0), BLACK());
     }
     else if (spConstraintIsPointJoint(constraint))
     {
@@ -302,9 +321,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, springJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, springJoint->anchorB);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, RGB(0,1,0), BLACK());
-        spDrawCircle(pointB, 0.0f, 1.5f, RGB(0,1,0), BLACK());
-        spDrawSpring(pointA, pointB, 1.5f, 3.f, RGB(0,1,0), BLACK());
+        spDrawCircle(pointA, 0.0f, 1.5f, RGB(0,0.8,0), BLACK());
+        spDrawCircle(pointB, 0.0f, 1.5f, RGB(0,0.8,0), BLACK());
+        spDrawSpring(pointA, pointB, 1.5f, 3.f, RGB(0,0.8,0), BLACK());
     }
     else if (spConstraintIsWheelJoint(constraint))
     {
@@ -324,6 +343,61 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spDrawCircle(pointA, 0.0f, 1.5f, c, BLACK());
         spDrawCircle(pointB, 0.0f, 1.5f, c, BLACK());
         spDrawSpring(pointA, pointB, 1.5f, 3.f, c, BLACK());
+
+        spColor color = RGBA(0.0,1.0,0.0,0.5f);
+
+        spDrawSegment(pointA, pointB, 1.5f, color, color);
+    }
+    else if (spConstraintIsGearJoint(constraint))
+    {
+        spGearJoint* gearJoint = spConstraintCastGearJoint(constraint);
+
+        spBody* bodyA = gearJoint->constraint.bodyA;
+        spBody* bodyB = gearJoint->constraint.bodyB;
+
+        spVector pointA = bodyA->xf.p;
+        spVector pointB = bodyB->xf.p;
+
+        spColor color = RGBA(1.0,0.0,1.0,0.5f);
+        spColor black = RGBA(0.0,0.0,0.0,0.5f);
+
+        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
+        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
+        spDrawLine(pointA, pointB, 1.5f, color, black);
+    }
+    else if (spConstraintIsAngularSpringJoint(constraint))
+    {
+        spAngularSpringJoint* angSpringJoint = spConstraintCastAngularSpringJoint(constraint);
+
+        spBody* bodyA = angSpringJoint->constraint.bodyA;
+        spBody* bodyB = angSpringJoint->constraint.bodyB;
+
+        spVector pointA = bodyA->xf.p;
+        spVector pointB = bodyB->xf.p;
+
+        spColor color = RGBA(1.0,0.0,1.0,0.5f);
+        spColor black = RGBA(0.0,0.0,0.0,0.5f);
+
+        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
+        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
+        spDrawSpring(pointA, pointB, 1.5f, 3.0f, color, black);
+    }
+    else if (spConstraintIsMotorJoint(constraint))
+    {
+        spMotorJoint* motorJoint = spConstraintCastMotorJoint(constraint);
+
+        spBody* bodyA = motorJoint->constraint.bodyA;
+        spBody* bodyB = motorJoint->constraint.bodyB;
+
+        spVector pointA = bodyA->xf.p;
+        spVector pointB = bodyB->xf.p;
+
+        spColor color = RGBA(1.0,0.5,0.0,0.5f);
+        spColor black = RGBA(0.0,0.0,0.0,0.5f);
+
+        spDrawSegment(pointA, pointB, 1.5f, color, black);
+        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
+        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
     }
 }
 

@@ -52,9 +52,8 @@ const char* pixelShape =
 
     "    lerp   = smoothstep(max(border - size, 0.0), border, lerp);\n"
     "    if (p_barycentric.x > border) { lerp = 0.0f; alpha = 1.0f; }\n"
-    /// FIX THIS INTO AN IF ELSE BLOCK SO WE DONT ALWAYS MIX
+    "    if (lerp >= size) { pixel.a *= p_border.a; };"
     "    pixel  = mix(p_color, p_border, lerp) * alpha;\n"
-    "    pixel.a *= p_border.a;\n"
     "}\n";
 
     //"void main(void)\n"

@@ -15,9 +15,11 @@ struct spViewport { spFloat width, height; };
 struct spFrustum { spFloat left, right, top, bottom, near, far; };
 
 /// some useful colors
-#define RGB(r, g, b)     {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)1 }
-#define RGBA(r, g, b, a) {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a }
-#define COLA(c, a)       {(GLfloat)c, (GLfloat)c, (GLfloat)c, (GLfloat)a }
+#define RGBA255(r, g, b, a) {(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)a/255.f }
+#define RGB255(r, g, b)     {(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)1 }
+#define RGBA(r, g, b, a)    {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a }
+#define RGB(r, g, b)        {(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)1 }
+#define COLA(c, a)          {(GLfloat)c, (GLfloat)c, (GLfloat)c, (GLfloat)a }
 
 #define RED()    RGBA(0.5f, 0.0f, 0.0f, 1.0) 
 #define BLUE()   RGBA(0.0f, 0.0f, 0.5f, 1.0) 

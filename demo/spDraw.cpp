@@ -558,6 +558,7 @@ spDrawRope(spVector start, spVector end, spInt segments, spFloat size, spColor c
 
 void spClearBuffers()
 {
+    glClearColor(demo->background.r, demo->background.g, demo->background.b, demo->background.a);
     context.triangles = 0;
     glClear(GL_COLOR_BUFFER_BIT);
 }

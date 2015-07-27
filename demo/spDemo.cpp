@@ -10,15 +10,39 @@ spDemo* demo;
 #define MAX_DT 0.25f
 #define ALPHA 1.0f
 
+spFloat spLineScaleSmall = 1.0f;
+spFloat spLineScaleBig = 2.0f;
+
 static void init() {};
 static void update(spFloat dt) { spDrawCircle({0.0f, 0.0f}, 0.0f, 0.2f, RED(), WHITE()); };
 static void destroy() {};
 
+static void 
+DemoOrthoMatrix(spFloat* ortho, spFrustum* frustum)
+{
+    ortho[0]  = 2.0f/(frustum->right - frustum->left);
+    ortho[1]  = 0.0f;
+    ortho[2]  = 0.0f;
+    ortho[3]  = -(frustum->right + frustum->left)/(frustum->right - frustum->left);
+    ortho[4]  = 0.0f;
+    ortho[5]  = 2.0f/(frustum->top - frustum->bottom);
+    ortho[6]  = 0.0f;
+    ortho[7]  = -(frustum->top + frustum->bottom)/(frustum->top - frustum->bottom);
+    ortho[8]  = 0.0f;              
+    ortho[9]  = 0.0f;           
+    ortho[10] = 2.0f/(frustum->far - frustum->near);
+    ortho[11] = -(frustum->far + frustum->near)/(frustum->far - frustum->near);
+    ortho[12] = 0.0f;              
+    ortho[13] = 0.0f;           
+    ortho[14] = 0.0f;             
+    ortho[15] = 1.0f;
+}
+
 spDemo*
-spDemoNew(initFunc init, updateFunc update, destroyFunc destroy)
+spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frustum, spViewport view)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
-    Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, -98.0f));
+    Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, 0.098065f * -frustum.top+frustum.bottom));
     Demo->mouse = { spMouseJointNew(NULL, 1.5f, 0.4f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
     Demo->window = NULL;
     Demo->initialize = init;
@@ -30,6 +54,9 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy)
     Demo->timePrev = 0.0f;
     Demo->timeAccum = 0.0f;
     Demo->paused = spFalse;
+    Demo->frustum = frustum;
+    Demo->viewport = view;
+    DemoOrthoMatrix(Demo->ortho, &frustum);
     return Demo;
 }
 
@@ -44,39 +71,27 @@ static spVector
 MousePosition()
 {
     double x, y;
-    int xx, yy;
     glfwGetCursorPos(demo->window, &x, &y);
-    glfwGetWindowSize(demo->window, &xx, &yy);
-    return spVectorConstruct((spFloat)x, (spFloat)yy - (spFloat)y);
+    return spVectorConstruct((spFloat)x, (spFloat)demo->viewport.height - (spFloat)y);
 }
 
 static spVector
 ScreenToWorld(spVector position)
 {
-    spFloat IDENTITY[16] = {1.0f, 0.0f, 0.0f, 0.0f,
-                            0.0f, 1.0f, 0.0f, 0.0f,
-                            0.0f, 0.0f, 1.0f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f};
-    spFloat size = 100.0f;
-    spFloat right =  size;
-    spFloat left  = -size;
-    spFloat top   =  size;
-    spFloat bot   = -size;
-    spFloat near  = -size;
-    spFloat far   =  size;
+    static const spFloat IDENTITY[16] = {1.0f, 0.0f, 0.0f, 0.0f,
+                                         0.0f, 1.0f, 0.0f, 0.0f,
+                                         0.0f, 0.0f, 1.0f, 0.0f,
+                                         0.0f, 0.0f, 0.0f, 1.0f};
 
-    spFloat ortho[16] = {
-        2.0f/(right-left), 0.0f,           0.0f,            -(right+left)/(right-left),
-        0.0f,              2.0f/(top-bot), 0.0f,            -(top+bot)/(top-bot),
-        0.0f,              0.0f,           2.0f/(far-near), -(far+near)/(far-near),
-        0.0f,              0.0f,           0.0f,             1.0f };
+    return spDeproject(position, IDENTITY, demo->ortho, demo->viewport);
+}
 
-    int ww, wh;
-    glfwGetWindowSize(demo->window, &ww, &wh);
-
-    spViewport view = {800.0f, 800.0f};
-
-    return spDeproject(position, IDENTITY, ortho, view);
+static void
+Resize(spWindow* window, int width, int height)
+{
+    demo->viewport.width = width;
+    demo->viewport.height = height;
+    glViewport(0, 0, width, height);
 }
 
 static void
@@ -133,7 +148,7 @@ SetupGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /// create the window
-    demo->window = glfwCreateWindow(800, 800, "Simple example", NULL, NULL);
+    demo->window = glfwCreateWindow(demo->viewport.width, demo->viewport.height, "Simple example", NULL, NULL);
 
     if (!demo->window)
     {
@@ -143,6 +158,7 @@ SetupGLFW()
     }
 
     glfwSetMouseButtonCallback(demo->window, (GLFWmousebuttonfun)MouseClick);
+    glfwSetWindowSizeCallback(demo->window, (GLFWwindowsizefun)Resize);
     glfwSetCursorPosCallback(demo->window, (GLFWcursorposfun)Mouse);
 
     glfwMakeContextCurrent(demo->window);
@@ -152,7 +168,7 @@ SetupGLFW()
 static void
 Initialize()
 {
-    demo = test;
+    demo = bridge;
     SetupGLFW();
     spDrawInit();
     demo->initialize();
@@ -218,11 +234,11 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         spCircle* circle = spShapeCastCircle(shape);
         spTransform* xf = &shape->body->xf;
         spVector pos = spMult(*xf, circle->center);
-        spFloat scale = 0.95f;
+        spFloat scale = 0.96f;
         spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
         spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, Color, Border);
-        spDrawLine(line, pos, 1.0f, Border, Border);
+        spDrawSegment(line, pos, spLineScaleSmall, Border, Border);
     }
     if (shape->type == SP_SHAPE_POLYGON)
     {
@@ -257,7 +273,7 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
 }
 
 void 
-spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
+spDemoDrawConstraint(spConstraint* constraint)
 {
     if (spConstraintIsMouseJoint(constraint))
     {
@@ -265,9 +281,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spBody* bodyA = mouseJoint->constraint.bodyA;
         spVector pointA = spMult(bodyA->xf, mouseJoint->anchor);
         spVector pointB = mouseJoint->target;
-        spDrawCircle(pointA, 0.0f, 1.5f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
-        spDrawSpring(pointA, pointB, 1.5f, 1.5f, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
-        spDrawCircle(pointB, 0.0f, 2.0f, WHITE(), BLACK());
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+        spDrawCircle(pointB, 0.0f, spLineScaleBig, WHITE(), BLACK());
     }
     else if(spConstraintIsRopeJoint(constraint))
     {
@@ -279,9 +295,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, ropeJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, ropeJoint->anchorB);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, RGB(1,1,0), BLACK());
-        spDrawCircle(pointB, 0.0f, 1.5f, RGB(1,1,0), BLACK());
-        spDrawRope(pointA, pointB, 8, 1.5f, RGB(0.5f,0.5f,0), RGB(1.0f,1.0f,0), BLACK());
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
+        spDrawRope(pointA, pointB, 8, spLineScaleSmall, RGB(0.5f,0.5f,0), RGB(1.0f,1.0f,0), BLACK());
     }
     else if (spConstraintIsDistanceJoint(constraint))
     {
@@ -293,7 +309,7 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, distanceJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, distanceJoint->anchorB);
 
-        spDrawSegment(pointA, pointB, 2.0f, RGB(0.8,0,0), BLACK());
+        spDrawSegment(pointA, pointB, spLineScaleSmall * 1.5f, RGB(0.8,0,0), BLACK());
     }
     else if (spConstraintIsPointJoint(constraint))
     {
@@ -305,11 +321,11 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, pointJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, pointJoint->anchorB);
 
-        spDrawCircle(bodyB->p, 0.0f, 1.5f, RGB(0,0.5f,1), BLACK());
-        spDrawCircle(bodyA->p, 0.0f, 1.5f, RGB(0,0.5f,1), BLACK());
-        spDrawLine(pointA, bodyA->p, 1.5f, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
-        spDrawLine(pointB, bodyB->p, 1.5f, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
-        spDrawCircle(pointB, 0.0f, 2.5f, RGB(0,0.5f,1), RGBA(0.0f, 0.5, 1.0, 1.0));
+        spDrawCircle(bodyB->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
+        spDrawCircle(bodyA->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
+        spDrawLine(pointA, bodyA->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+        spDrawLine(pointB, bodyB->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+        spDrawCircle(pointB, 0.0f, spLineScaleBig, RGB(0,0.5f,1), RGBA(0.0f, 0.5, 1.0, 1.0));
     }
     else if (spConstraintIsSpringJoint(constraint))
     {
@@ -321,9 +337,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spMult(bodyA->xf, springJoint->anchorA);
         spVector pointB = spMult(bodyB->xf, springJoint->anchorB);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, RGB(0,0.8,0), BLACK());
-        spDrawCircle(pointB, 0.0f, 1.5f, RGB(0,0.8,0), BLACK());
-        spDrawSpring(pointA, pointB, 1.5f, 3.f, RGB(0,0.8,0), BLACK());
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
+        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, RGB(0,0.8,0), BLACK());
     }
     else if (spConstraintIsWheelJoint(constraint))
     {
@@ -340,9 +356,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spVector pointA = spAdd(spMult(normal, dist), bodyA->p);
 
         spColor c = RGB(0,1,0);
-        spDrawCircle(pointA, 0.0f, 1.5f, c, BLACK());
-        spDrawCircle(pointB, 0.0f, 1.5f, c, BLACK());
-        spDrawSpring(pointA, pointB, 1.5f, 3.f, c, BLACK());
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, c, BLACK());
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, c, BLACK());
+        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, c, BLACK());
 
         spColor color = RGBA(0.0,1.0,0.0,0.5f);
 
@@ -361,9 +377,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spColor color = RGBA(1.0,0.0,1.0,0.5f);
         spColor black = RGBA(0.0,0.0,0.0,0.5f);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
-        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
-        spDrawLine(pointA, pointB, 1.5f, color, black);
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, black);
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, black);
+        spDrawLine(pointA, pointB, spLineScaleSmall, color, black);
     }
     else if (spConstraintIsAngularSpringJoint(constraint))
     {
@@ -378,9 +394,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spColor color = RGBA(1.0,0.0,1.0,0.5f);
         spColor black = RGBA(0.0,0.0,0.0,0.5f);
 
-        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
-        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
-        spDrawSpring(pointA, pointB, 1.5f, 3.0f, color, black);
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, black);
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, black);
+        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, color, black);
     }
     else if (spConstraintIsMotorJoint(constraint))
     {
@@ -395,9 +411,9 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
         spColor color = RGBA(1.0,0.5,0.0,0.5f);
         spColor black = RGBA(0.0,0.0,0.0,0.5f);
 
-        spDrawSegment(pointA, pointB, 1.5f, color, black);
-        spDrawCircle(pointA, 0.0f, 1.5f, color, black);
-        spDrawCircle(pointB, 0.0f, 1.5f, color, black);
+        spDrawSegment(pointA, pointB, spLineScaleSmall, color, black);
+        spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, black);
+        spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, black);
     }
 }
 

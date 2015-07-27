@@ -70,7 +70,7 @@ InverseMatrix4(const spFloat m[16], spFloat result[16])
     spFloat determinant = s0*c5 - s1*c4 + s2*c3 + s3*c2 - s4*c1 + s5*c0;
 
     /// check if the determinant if position
-    if (determinant <= 0.0f + SP_FLT_EPSILON) { spMemset(result, 0, 16*sizeof(spFloat)); return; }
+    if (determinant <= 0.0f) { spMemset(result, 0, 16*sizeof(spFloat)); return; }
 
     /// get the inv determinant
     float invDeterminant = 1.0f / determinant;
@@ -570,21 +570,7 @@ void spDrawDemo()
 
     glUseProgram(context.shaderProgram);
 
-    spFloat size = 100.0f;
-    spFloat right =  size;
-    spFloat left  = -size;
-    spFloat top   =  size;
-    spFloat bot   = -size;
-    spFloat near  = -size;
-    spFloat far   =  size;
-
-    spFloat ortho[16] = {
-        2.0f/(right-left), 0.0f,           0.0f,            -(right+left)/(right-left),
-        0.0f,              2.0f/(top-bot), 0.0f,            -(top+bot)/(top-bot),
-        0.0f,              0.0f,           2.0f/(far-near), -(far+near)/(far-near),
-        0.0f,              0.0f,           0.0f,             1.0f };
-
-    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_FALSE, ortho);
+    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_FALSE, demo->ortho);
 
     /// bind the vertex array and draw the scene
     glBindVertexArray(context.vertexArray);

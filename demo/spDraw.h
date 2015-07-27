@@ -11,8 +11,11 @@ struct spBary { GLfloat x, y, z; };
 struct spColor { GLfloat r, g, b, a; };
 struct spVertex { spVec pos, aliasing; spBary barycentric; spColor fill, outline; };
 struct spTriangle { spVertex a, b, c; };
-struct spViewport { spFloat width, height; };
+struct spViewport { spInt width, height; };
 struct spFrustum { spFloat left, right, top, bottom, near, far; };
+
+#define spFrustumUniform(s) {-s, s, s, -s, -s, s }
+#define spFrustumView(w, h) {-w, w, h, -h, -w, w}
 
 /// some useful colors
 #define RGBA255(r, g, b, a) {(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)a/255.f }
@@ -38,6 +41,7 @@ struct spRenderContext
 };
 
 spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
+void spOrthoMatrix(spFloat ortho[16]);
     
 void spDrawInit();
 void spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor border);

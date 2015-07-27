@@ -5,7 +5,6 @@
 
 struct DemoShape { spShape* shape; spBody* body; spColor color, border; };
 
-spFilter filter = spFilterCollideAll;
 DemoShape shapes[100] = {0};
 spInt count = 0;
 
@@ -22,7 +21,6 @@ CreateBox(spVector pos, spFloat angle, spVector size, spFloat mass, spColor colo
     shapes[count].shape = spPolygonNew(vertices, 4, mass);
     shapes[count].shape->material.restitution = 0.2f;
     shapes[count].shape->material.friction = 0.8f;
-    spShapeSetFilter(shapes[count].shape, filter);
     spBodySetTransform(shapes[count].body, pos, angle);
     spBodyAddShape(shapes[count].body, shapes[count].shape);
     spWorldAddBody(&demo->world, shapes[count].body);
@@ -40,7 +38,6 @@ CreateStaticSegment(spVector pointA, spVector pointB, spFloat radius, spColor co
 {
     shapes[count].body = spBodyNewStatic();
     shapes[count].shape = spSegmentNew(pointA, pointB, radius, 0.0f);
-    spShapeSetFilter(shapes[count].shape, filter);
     spBodyAddShape(shapes[count].body, shapes[count].shape);
     spWorldAddBody(&demo->world, shapes[count].body);
     shapes[count].color = color;
@@ -62,7 +59,6 @@ CreateStaticBox(spVector pos, spFloat angle, spVector size, spColor color, spCol
 
     shapes[count].body = spBodyNewStatic();
     shapes[count].shape = spPolygonNew(vertices, 4, 0.0f);
-    spShapeSetFilter(shapes[count].shape, filter);
     spBodySetTransform(shapes[count].body, pos, angle);
     spBodyAddShape(shapes[count].body, shapes[count].shape);
     spWorldAddBody(&demo->world, shapes[count].body);
@@ -86,7 +82,6 @@ CreateKinematicBox(spVector pos, spFloat angle, spVector size, spColor color, sp
 
     shapes[count].body = spBodyNewKinematic();
     shapes[count].shape = spPolygonNew(vertices, 4, 0.0f);
-    spShapeSetFilter(shapes[count].shape, filter);
     spBodySetTransform(shapes[count].body, pos, angle);
     spBodyAddShape(shapes[count].body, shapes[count].shape);
     spWorldAddBody(&demo->world, shapes[count].body);
@@ -133,6 +128,8 @@ Shape(spInt i)
 static void 
 setup() 
 {
+    spLineScaleSmall = 1.5f;
+    spLineScaleBig = spLineScaleSmall * 2.0f;
     spSlop = 0.65f;
     spColor lightBlue = RGBA255(176.f, 226.f, 255.f, 0.0f);
     demo->background = lightBlue;
@@ -245,7 +242,7 @@ static void update(spFloat dt)
     while(constraints != NULL)
     {
         constraint = constraints;
-        spDemoDrawConstraint(constraint, GREEN(), GREEN());
+        spDemoDrawConstraint(constraint);
         constraints = constraint->next;
     }
 }
@@ -254,4 +251,5 @@ static void destroy()
 {
 }
 
-spDemo* test = spDemoNew(setup, update, destroy);
+spDemo* test = spDemoNew(setup, update, destroy, spFrustumView(100, 100), {800, 800});
+

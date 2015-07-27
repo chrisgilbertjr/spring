@@ -8,6 +8,9 @@ typedef void (*destroyFunc)();
 typedef GLFWwindow spWindow;
 typedef spInt spDemoIndex;
 
+extern spFloat spLineScaleSmall;
+extern spFloat spLineScaleBig;
+
 struct spMouse
 {
     spConstraint* constraint;
@@ -28,18 +31,22 @@ struct spDemo
     spFloat time;
     spFloat timePrev;
     spFloat timeAccum;
+    spFloat ortho[16];
+    spFrustum frustum;
+    spViewport viewport;
     spBool paused;
 };
 
 extern spDemo* demo;
 extern spDemo* test;
+extern spDemo* bridge;
 
-spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy);
+spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 
 void spDemoFree(spDemo** demo);
 
 void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 
-void spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border);
+void spDemoDrawConstraint(spConstraint* constraint);
 
 void spRunDemo(spDemoIndex demo);

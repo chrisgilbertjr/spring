@@ -104,6 +104,9 @@
     <ClInclude Include="..\..\include\spDebugDraw.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\demo\spDemoFactory.h">
+      <Filter>demo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp">
@@ -207,6 +210,12 @@
     </ClCompile>
     <ClCompile Include="..\..\source\spDebugDraw.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\BridgeDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\spDemoFactory.cpp">
+      <Filter>demo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

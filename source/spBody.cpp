@@ -39,8 +39,8 @@ spBodyInit(spBody* body, spBodyType type)
     body->f = spVectorZero();
     body->v = spVectorZero();
     body->gScale = 1.0f;
-    body->vDamp = 0.02f;
-    body->wDamp = 0.02f;
+    body->vDamp = 0.2f;
+    body->wDamp = 0.2f;
     body->iInv = 0.0f;
     body->mInv = 0.0f;
     body->i = 0.0f;

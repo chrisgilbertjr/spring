@@ -28,6 +28,12 @@ Constraint(spInt i)
     return constraints[i];
 }
 
+spDemoShape* 
+DemoShape(spInt i)
+{
+    return shapes+i;
+}
+
 spInt 
 spCreateDemoSegment(spVector pos, spFloat angle, spVector pointA, spVector pointB, spFloat radius, spFloat mass, spColor color, spColor border, spBodyType type)
 {

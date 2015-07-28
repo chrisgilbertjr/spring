@@ -25,7 +25,6 @@ setup()
     spLineScaleBig = 16.0f;
     spBaumgarte = 0.1f;
 
-    spConstraint* constraint;
     spInt a, b;
     spFloat mass = 200.0f;
     spColor color = RGB(0.0f, 0.5f, 1.0f);

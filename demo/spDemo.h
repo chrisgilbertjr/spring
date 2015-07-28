@@ -32,6 +32,7 @@ struct spDemo
     spFloat timePrev;
     spFloat timeAccum;
     spFloat ortho[16];
+    spFloat view[16];
     spFrustum frustum;
     spViewport viewport;
     spBool paused;
@@ -40,8 +41,11 @@ struct spDemo
 extern spDemo* demo;
 extern spDemo* test;
 extern spDemo* bridge;
+extern spDemo* vehicle;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
+
+void spDemoSetCameraTranslation(spVector translation);
 
 void spDemoFree(spDemo** demo);
 

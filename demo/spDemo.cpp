@@ -17,6 +17,13 @@ static void init() {};
 static void update(spFloat dt) { spDrawCircle({0.0f, 0.0f}, 0.0f, 0.2f, RED(), WHITE()); };
 static void destroy() {};
 
+void 
+spDemoSetCameraTranslation(spVector translation)
+{
+    demo->view[3] = translation.x;
+    demo->view[7] = translation.y;
+}
+
 static void 
 DemoOrthoMatrix(spFloat* ortho, spFrustum* frustum)
 {
@@ -38,6 +45,27 @@ DemoOrthoMatrix(spFloat* ortho, spFrustum* frustum)
     ortho[15] = 1.0f;
 }
 
+static void
+DemoViewMatrix(spFloat* view, spVector translation)
+{
+    view[0]  = 1.0f;
+    view[1]  = 0.0f; 
+    view[2]  = 0.0f; 
+    view[3]  = translation.x;
+    view[4]  = 0.0f; 
+    view[5]  = 1.0f; 
+    view[6]  = 0.0f; 
+    view[7]  = translation.y;
+    view[8]  = 0.0f; 
+    view[9]  = 0.0f; 
+    view[10] = 1.0f; 
+    view[11] = 0.0f; 
+    view[12] = 0.0f;
+    view[13] = 0.0f;
+    view[14] = 0.0f; 
+    view[15] = 1.0f; 
+}
+
 spDemo*
 spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frustum, spViewport view)
 {
@@ -57,6 +85,7 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frust
     Demo->frustum = frustum;
     Demo->viewport = view;
     DemoOrthoMatrix(Demo->ortho, &frustum);
+    DemoViewMatrix(Demo->view, spVectorZero());
     return Demo;
 }
 
@@ -78,12 +107,7 @@ MousePosition()
 static spVector
 ScreenToWorld(spVector position)
 {
-    static const spFloat IDENTITY[16] = {1.0f, 0.0f, 0.0f, 0.0f,
-                                         0.0f, 1.0f, 0.0f, 0.0f,
-                                         0.0f, 0.0f, 1.0f, 0.0f,
-                                         0.0f, 0.0f, 0.0f, 1.0f};
-
-    return spDeproject(position, IDENTITY, demo->ortho, demo->viewport);
+    return spDeproject(position, demo->view, demo->ortho, demo->viewport);
 }
 
 static void
@@ -124,7 +148,7 @@ MouseClick(spWindow* window, int button, int state, int mods)
 }
 
 static void
-Mouse(spWindow* window, double, double)
+Mouse(spWindow* window, spVector position)
 {
     spMouse* mouse = &demo->mouse;
 
@@ -159,7 +183,6 @@ SetupGLFW()
 
     glfwSetMouseButtonCallback(demo->window, (GLFWmousebuttonfun)MouseClick);
     glfwSetWindowSizeCallback(demo->window, (GLFWwindowsizefun)Resize);
-    glfwSetCursorPosCallback(demo->window, (GLFWcursorposfun)Mouse);
 
     glfwMakeContextCurrent(demo->window);
     glfwSetTime(0.0f);
@@ -168,7 +191,7 @@ SetupGLFW()
 static void
 Initialize()
 {
-    demo = bridge;
+    demo = vehicle;
     SetupGLFW();
     spDrawInit();
     demo->initialize();
@@ -201,7 +224,13 @@ Update()
     {
         dt = (spFloat)glfwGetTime();
     }
+
     TickPhysics();
+
+    /// i dont use a glfw callback since it doesnt update every frame, only when the mouse is moved
+    /// this can be bad if the mouse hasnt moved, but the camera is
+    Mouse(demo->window, MousePosition());
+
     glfwSetTime(0.0f);
 
     demo->timePrev = demo->time;
@@ -234,7 +263,7 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         spCircle* circle = spShapeCastCircle(shape);
         spTransform* xf = &shape->body->xf;
         spVector pos = spMult(*xf, circle->center);
-        spFloat scale = 0.96f;
+        spFloat scale = 0.95f;
         spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
         spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, Color, Border);
@@ -362,7 +391,7 @@ spDemoDrawConstraint(spConstraint* constraint)
 
         spColor color = RGBA(0.0,1.0,0.0,0.5f);
 
-        spDrawSegment(pointA, pointB, 1.5f, color, color);
+        spDrawSegment(pointA, pointB, spLineScaleSmall, color, color);
     }
     else if (spConstraintIsGearJoint(constraint))
     {

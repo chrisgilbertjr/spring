@@ -13,6 +13,34 @@ spRenderContext context;
 #define FLUSH_GL_ERRORS() glGetError()
 #define BUFFER_OFFSET(index) ((char *)NULL + (index)) 
 
+static void 
+Transpose(spFloat* transpose)
+{
+    spFloat tmp[16];
+
+    for (spInt i = 0; i < 16; ++i)
+    {
+        tmp[i] = transpose[i];
+    }
+
+    transpose[0]  = tmp[0];
+    transpose[1]  = tmp[1];
+    transpose[2]  = tmp[2];
+    transpose[3]  = tmp[3];
+    transpose[4]  = tmp[4];
+    transpose[5]  = tmp[5];
+    transpose[6]  = tmp[6];
+    transpose[7]  = tmp[7];
+    transpose[8]  = tmp[8];
+    transpose[9]  = tmp[9];
+    transpose[10] = tmp[10];
+    transpose[11] = tmp[11];
+    transpose[12] = tmp[12];
+    transpose[13] = tmp[13];
+    transpose[14] = tmp[14];
+    transpose[15] = tmp[15];
+}
+
 static void
 MultMatrix4Vector4(const spFloat m[16], const spFloat v[4], spFloat result[4])
 {
@@ -76,25 +104,25 @@ InverseMatrix4(const spFloat m[16], spFloat result[16])
     float invDeterminant = 1.0f / determinant;
 
     /// compute the inverse of the matrix
-    result[0]  = (+m[5]  * c5 - m[6]  * c4 + m[7]  * c3) * invDeterminant;
-    result[1]  = (-m[1]  * c5 - m[2]  * c4 + m[3]  * c3) * invDeterminant;
-    result[2]  = (+m[13] * s5 - m[14] * s4 + m[15] * s3) * invDeterminant;
-    result[3]  = (-m[9]  * s5 - m[10] * s4 + m[11] * s3) * invDeterminant;
+    result[0]  = +(m[5]  * c5 - m[6]  * c4 + m[7]  * c3) * invDeterminant;
+    result[1]  = -(m[1]  * c5 - m[2]  * c4 + m[3]  * c3) * invDeterminant;
+    result[2]  = +(m[13] * s5 - m[14] * s4 + m[15] * s3) * invDeterminant;
+    result[3]  = -(m[9]  * s5 - m[10] * s4 + m[11] * s3) * invDeterminant;
 
-    result[4]  = (-m[4]  * c5 - m[6]  * c2 + m[7]  * c1) * invDeterminant;
-    result[5]  = (+m[0]  * c5 - m[2]  * c2 + m[3]  * c1) * invDeterminant;
-    result[6]  = (-m[12] * s5 - m[14] * s2 + m[15] * s1) * invDeterminant;
-    result[7]  = (+m[8]  * s5 - m[10] * s2 + m[11] * s1) * invDeterminant;
+    result[4]  = -(m[4]  * c5 - m[6]  * c2 + m[7]  * c1) * invDeterminant;
+    result[5]  = +(m[0]  * c5 - m[2]  * c2 + m[3]  * c1) * invDeterminant;
+    result[6]  = -(m[12] * s5 - m[14] * s2 + m[15] * s1) * invDeterminant;
+    result[7]  = +(m[8]  * s5 - m[10] * s2 + m[11] * s1) * invDeterminant;
 
-    result[8]  = (+m[4]  * c4 - m[5]  * c2 + m[7]  * c0) * invDeterminant;
-    result[9]  = (-m[0]  * c4 - m[1]  * c2 + m[3]  * c0) * invDeterminant;
-    result[10] = (+m[12] * s4 - m[13] * s2 + m[15] * s0) * invDeterminant;
-    result[11] = (-m[8]  * s4 - m[9]  * s2 + m[11] * s0) * invDeterminant;
+    result[8]  = +(m[4]  * c4 - m[5]  * c2 + m[7]  * c0) * invDeterminant;
+    result[9]  = -(m[0]  * c4 - m[1]  * c2 + m[3]  * c0) * invDeterminant;
+    result[10] = +(m[12] * s4 - m[13] * s2 + m[15] * s0) * invDeterminant;
+    result[11] = -(m[8]  * s4 - m[9]  * s2 + m[11] * s0) * invDeterminant;
 
-    result[12] = (-m[4]  * c3 - m[5]  * c1 + m[6]  * c0) * invDeterminant;
-    result[13] = (+m[0]  * c3 - m[1]  * c1 + m[2]  * c0) * invDeterminant;
-    result[14] = (-m[12] * s3 - m[13] * s1 + m[14] * s0) * invDeterminant;
-    result[15] = (+m[8]  * s3 - m[9]  * s1 + m[10] * s0) * invDeterminant;
+    result[12] = -(m[4]  * c3 - m[5]  * c1 + m[6]  * c0) * invDeterminant;
+    result[13] = +(m[0]  * c3 - m[1]  * c1 + m[2]  * c0) * invDeterminant;
+    result[14] = -(m[12] * s3 - m[13] * s1 + m[14] * s0) * invDeterminant;
+    result[15] = +(m[8]  * s3 - m[9]  * s1 + m[10] * s0) * invDeterminant;
 }
 
 spVector
@@ -106,7 +134,8 @@ spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], 
     spFloat screen[4] = {(position.x / view.width)  * 2.0f - 1.0f, (position.y / view.height) * 2.0f - 1.0f, 0.0f, 1.0f};
     spFloat world[4] = {0};
 
-    MultMatrix4(model, proj, camera);
+    MultMatrix4(proj, model, camera);
+
     InverseMatrix4(camera, inverse);
     MultMatrix4Vector4(inverse, screen, world);
 
@@ -570,7 +599,10 @@ void spDrawDemo()
 
     glUseProgram(context.shaderProgram);
 
-    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_FALSE, demo->ortho);
+    spFloat transform[16];
+    MultMatrix4(demo->ortho, demo->view, transform);
+
+    glUniformMatrix4fv(glGetUniformLocation(context.shaderProgram, "v_transform"), 1, GL_TRUE, transform);
 
     /// bind the vertex array and draw the scene
     glBindVertexArray(context.vertexArray);

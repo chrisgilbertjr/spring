@@ -54,6 +54,9 @@ struct spShape
     spBody*  body;        ///< the body the shape is attached to
 };
 
+/// create a physics material on the stack
+spMaterial spMaterialConstruct(spFloat restitution, spFloat friction);
+
 /// initialize mass data with a mass, inertia, and center of mass
 void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass);
 

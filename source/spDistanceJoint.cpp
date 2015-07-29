@@ -161,13 +161,13 @@ spDistanceJointGetAnchorB(spConstraint* constraint)
 }
 
 spVector 
-spDistanceJointWorldGetAnchorA(spConstraint* constraint)
+spDistanceJointGetWorldAnchorA(spConstraint* constraint)
 {
     return spMult(constraint->bodyA->xf, distanceJoint->anchorA);
 }
 
 spVector 
-spDistanceJointWorldGetAnchorB(spConstraint* constraint)
+spDistanceJointGetWorldAnchorB(spConstraint* constraint)
 {
     return spMult(constraint->bodyB->xf, distanceJoint->anchorB);
 }
@@ -191,15 +191,15 @@ spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB)
 }
 
 void 
-spDistanceJointWorldSetAnchorA(spConstraint* constraint, spVector anchorA)
+spDistanceJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
 {
-    distanceJoint->anchorA = spMult(constraint->bodyA->xf, anchorA);
+    distanceJoint->anchorA = spTMult(constraint->bodyA->xf, anchorA);
 }
 
 void 
-spDistanceJointWorldSetAnchorB(spConstraint* constraint, spVector anchorB)
+spDistanceJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
 {
-    distanceJoint->anchorB = spMult(constraint->bodyB->xf, anchorB);
+    distanceJoint->anchorB = spTMult(constraint->bodyB->xf, anchorB);
 }
 
 void 

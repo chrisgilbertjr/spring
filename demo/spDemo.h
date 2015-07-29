@@ -5,6 +5,7 @@
 typedef void (*initFunc)();
 typedef void (*updateFunc)(spFloat dt);
 typedef void (*destroyFunc)();
+typedef void (*renderFunc)();
 typedef GLFWwindow spWindow;
 typedef spInt spDemoIndex;
 
@@ -54,3 +55,17 @@ void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 void spDemoDrawConstraint(spConstraint* constraint);
 
 void spRunDemo(spDemoIndex demo);
+
+///*** drawing functions ***
+
+void spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border);
+
+void spDemoDrawRopeJoint(spConstraint* constraint, spColor circles, spColor rope, spColor border);
+
+void spDemoDrawDistanceJoint(spConstraint* constraint, spColor color, spColor border);
+
+void spDemoDrawPointJoint(spConstraint* constraint, spColor color, spColor border);
+
+void spDemoDrawSpringJoint(spConstraint* constraint, spColor color, spColor border);
+
+void spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border);

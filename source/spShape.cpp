@@ -12,6 +12,15 @@ const spFilter spFilterCollideNone = {  (spMask)0,  (spMask)0,  (spMask)0 };
 const spFilter spFilterCollideAll  = { ~(spMask)0, ~(spMask)0, ~(spMask)0 };
 const spMaterial spDefaultMaterial = { 0.6f, 0.2f };
 
+spMaterial 
+spMaterialConstruct(spFloat restitution, spFloat friction)
+{
+    spMaterial material;
+    material.restitution = restitution;
+    material.friction = friction;
+    return material;
+}
+
 void 
 spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass)
 {

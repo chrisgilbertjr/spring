@@ -267,23 +267,22 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
         spVector line = spMult(*xf, spAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
         spFloat radius = circle->radius;
         spDrawCircle(pos, spRotationGetAngleDeg(xf->q), radius, Color, Border);
-        spDrawSegment(line, pos, spLineScaleSmall, Border, Border);
+        spDrawSegment(line, pos, spLineScaleSmall * 0.75f, Border, Border);
     }
     if (shape->type == SP_SHAPE_POLYGON)
     {
         spPolygon* poly = spShapeCastPolygon(shape);
         spTransform* xf = &shape->body->xf;
         spVector center = spMult(*xf, spShapeGetCOM(shape));
-        spVector vertices[4];
+        spVector vertices[32];
         spEdge* edges = poly->edges;
-        spMatrix scale = spMatrixConstruct(1.0f, 0.0f, 0.0f, 1.0f);
-        for (spInt i = 0; i < 4; ++i)
+        spInt count = poly->count;
+        for (spInt i = 0; i < count; ++i)
         {
             vertices[i] = spMult(*xf, edges[i].vertex);
-            vertices[i] = spMult(scale, vertices[i]);
         }
 
-        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, 4, center, Color, Border);
+        spDrawPolygon({0.0f, 0.0f}, 0.0f, vertices, count, center, Color, Border);
     }
     if (shape->type == SP_SHAPE_SEGMENT)
     {
@@ -301,99 +300,153 @@ spDemoDrawShape(spShape* shape, spColor color, spColor border)
     }
 }
 
+void
+spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border)
+{
+    /// cast the mouse joint safely
+    spMouseJoint* mouseJoint = spConstraintCastMouseJoint(constraint);
+
+    /// get the mouse joints body
+    spBody*  bodyA = spConstraintGetBodyA(constraint);
+
+    /// compute the two world anchors to draw
+    spVector pointA = spMult(bodyA->xf, mouseJoint->anchor);
+    spVector pointB = mouseJoint->target;
+
+    /// draw the points, a spring, and a large circle to represent the circle
+    spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, border);
+    spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleSmall, color, border);
+    spDrawCircle(pointB, 0.0f, spLineScaleBig, cursor, border);
+
+    //spDrawCircle(pointA, 0.0f, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+    //spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
+    //spDrawCircle(pointB, 0.0f, spLineScaleBig, WHITE(), BLACK());
+}
+
+void 
+spDemoDrawRopeJoint(spConstraint* constraint, spColor circles, spColor rope, spColor border)
+{
+    /// check if this is really a rope joint
+    spAssert(spConstraintIsRopeJoint(constraint), "constraint is not a rope joint!\n");
+
+    /// get the anchors in world space
+    spVector pointA = spRopeJointGetWorldAnchorA(constraint);
+    spVector pointB = spRopeJointGetWorldAnchorB(constraint);
+
+    /// draw the rope joint
+    spDrawCircle(pointA, 0.0f, spLineScaleSmall, circles, border);
+    spDrawCircle(pointB, 0.0f, spLineScaleSmall, circles, border);
+    spDrawRope(pointA, pointB, 8, spLineScaleSmall, rope, circles, border);
+
+    //spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
+    //spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
+    //spDrawRope(pointA, pointB, 8, spLineScaleSmall, RGB(0.5f,0.5f,0), RGB(1.0f,1.0f,0), BLACK());
+}
+
+void 
+spDemoDrawDistanceJoint(spConstraint* constraint, spColor color, spColor border)
+{
+    /// check if this is really a distance joint
+    spAssert(spConstraintIsDistanceJoint(constraint), "constraint is not a distance joint!\n");
+
+    /// get the anchors in world space
+    spVector pointA = spDistanceJointGetWorldAnchorA(constraint);
+    spVector pointB = spDistanceJointGetWorldAnchorB(constraint);
+
+    /// draw the distance constraint
+    spDrawSegment(pointA, pointB, spLineScaleSmall * 1.5f, color, border);
+
+    //spDrawSegment(pointA, pointB, spLineScaleSmall * 1.5f, RGB(0.8,0,0), BLACK());
+}
+
+void 
+spDemoDrawPointJoint(spConstraint* constraint, spColor color, spColor border)
+{
+    /// check if this is really a point joint
+    spAssert(spConstraintIsPointJoint(constraint), "constraint is not a point joint!\n");
+
+    /// get the anchors in world space
+    spVector pointA = spPointJointGetWorldAnchorA(constraint);
+    spVector pointB = spPointJointGetWorldAnchorB(constraint);
+
+    /// get the bodies COM in world space
+    spVector comA = spBodyGetPosition(constraint->bodyA);
+    spVector comB = spBodyGetPosition(constraint->bodyB);
+
+    /// draw the point joint
+    spDrawCircle(comA, 0.0f, spLineScaleSmall, color, border);
+    spDrawCircle(comB, 0.0f, spLineScaleSmall, color, border);
+    spDrawLine(pointA, comA, spLineScaleSmall, color, border);
+    spDrawLine(pointB, comB, spLineScaleSmall, color, border);
+    spDrawCircle(pointB, 0.0f, spLineScaleBig, color, color);
+
+    //spDrawCircle(bodyB->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
+    //spDrawCircle(bodyA->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
+    //spDrawLine(pointA, bodyA->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+    //spDrawLine(pointB, bodyB->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
+    //spDrawCircle(pointB, 0.0f, spLineScaleBig, RGB(0,0.5f,1), RGBA(0.0f, 0.5, 1.0, 1.0));
+}
+
+void 
+spDemoDrawSpringJoint(spConstraint* constraint, spColor color, spColor border)
+{
+    /// check if this is really a spring joint
+    spAssert(spConstraintIsSpringJoint(constraint), "constraint is not a spring joint!\n");
+
+    /// get the anchors in world space
+    spVector pointA = spSpringJointGetWorldAnchorA(constraint);
+    spVector pointB = spSpringJointGetWorldAnchorB(constraint);
+
+    /// draw the spring joint
+    spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, border);
+    spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, border);
+    spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, color, border);
+
+    //spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
+    //spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
+    //spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, RGB(0,0.8,0), BLACK());
+}
+
+void 
+spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border)
+{
+    /// cast the wheel joint safely
+    spWheelJoint* wheelJoint = spConstraintCastWheelJoint(constraint);
+
+    /// get the constraints bodies
+    spBody* bodyA = spConstraintGetBodyA(constraint);
+    spBody* bodyB = spConstraintGetBodyB(constraint);
+
+    /// reflect the springs anchor points around the wheel to look more plausible
+    spVector normal = wheelJoint->tWorld;
+    spVector direction = spMult(bodyA->xf.q, wheelJoint->anchorA);
+    spFloat  dist = spDot(normal, direction);
+
+    /// get the two spring anchors in world space
+    spVector pointB = spMult(bodyB->xf, wheelJoint->anchorB);
+    spVector pointA = spAdd(spMult(normal, dist), bodyA->p);
+
+    /// draw the wheel joint
+    spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, border);
+    spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, border);
+    spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, color, border);
+
+    color.a = 0.5f;
+    spDrawSegment(pointA, pointB, spLineScaleSmall, color, color);
+
+    //spColor c = RGB(0,1,0);
+    //spDrawCircle(pointA, 0.0f, spLineScaleSmall, c, BLACK());
+    //spDrawCircle(pointB, 0.0f, spLineScaleSmall, c, BLACK());
+    //spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, c, BLACK());
+
+    //spColor color = RGBA(0.0,1.0,0.0,0.5f);
+    //spDrawSegment(pointA, pointB, spLineScaleSmall, color, color);
+}
+
 void 
 spDemoDrawConstraint(spConstraint* constraint)
 {
-    if (spConstraintIsMouseJoint(constraint))
-    {
-        spMouseJoint* mouseJoint = spConstraintCastMouseJoint(constraint);
-        spBody* bodyA = mouseJoint->constraint.bodyA;
-        spVector pointA = spMult(bodyA->xf, mouseJoint->anchor);
-        spVector pointB = mouseJoint->target;
-        spDrawCircle(pointA, 0.0f, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
-        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleSmall, {0.0f, 1.0f, 0.0f, 1.0f}, BLACK());
-        spDrawCircle(pointB, 0.0f, spLineScaleBig, WHITE(), BLACK());
-    }
-    else if(spConstraintIsRopeJoint(constraint))
-    {
-        spRopeJoint* ropeJoint = spConstraintCastRopeJoint(constraint);
-
-        spBody* bodyA = ropeJoint->constraint.bodyA;
-        spBody* bodyB = ropeJoint->constraint.bodyB;
-
-        spVector pointA = spMult(bodyA->xf, ropeJoint->anchorA);
-        spVector pointB = spMult(bodyB->xf, ropeJoint->anchorB);
-
-        spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
-        spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(1,1,0), BLACK());
-        spDrawRope(pointA, pointB, 8, spLineScaleSmall, RGB(0.5f,0.5f,0), RGB(1.0f,1.0f,0), BLACK());
-    }
-    else if (spConstraintIsDistanceJoint(constraint))
-    {
-        spDistanceJoint* distanceJoint = spConstraintCastDistanceJoint(constraint);
-
-        spBody* bodyA = distanceJoint->constraint.bodyA;
-        spBody* bodyB = distanceJoint->constraint.bodyB;
-
-        spVector pointA = spMult(bodyA->xf, distanceJoint->anchorA);
-        spVector pointB = spMult(bodyB->xf, distanceJoint->anchorB);
-
-        spDrawSegment(pointA, pointB, spLineScaleSmall * 1.5f, RGB(0.8,0,0), BLACK());
-    }
-    else if (spConstraintIsPointJoint(constraint))
-    {
-        spPointJoint* pointJoint = spConstraintCastPointJoint(constraint);
-
-        spBody* bodyA = pointJoint->constraint.bodyA;
-        spBody* bodyB = pointJoint->constraint.bodyB;
-
-        spVector pointA = spMult(bodyA->xf, pointJoint->anchorA);
-        spVector pointB = spMult(bodyB->xf, pointJoint->anchorB);
-
-        spDrawCircle(bodyB->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
-        spDrawCircle(bodyA->p, 0.0f, spLineScaleSmall, RGB(0,0.5f,1), BLACK());
-        spDrawLine(pointA, bodyA->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
-        spDrawLine(pointB, bodyB->p, spLineScaleSmall, RGBA(0.0f, 0.5f, 1.0f, 1.0f), BLACK());
-        spDrawCircle(pointB, 0.0f, spLineScaleBig, RGB(0,0.5f,1), RGBA(0.0f, 0.5, 1.0, 1.0));
-    }
-    else if (spConstraintIsSpringJoint(constraint))
-    {
-        spSpringJoint* springJoint = spConstraintCastSpringJoint(constraint);
-
-        spBody* bodyA = springJoint->constraint.bodyA;
-        spBody* bodyB = springJoint->constraint.bodyB;
-
-        spVector pointA = spMult(bodyA->xf, springJoint->anchorA);
-        spVector pointB = spMult(bodyB->xf, springJoint->anchorB);
-
-        spDrawCircle(pointA, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
-        spDrawCircle(pointB, 0.0f, spLineScaleSmall, RGB(0,0.8,0), BLACK());
-        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, RGB(0,0.8,0), BLACK());
-    }
-    else if (spConstraintIsWheelJoint(constraint))
-    {
-        spWheelJoint* wheelJoint = spConstraintCastWheelJoint(constraint);
-
-        spBody* bodyA = wheelJoint->constraint.bodyA;
-        spBody* bodyB = wheelJoint->constraint.bodyB;
-
-        spVector normal = wheelJoint->tWorld;
-        spVector direction = spMult(bodyA->xf.q, wheelJoint->anchorA);
-        spFloat  dist = spDot(normal, direction);
-
-        spVector pointB = spMult(bodyB->xf, wheelJoint->anchorB);
-        spVector pointA = spAdd(spMult(normal, dist), bodyA->p);
-
-        spColor c = RGB(0,1,0);
-        spDrawCircle(pointA, 0.0f, spLineScaleSmall, c, BLACK());
-        spDrawCircle(pointB, 0.0f, spLineScaleSmall, c, BLACK());
-        spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, c, BLACK());
-
-        spColor color = RGBA(0.0,1.0,0.0,0.5f);
-
-        spDrawSegment(pointA, pointB, spLineScaleSmall, color, color);
-    }
-    else if (spConstraintIsGearJoint(constraint))
+    if (spConstraintIsGearJoint(constraint))
     {
         spGearJoint* gearJoint = spConstraintCastGearJoint(constraint);
 

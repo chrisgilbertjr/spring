@@ -47,10 +47,10 @@ spVector spDistanceJointGetAnchorA(spConstraint* constraint);
 spVector spDistanceJointGetAnchorB(spConstraint* constraint);
 
 /// get the distance joints first anchor in world space
-spVector spDistanceJointWorldGetAnchorA(spConstraint* constraint);
+spVector spDistanceJointGetWorldAnchorA(spConstraint* constraint);
 
 /// get the distance joints second anchor in world space
-spVector spDistanceJointWorldGetAnchorB(spConstraint* constraint);
+spVector spDistanceJointGetWorldAnchorB(spConstraint* constraint);
 
 /// get the distance joints distance between anchor points
 spFloat spDistanceJointGetDistance(spConstraint* constraint);
@@ -62,10 +62,10 @@ void spDistanceJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 void spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the distance joints first anchor in world space
-void spDistanceJointWorldSetAnchorA(spConstraint* constraint, spVector anchorA);
+void spDistanceJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the distance joints second anchor in world space
-void spDistanceJointWorldSetAnchorB(spConstraint* constraint, spVector anchorB);
+void spDistanceJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the distance joints distance between anchor points
 void spDistanceJointSetDistance(spConstraint* constraint, spFloat distance);

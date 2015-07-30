@@ -107,6 +107,9 @@ void spWheelJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 /// set the wheel joints max motor torque
 void spWheelJointSetMaxMotorTorque(spConstraint* constraint, spFloat maxTorque);
 
+/// set the wheel joints speed
+void spWheelJointSetMotorSpeed(spConstraint* constraint, spFloat speed);
+
 /// set the wheel joints spring frequency
 void spWheelJointSetSpringFrequency(spConstraint* constraint, spFloat frequency);
 

@@ -431,7 +431,7 @@ spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border)
     spDrawCircle(pointB, 0.0f, spLineScaleSmall, color, border);
     spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, color, border);
 
-    color.a = 0.5f;
+    color.a = color.a * 0.5f;
     spDrawSegment(pointA, pointB, spLineScaleSmall, color, color);
 
     //spColor c = RGB(0,1,0);

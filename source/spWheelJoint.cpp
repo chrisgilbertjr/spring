@@ -391,6 +391,12 @@ spWheelJointSetMaxMotorTorque(spConstraint* constraint, spFloat maxTorque)
 }
 
 void 
+spWheelJointSetMotorSpeed(spConstraint* constraint, spFloat speed)
+{
+    wheelJoint->motorSpeed = speed;
+}
+
+void 
 spWheelJointSetSpringFrequency(spConstraint* constraint, spFloat frequency)
 {
     wheelJoint->frequency = frequency;

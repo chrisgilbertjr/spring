@@ -42,7 +42,7 @@ PreSolve(spMouseJoint* joint, const spFloat h)
     a->w *= .98f;
 
     /// compute the position constraint and baumgarte velocity bias
-    spVector C = spAdd(a->p, spSub(joint->rA, joint->target));
+    spVector C = spSub(spMult(a->xf, joint->anchor), joint->target);
     joint->bias = spMult(C, beta);
     joint->lambdaAccum = spVectorZero();
 }

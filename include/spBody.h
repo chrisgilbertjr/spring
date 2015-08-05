@@ -83,6 +83,9 @@ void spBodyRemoveShape(spBody* body, spShape* shape);
 /// clear all forces acting on this body
 void spBodyClearForces(spBody* body);
 
+/// clear the bodies velocity
+void spBodyClearVelocity(spBody* body);
+
 /// integrates forces and updates velocity - semi-implicit euler
 void spBodyIntegrateVelocity(spBody* body, const spVector& gravity, const spFloat h);
 

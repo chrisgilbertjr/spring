@@ -180,6 +180,13 @@ spBodyClearForces(spBody* body)
 }
 
 void 
+spBodyClearVelocity(spBody* body)
+{
+    body->v = spVectorZero();
+    body->w = 0.0f;
+}
+
+void 
 spBodyIntegrateVelocity(spBody* body, const spVector& gravity, const spFloat h)
 {
     /// v += dt * acceleration

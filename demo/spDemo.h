@@ -6,8 +6,10 @@ typedef void (*initFunc)();
 typedef void (*updateFunc)(spFloat dt);
 typedef void (*destroyFunc)();
 typedef void (*renderFunc)();
+typedef void (*keyboardFunc)();
 typedef GLFWwindow spWindow;
 typedef spInt spDemoIndex;
+typedef int spKey;
 
 extern spFloat spLineScaleSmall;
 extern spFloat spLineScaleBig;
@@ -27,6 +29,7 @@ struct spDemo
     initFunc initialize;
     updateFunc update;
     destroyFunc destroy;
+    keyboardFunc keyboard;
     spColor background;
     spFloat timestep;
     spFloat time;
@@ -57,6 +60,10 @@ void spDemoDrawConstraint(spConstraint* constraint);
 void spRunDemo(spDemoIndex demo);
 
 ///*** drawing functions ***
+
+spBool spDemoKeyPressed(spKey key);
+
+spBool spDemoKeyReleased(spKey key);
 
 void spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border);
 

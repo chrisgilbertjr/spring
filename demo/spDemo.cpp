@@ -66,6 +66,8 @@ DemoViewMatrix(spFloat* view, spVector translation)
     view[15] = 1.0f; 
 }
 
+static void KeyboardDefault() {}
+
 spDemo*
 spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frustum, spViewport view)
 {
@@ -76,6 +78,7 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frust
     Demo->initialize = init;
     Demo->update = update;
     Demo->destroy = destroy;
+    Demo->keyboard = KeyboardDefault;
     Demo->background = BLACK();
     Demo->timestep = 1.0f / 60.0f;
     Demo->time= 0.0f;
@@ -116,6 +119,12 @@ Resize(spWindow* window, int width, int height)
     demo->viewport.width = width;
     demo->viewport.height = height;
     glViewport(0, 0, width, height);
+}
+
+static void
+Keyboard(spWindow* window, int key, int scancode, int action, int mods)
+{
+    demo->keyboard();
 }
 
 static void
@@ -183,6 +192,7 @@ SetupGLFW()
 
     glfwSetMouseButtonCallback(demo->window, (GLFWmousebuttonfun)MouseClick);
     glfwSetWindowSizeCallback(demo->window, (GLFWwindowsizefun)Resize);
+    glfwSetKeyCallback(demo->window, (GLFWkeyfun)Keyboard);
 
     glfwMakeContextCurrent(demo->window);
     glfwSetTime(0.0f);
@@ -249,6 +259,18 @@ static void
 Destroy()
 {
     demo->destroy();
+}
+
+spBool
+spDemoKeyPressed(spKey key)
+{
+    return glfwGetKey(demo->window, key) == GLFW_PRESS;
+}
+
+spBool 
+spDemoKeyReleased(spKey key)
+{
+    return glfwGetKey(demo->window, key) == GLFW_RELEASE;
 }
 
 void 

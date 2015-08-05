@@ -180,8 +180,8 @@ Solve(spWheelJoint* joint)
     {
         /// compute the velocity constraint and compute the multiplier
         spFloat Cdot = wB - wA + joint->motorSpeed;
-        spFloat lambda = -Cdot * joint->motorSpeed;
-        spFloat lambdaMax = joint->maxMotorTorque * 1.0f / 60.0f;
+        spFloat lambda = -Cdot * joint->eMassMotor;
+        spFloat lambdaMax = joint->maxMotorTorque * (1.0f / 60.0f);
         spFloat lambdaOld = joint->lambdaAccumMotor;
         joint->lambdaAccumMotor = spClamp(joint->lambdaAccumMotor + lambda, -lambdaMax, lambdaMax);
 

@@ -46,6 +46,7 @@ extern spDemo* demo;
 extern spDemo* test;
 extern spDemo* bridge;
 extern spDemo* vehicle;
+extern spDemo* stacks;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 

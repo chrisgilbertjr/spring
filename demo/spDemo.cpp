@@ -8,7 +8,7 @@
 spDemo* demo;
 
 #define MAX_DT 0.25f
-#define ALPHA 1.0f
+#define ALPHA 0.25f
 
 spFloat spLineScaleSmall = 1.0f;
 spFloat spLineScaleBig = 2.0f;
@@ -201,7 +201,7 @@ SetupGLFW()
 static void
 Initialize()
 {
-    demo = vehicle;
+    demo = stacks;
     SetupGLFW();
     spDrawInit();
     demo->initialize();

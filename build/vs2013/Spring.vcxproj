@@ -80,6 +80,7 @@
     <ClCompile Include="..\..\tests\spPolygonTest.cpp" />
     <ClCompile Include="..\..\tests\spShapeTest.cpp" />
     <ClCompile Include="..\..\tests\spUnitTest.cpp" />
+    <ClCompile Include="StacksDemo.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2AF3A2ED-CA12-4A82-A9D7-AF82C1791099}</ProjectGuid>

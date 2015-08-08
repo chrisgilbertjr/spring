@@ -298,45 +298,37 @@ extremalPointPoly(const spPolygon* poly, const spVector normal)
 }
 
 static Edge
-extremalEdgePoly(const spPolygon* poly, const spVector& normal)
+extremalEdgePoly(const spPolygon* poly, const spVector normal)
 {
     NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
 
     /// poly edges and count
     spEdge* edges = poly->edges;
-    spInt count   = poly->count;
+    spInt   count = poly->count;
 
-    /// two largest projections
-    spFloat projA = -SP_MAX_FLT;
-    spFloat projB = -SP_MAX_FLT;
+    /// get the edge vertex indices
+    spInt index1 = extremalIndexPoly(poly, normal);
+    spInt index2 = index1 == 0 ? count-1 : index1-1;
+    spInt index0 = index1 == count-1 ? 0 : index1+1;
+
+    /// get the normals rotated in world space
+    spVector normal0 = spNormal(spMult(xf->q, edges[index0].normal));
+    spVector normal1 = spNormal(spMult(xf->q, edges[index1].normal));
+    spVector normal2 = spNormal(spMult(xf->q, edges[index2].normal));
+
     Edge edge;
-
-    /// find the most extreme point along a direction
-    for (spInt i = 0; i < count; ++i)
+    if (spDot(normal, normal1) > spDot(normal, normal2))
     {
-        spEdge*    e = edges + i;
-        spVector   v = spMult(*xf, e->vertex);
-        spFloat proj = spDot(v, normal);
-
-        /// check if the new projection is larger, if it is, save its info
-        if (projB < proj)
-        {
-            if (i != 0)
-            {
-                edge.a = edge.b;
-            	projA = projB;
-            }
-
-            edge.b = v;
-            projB = proj;
-        }
-        else if (projA < proj)
-        {
-            edge.a = v;
-            projA = proj;
-        }
+        edge.a = spMult(*xf, edges[index1].vertex);
+        edge.b = spMult(*xf, edges[index0].vertex);
     }
+    else
+    {
+        edge.a = spMult(*xf, edges[index2].vertex);
+        edge.b = spMult(*xf, edges[index1].vertex);
+    }
+
     return edge;
 }
 
@@ -413,10 +405,10 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
 
         /// compute the penetration to see if they are in contact
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
-        if (penetration >= 0.0f)
+        if (penetration > 0.0f)
         {
-            //spDrawCircle(pointA, 0.0f, 2.0f, RED(), BLACK());
-            //spDrawCircle(pointB, 0.0f, 2.0f, YELLOW(), BLACK());
+            spDrawCircle(pointA, 0.0f, 10.0f, RED(), BLACK());
+            spDrawCircle(pointB, 0.0f, 10.0f, YELLOW(), BLACK());
             addContact(&result, pointA, pointB);
         }
     } {
@@ -432,8 +424,8 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat penetration = -spDot(spSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
-            //spDrawCircle(pointA, 0.0f, 2.0f, RED(), BLACK());
-            //spDrawCircle(pointB, 0.0f, 2.0f, YELLOW(), BLACK());
+            spDrawCircle(pointA, 0.0f, 10.0f, RED(), BLACK());
+            spDrawCircle(pointB, 0.0f, 10.0f, YELLOW(), BLACK());
             addContact(&result, pointA, pointB);
         }
     }
@@ -681,7 +673,7 @@ CircleToPolygon(const spCircle* circle, const spPolygon* poly)
 }
 
 static spCollisionResult
-PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
+PolygonToPolygon2(const spPolygon* polyA, const spPolygon* polyB)
 {
     NULLCHECK(polyA); NULLCHECK(polyB);
     struct SupportPointContext context = { 
@@ -713,6 +705,42 @@ PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
         return spCollisionResultConstruct();
     }
 }
+
+static spCollisionResult
+PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
+{
+    NULLCHECK(polyA); NULLCHECK(polyB);
+    struct SupportPointContext context = { 
+        (spShape*)polyA, 
+        (spShape*)polyB, 
+        (SupportPointFunc)extremalPointPoly,
+        (SupportPointFunc)extremalPointPoly };
+
+    struct MinkowskiEdge mEdge = GJK(&context);
+
+    /// check if they are are collising
+    if (mEdge.distance + polyA->radius + polyB->radius >= 0.0f)
+    {
+        /// get the two normal directions
+        /// bias the normal slightly so we dont get swapping edge points due to floating point error (what a HEADACHE!)
+        spVector normal = spNormal(spAdd(mEdge.normal, spMult(spVectorConstruct(0.0f, 1.0f), 1e-5f)));
+        spVector negate = spNegative(normal);
+
+        /// compute the extreme edges in the normals directions
+        Edge edgeA = extremalEdgePoly(polyA,  normal);
+        Edge edgeB = extremalEdgePoly(polyB,  negate);
+
+        /// clip edges to get contact points
+        return clipEdges(&edgeA, &edgeB, &mEdge, polyA->radius, polyB->radius);
+    }
+
+    /// no collision occured
+    else
+    {
+        return spCollisionResultConstruct();
+    }
+}
+
 
 static spCollisionResult
 SegmentToCircle(const spSegment* segment, const spCircle* circle)

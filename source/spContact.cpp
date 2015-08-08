@@ -2,7 +2,7 @@
 #include "spContact.h"
 #include "spBody.h"
 
-static spFloat baumgarte = 0.2f;
+static spFloat baumgarte = 0.1f;
 spFloat spSlop = 0.15f;
 
 void 
@@ -124,12 +124,12 @@ spContactWarmStart(spContact* contact)
         spVector impulseB = spNegative(impulseA);
 
         /// apply the impulses
-        //spBodyApplyImpulse(a, point->rA, impulseA);
-        //spBodyApplyImpulse(b, point->rB, impulseB);
+        spBodyApplyImpulse(a, point->rA, impulseA);
+        spBodyApplyImpulse(b, point->rB, impulseB);
 
         /// reset accumulated multipliers
-        //point->lambdaAccumNorm = 0.0f;
-        //point->lambdaAccumTang = 0.0f;
+        point->lambdaAccumNorm = 0.0f;
+        point->lambdaAccumTang = 0.0f;
     }
 }
 

@@ -10,9 +10,9 @@ struct stackBox
     spColor  color;
 };
 
-spBody* body[3];
-spShape* segment[3];
-stackBox boxes[MAXBOXES];
+static spBody* body[3];
+static spShape* segment[3];
+static stackBox boxes[MAXBOXES];
 static spInt boxCount = 0;
 
 static spVector
@@ -22,12 +22,14 @@ vec(spFloat x, spFloat y)
 }
 
 static void
-stackBoxCreate(spFloat scale, spFloat mass)
+stackBoxCreate(spVector size, spFloat mass)
 {
-    spVector verts[4] = { {-scale, -scale}, { scale, -scale}, { scale,  scale}, {-scale,  scale}};
+    spVector verts[4] = { {-size.x, -size.y}, { size.x, -size.y}, { size.x,  size.y}, {-size.x,  size.y}};
 
     spShape* shape = spPolygonNew(verts, 4, mass);
     spBody*  body = spBodyNewDynamic();
+
+    spShapeSetNewMaterial(shape, spMaterialConstruct(0.0f, 1.0f));
 
     spBodyAddShape(body, shape);
     spWorldAddBody(&demo->world, body);
@@ -47,14 +49,15 @@ stackBoxReset(spInt index, spVector position, spFloat angle)
     spBodySetTransform(boxes[index].body, position, angle);
 }
 
-const static spFloat size = 100.0f;
+const static spVector size = vec(60.0f, 50.0f);
 
 static void
 CreateBoxes()
 {
     for (spInt i = 0; i < MAXBOXES; ++i)
     {
-        stackBoxCreate(size, 300.0f);
+        spVector box = vec(size.x + ((MAXBOXES-1 * i) * 5.0f), size.y);
+        stackBoxCreate(box, 300.0f);
     }
     spInt x = 0;
 }
@@ -62,11 +65,11 @@ CreateBoxes()
 static void
 ResetBoxes()
 {
-    spFloat y = -500.0f;
+    spFloat y = -700.0f;
     for (spInt i = 0; i < MAXBOXES; ++i)
     {
         stackBoxReset(i, vec(0.0f, y), 0.0f);
-        y += size*2.5f;
+        y += size.y*2.1f;
     }
 }
 
@@ -78,13 +81,12 @@ Keyboard()
 static void
 Setup()
 {
-    spSlop = 2.0f;
+    spSlop = 1.0f;
     spLineScaleSmall = 16.0f;
     spLineScaleBig = 20.0f;
 
     demo->background = RGBA255(176.f, 226.f, 255.f, 0.0f);
     demo->keyboard = Keyboard;
-    //demo->world.gravity = vec(0,0);
 
     segment[0] = spSegmentNew(vec(-1366.f, 768.f), vec(-1366.f,-768.f), 25.0f, 0.0f);
     segment[1] = spSegmentNew(vec(-1366.f,-768.f), vec( 1366.f,-768.f), 25.0f, 0.0f);

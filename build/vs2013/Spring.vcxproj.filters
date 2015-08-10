@@ -223,5 +223,8 @@
     <ClCompile Include="StacksDemo.cpp">
       <Filter>demo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\demo\PendulumDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

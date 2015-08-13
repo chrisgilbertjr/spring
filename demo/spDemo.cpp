@@ -1,6 +1,6 @@
 
+#include <time.h>
 #include "spDemo.h"
-
 #include "spPolygon.h"
 #include "spSegment.h"
 #include "spCircle.h"
@@ -201,7 +201,7 @@ SetupGLFW()
 static void
 Initialize()
 {
-    demo = pendulum;
+    demo = pegs;
     SetupGLFW();
     spDrawInit();
     demo->initialize();
@@ -259,6 +259,42 @@ static void
 Destroy()
 {
     demo->destroy();
+}
+
+void
+spDemoInitRandomSeed()
+{
+    srand((unsigned int)time(NULL));
+}
+
+static spFloat
+spDemoRandomFloatRange(float min, float max) 
+{
+    float random = ((float)rand()) / (float)RAND_MAX;
+    float range = max - min;
+    return min + random * range;
+}
+
+spColor 
+spDemoRandomColor()
+{
+    spColor color;
+    color.r = spDemoRandomFloatRange(0.f, 1.f);
+    color.g = spDemoRandomFloatRange(0.f, 1.f);
+    color.b = spDemoRandomFloatRange(0.f, 1.f);
+    color.a = 1.0f;
+    return color;
+}
+
+spColor 
+spDemoRandomPastelColor()
+{
+    spColor pastel = { 1.0f, 1.0f, 1.0f, 1.0f };
+    spColor color = spDemoRandomColor();
+    color.r = (pastel.r + color.r) * 0.5f;
+    color.g = (pastel.g + color.g) * 0.5f;
+    color.b = (pastel.b + color.b) * 0.5f;
+    return color;
 }
 
 spBool

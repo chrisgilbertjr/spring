@@ -42,12 +42,31 @@ struct spDemo
     spBool paused;
 };
 
+struct spSingleBodyObject
+{
+    spBody* body;
+    spShape* shape;
+    spColor color;
+    spColor border;
+};
+
+struct spMultiBodyObject
+{
+    spBody* body;
+    spShape** shapes;
+    spColor* colors;
+    spColor* borders;
+    spInt count;
+};
+
 extern spDemo* demo;
 extern spDemo* test;
 extern spDemo* bridge;
 extern spDemo* vehicle;
 extern spDemo* stacks;
 extern spDemo* pendulum;
+extern spDemo* pyramid;
+extern spDemo* pegs;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 
@@ -62,6 +81,14 @@ void spDemoDrawConstraint(spConstraint* constraint);
 void spRunDemo(spDemoIndex demo);
 
 ///*** drawing functions ***
+
+void spDemoInitRandomSeed();
+
+spFloat spDemoRandomFloatRange(float min, float max);
+
+spColor spDemoRandomColor();
+
+spColor spDemoRandomPastelColor();
 
 spBool spDemoKeyPressed(spKey key);
 

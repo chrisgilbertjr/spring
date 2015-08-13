@@ -226,5 +226,11 @@
     <ClCompile Include="..\..\demo\PendulumDemo.cpp">
       <Filter>demo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\demo\pyramidDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\PegsDemo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

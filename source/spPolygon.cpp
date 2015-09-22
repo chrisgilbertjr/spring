@@ -110,6 +110,12 @@ spPolygonComputeMassData(spPolygon* poly, spMassData* data, spFloat mass)
         mass);
 }
 
+spBool 
+spShapeIsPolygon(spShape* shape)
+{
+    return shape->type == SP_SHAPE_POLYGON;
+}
+
 void 
 spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
 {

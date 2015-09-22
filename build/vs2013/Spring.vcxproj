@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\demo\BridgeDemo.cpp" />
+    <ClCompile Include="..\..\demo\DemoTemplate.cpp" />
+    <ClCompile Include="..\..\demo\JointDemo.cpp" />
     <ClCompile Include="..\..\demo\PegsDemo.cpp" />
     <ClCompile Include="..\..\demo\PendulumDemo.cpp" />
     <ClCompile Include="..\..\demo\pyramidDemo.cpp" />

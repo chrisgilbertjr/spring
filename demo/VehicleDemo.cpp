@@ -450,6 +450,7 @@ Keyboard()
     if (spDemoKeyPressed('D'))  SetCurrentVehicleTruck();
     if (spDemoKeyPressed(' '))  EnableMotor();
     if (spDemoKeyReleased(' ')) DisableMotor();
+    if (spDemoKeyPressed('R'))  ResetVehicle();
 }
 
 static void

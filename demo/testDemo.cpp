@@ -125,6 +125,8 @@ Shape(spInt i)
     return shapes[i].shape;
 }
 
+static spConstraint* pins[8] = { NULL };
+
 static void 
 setup() 
 {
@@ -137,7 +139,9 @@ setup()
     spConstraint* constraint;
     spInt a, b;
 
-    CreateStaticSegment({ -33.3f, -33.3f}, {-33.3f, 100.0f}, 1.0f, BLACK(), BLACK());
+    spInt seg;
+
+    seg = CreateStaticSegment({ -33.3f, -33.3f}, {-33.3f, 100.0f}, 1.0f, BLACK(), BLACK());
     CreateStaticSegment({  33.3f,-100.0f}, { 33.3f, 100.0f}, 1.0f, BLACK(), BLACK());
     
     CreateStaticSegment({-100.0f,  33.3f}, {100.0f,  33.3f}, 1.0f, BLACK(), BLACK());
@@ -149,39 +153,62 @@ setup()
     CreateStaticSegment({-100.0f,-100.0f}, {-100.0f,100.0f}, 1.0f, BLACK(), BLACK());
     CreateStaticSegment({ 100.0f,-100.0f}, { 100.0f,100.0f}, 1.0f, BLACK(), BLACK());
 
+    spInt shapez[6];
+
+    shapez[0] = a = CreateCircle({ 11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
+    shapez[1] = b = CreateCircle({-11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
+    shapez[2] = a = CreateCircle({ 86.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
+    shapez[3] = b = CreateCircle({ 46.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
+    shapez[4] = a = CreateCircle({-72.6f, 66.6f}, 18.0f, 25.0f, RGB255(64,255,0), BLACK());
+    shapez[5] = b = CreateCircle({-46.6f, 66.6f}, 8.0f, 25.0f, RGB255(64,255,0), BLACK());
+
+    pins[0] = spPointJointNew(Body(shapez[0]), Body(seg), {0,0}, { 11.6f, 66.6f});
+    pins[1] = spPointJointNew(Body(shapez[1]), Body(seg), {0.0}, {-11.6f, 66.6f});
+    pins[2] = spPointJointNew(Body(shapez[2]), Body(seg), {0,0}, { 86.6f, 66.6f});
+    pins[3] = spPointJointNew(Body(shapez[3]), Body(seg), {0.0}, { 46.6f, 66.6f});
+    pins[4] = spPointJointNew(Body(shapez[4]), Body(seg), {0,0}, {-72.6f, 66.6f});
+    pins[5] = spPointJointNew(Body(shapez[5]), Body(seg), {0.0}, {-46.6f, 66.6f});
+
+    spWorldAddConstraint(&demo->world, pins[0]);
+    spWorldAddConstraint(&demo->world, pins[1]);
+    spWorldAddConstraint(&demo->world, pins[2]);
+    spWorldAddConstraint(&demo->world, pins[3]);
+    spWorldAddConstraint(&demo->world, pins[4]);
+    spWorldAddConstraint(&demo->world, pins[5]);
 
     /// *** Motor joint ***
-    a = CreateCircle({ 11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
-    b = CreateCircle({-11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
-    spBodySetGravityScale(Body(a), 0.0f);
-    spBodySetGravityScale(Body(b), 0.0f);
-    constraint = spMotorJointNew(Body(a), Body(b), 25.0f);
+    //shapez[0] = a = CreateCircle({ 11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
+    //shapez[1] = b = CreateCircle({-11.6f, 66.6f}, 8.0f, 50.0f, RGB255(0,128,255), BLACK());
+    spBodySetGravityScale(Body(shapez[0]), 0.0f);
+    spBodySetGravityScale(Body(shapez[1]), 0.0f);
+    constraint = spMotorJointNew(Body(shapez[0]), Body(shapez[1]), 25.0f);
     spWorldAddConstraint(&demo->world, constraint);
 
     /// *** Angular spring joint ***
-    a = CreateCircle({ 86.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
-    b = CreateCircle({ 46.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
+    //shapez[2] = a = CreateCircle({ 86.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
+    //shapez[3] = b = CreateCircle({ 46.6f, 66.6f}, 8.0f, 25.0f, RGB255(0,255,0), BLACK());
 
-    spBodySetAngularVelocityDamping(Body(a), 0.0f);
-    spBodySetAngularVelocityDamping(Body(b), 0.0f);
-    spBodySetGravityScale(Body(a), 0.0f);
-    spBodySetGravityScale(Body(b), 0.0f);
-    spBodyApplyTorque(Body(a), 40000.0f);
+    spBodySetAngularVelocityDamping(Body(shapez[2]), 0.0f);
+    spBodySetAngularVelocityDamping(Body(shapez[3]), 0.0f);
+    spBodySetGravityScale(Body(shapez[2]), 0.0f);
+    spBodySetGravityScale(Body(shapez[3]), 0.0f);
+    spBodyApplyTorque(Body(shapez[2]), 40000.0f);
 
-    constraint = spAngularSpringJointNew(Body(a), Body(b), spFalse, 0.5f, 0.1f, 0.0f);
+    constraint = spAngularSpringJointNew(Body(shapez[2]), Body(shapez[3]), spFalse, 0.5f, 0.1f, 0.0f);
     spWorldAddConstraint(&demo->world, constraint);
 
+
     /// *** Gear joint ***
-    a = CreateCircle({-86.6f, 66.6f}, 8.0f, 25.0f, RGB255(64,255,0), BLACK());
-    b = CreateCircle({-46.6f, 66.6f}, 8.0f, 25.0f, RGB255(64,255,0), BLACK());
+    //shapez[4] = a = CreateCircle({-72.6f, 66.6f}, 18.0f, 25.0f, RGB255(64,255,0), BLACK());
+    //shapez[5] = b = CreateCircle({-46.6f, 66.6f}, 8.0f, 25.0f, RGB255(64,255,0), BLACK());
 
-    spBodySetAngularVelocityDamping(Body(a), 0.0f);
-    spBodySetAngularVelocityDamping(Body(b), 0.0f);
-    spBodySetGravityScale(Body(a), 0.0f);
-    spBodySetGravityScale(Body(b), 0.0f);
-    spBodyApplyTorque(Body(a), 25000.0f);
+    spBodySetAngularVelocityDamping(Body(shapez[4]), 0.0f);
+    spBodySetAngularVelocityDamping(Body(shapez[5]), 0.0f);
+    spBodySetGravityScale(Body(shapez[4]), 0.0f);
+    spBodySetGravityScale(Body(shapez[5]), 0.0f);
+    spBodyApplyTorque(Body(shapez[4]), 25000.0f);
 
-    constraint = spGearJointNew(Body(a), Body(b), 2.0f, 0.0f);
+    constraint = spGearJointNew(Body(shapez[4]), Body(shapez[5]), 2.0f, 0.0f);
     spWorldAddConstraint(&demo->world, constraint);
 
     /// *** Wheel joint ***
@@ -239,7 +266,10 @@ static void update(spFloat dt)
 
     spConstraint* constraints = world->jointList;
     spConstraint* constraint = NULL;
-    while(constraints != NULL)
+
+    spInt limit = 9;
+    if (demo->mouse.shape != NULL) limit += 1;
+    for (spInt i = 0; i < limit; i++)
     {
         constraint = constraints;
         spDemoDrawConstraint(constraint);

@@ -52,6 +52,12 @@ spSegmentComputeMassData(spSegment* segment, spMassData* data, spFloat mass)
         mass);
 }
 
+spBool 
+spShapeIsSegment(spShape* shape)
+{
+    return shape->type == SP_SHAPE_SEGMENT;
+}
+
 void 
 spSegmentInit(spSegment* segment, spVector pointA, spVector pointB, spFloat radius, spFloat mass)
 {

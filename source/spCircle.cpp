@@ -25,6 +25,12 @@ spCircleComputeMassData(spCircle* circle, spMassData* data, spFloat mass)
     spMassDataInit(data, circle->center, spCircleComputeInertia(circle, mass), mass);
 }
 
+spBool 
+spShapeIsCircle(spShape* shape)
+{
+    return shape->type == SP_SHAPE_CIRCLE;
+}
+
 void 
 spCircleInit(spCircle* circle, spVector center, spFloat radius, spFloat mass)
 {

@@ -16,6 +16,9 @@ struct spCircle
     spFloat  radius; ///< the radius of the circle
 };
 
+/// check if a shape is a circle
+spBool spShapeIsCircle(spShape* shape);
+
 /// initialize a circle with a center and radius
 void spCircleInit(spCircle* circle, spVector center, spFloat radius, spFloat mass);
 

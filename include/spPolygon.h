@@ -25,6 +25,9 @@ struct spPolygon
     spInt count;    ///< number of edges
 };
 
+/// check if a shape is a polygon
+spBool spShapeIsPolygon(spShape* shape);
+
 /// initialize a polygon
 void spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass);
 

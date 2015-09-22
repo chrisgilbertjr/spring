@@ -66,7 +66,7 @@ extern spDemo* vehicle;
 extern spDemo* stacks;
 extern spDemo* pendulum;
 extern spDemo* pyramid;
-extern spDemo* pegs;
+extern spDemo* Pegs;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 
@@ -74,13 +74,7 @@ void spDemoSetCameraTranslation(spVector translation);
 
 void spDemoFree(spDemo** demo);
 
-void spDemoDrawShape(spShape* shape, spColor color, spColor border);
-
-void spDemoDrawConstraint(spConstraint* constraint);
-
 void spRunDemo(spDemoIndex demo);
-
-///*** drawing functions ***
 
 void spDemoInitRandomSeed();
 
@@ -93,6 +87,26 @@ spColor spDemoRandomPastelColor();
 spBool spDemoKeyPressed(spKey key);
 
 spBool spDemoKeyReleased(spKey key);
+
+void spDemoDrawSingleBody(spSingleBodyObject* object);
+
+void spDemoDrawMultiBody(spMultiBodyObject* object);
+
+void spDemoDrawShape(spShape* shape, spColor color, spColor border);
+
+void spDemoDrawConstraint(spConstraint* constraint);
+
+void spDemoDrawCircle(spShape* shape, spColor color, spColor border);
+
+void spDemoDrawPolygon(spShape* shape, spColor color, spColor border);
+
+void spDemoDrawSegment(spShape* shape, spColor color, spColor border);
+
+void spDemoDrawGearJoint(spConstraint* constraint, spColor color, spColor border);
+
+void spDemoDrawAngularSpringJoint(spConstraint* constraint, spColor color, spColor border);
+
+void spDemoDrawMotorJoint(spConstraint* constraint, spColor color, spColor border);
 
 void spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border);
 

@@ -17,6 +17,9 @@ struct spSegment
     spFloat radius;              ///< small segment radius
 };
 
+/// check if a shape is a segment
+spBool spShapeIsSegment(spShape* shape);
+
 /// initialize a segment with two local points, a radius, and its mass
 void spSegmentInit(spSegment* segment, spVector pointA, spVector pointB, spFloat radius, spFloat mass);
 

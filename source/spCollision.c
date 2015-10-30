@@ -321,7 +321,6 @@ extremalEdgePoly(const spPolygon* poly, const spVector normal)
     spInt index0 = index1 == count-1 ? 0 : index1+1;
 
     /// get the normals rotated in world space
-    spVector normal0 = spNormal(spMultRotVec(xf->q, edges[index0].normal));
     spVector normal1 = spNormal(spMultRotVec(xf->q, edges[index1].normal));
     spVector normal2 = spNormal(spMultRotVec(xf->q, edges[index2].normal));
 

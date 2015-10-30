@@ -28,7 +28,7 @@ spContactKeyConstruct(spShape* shapeA, spShape* shapeB)
 }
 
 spBool 
-spContactKeyExists(const spContactKey key, spContact* contactList)
+spContactKeyExists(spContactKey key, spContact* contactList)
 {
     for (spContact* contact = contactList; contact != NULL; contact = contact->next)
     {

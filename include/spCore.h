@@ -8,16 +8,25 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <float.h>
-#include <math.h>
-
-#include "spPlatform.h"
 
 //#define SP_DEBUG
 //#define SP_DEBUG_DRAW
 
 /// @defgroup spCore spCore
 /// @{
+
+#include "spPlatform.h"
+
+/// memory defines
+#define spRealloc realloc
+#define spMalloc malloc
+#define spCalloc calloc
+#define spFree(pointer) free(*pointer); *pointer = NULL;
+
+/// boolean/ignore defines
+#define SP_IGNORE(x) ((void)x)
+#define spFalse 0u
+#define spTrue 1u
 
 /// precision preference/defines
 #ifdef DOUBLE_PRECISION
@@ -47,17 +56,6 @@
   #define SP_MAX_FLT FLT_MAX
   #define SP_MIN_FLT FLT_MIN
 #endif
-
-/// memory defines
-#define spRealloc realloc
-#define spMalloc malloc
-#define spCalloc calloc
-#define spFree(pointer) free(*pointer); *pointer = NULL;
-
-/// boolean/ignore defines
-#define SP_IGNORE(x) ((void)x)
-#define spFalse 0u
-#define spTrue 1u
 
 /// spring data types
 typedef char           spInt8;

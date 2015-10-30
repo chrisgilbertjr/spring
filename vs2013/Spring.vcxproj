@@ -99,6 +99,7 @@
     <ClInclude Include="..\tests\spUnitTest.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\demo\DemoTemplate.cpp">
@@ -249,6 +250,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\cygwin\home\chris\projects\Spring\demo;C:\cygwin\home\chris\projects\Spring\tests;C:\cygwin\home\chris\Libs\glew-1.10.0\include;C:\cygwin\home\chris\Libs\glfw-3.0.4.bin.WIN32\include;C:\cygwin\home\chris\projects\Spring\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -265,6 +267,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\cygwin\home\chris\Spring\demo;C:\cygwin\home\chris\Spring\unit_tests;C:\cygwin\home\chris\Libs\glew-1.10.0\include;C:\cygwin\home\chris\Libs\glfw-3.0.4.bin.WIN32\include;C:\cygwin\home\chris\Spring\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

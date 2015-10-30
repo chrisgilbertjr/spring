@@ -3,6 +3,8 @@
 #ifndef SP_MATH_H
 #define SP_MATH_H
 
+#include <math.h>
+#include <float.h>
 #include "spCore.h"
 
 /// math constants

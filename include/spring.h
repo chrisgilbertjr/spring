@@ -2,6 +2,10 @@
 #ifndef SPRING_H
 #define SPRING_H
 
+
+#include "spPlatform.h"
+#include "spCore.h"
+#include "spMath.h"
 #include "spAngularSpringJoint.h"
 #include "spBody.h"
 #include "spBound.h"
@@ -10,11 +14,9 @@
 #include "spConstraint.h"
 #include "spContact.h"
 #include "spContactKey.h"
-#include "spCore.h"
 #include "spDistanceJoint.h"
 #include "spGearJoint.h"
 #include "spLinkedList.h"
-#include "spMath.h"
 #include "spMotorJoint.h"
 #include "spMouseJoint.h"
 #include "spPlatform.h"

@@ -104,6 +104,9 @@
     <ClInclude Include="..\include\spring.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\tests\spBoundTest.cpp">

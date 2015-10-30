@@ -43,18 +43,18 @@
     <ClInclude Include="..\..\tests\spUnitTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\demo\BridgeDemo.cpp" />
-    <ClCompile Include="..\..\demo\DemoTemplate.cpp" />
-    <ClCompile Include="..\..\demo\JointDemo.cpp" />
-    <ClCompile Include="..\..\demo\PegsDemo.cpp" />
-    <ClCompile Include="..\..\demo\PendulumDemo.cpp" />
-    <ClCompile Include="..\..\demo\pyramidDemo.cpp" />
-    <ClCompile Include="..\..\demo\spDemo.cpp" />
-    <ClCompile Include="..\..\demo\spDemoFactory.cpp" />
-    <ClCompile Include="..\..\demo\spDraw.cpp" />
-    <ClCompile Include="..\..\demo\spShader.cpp" />
-    <ClCompile Include="..\..\demo\testDemo.cpp" />
-    <ClCompile Include="..\..\demo\VehicleDemo.cpp" />
+    <ClCompile Include="..\..\demo\BridgeDemo.c" />
+    <ClCompile Include="..\..\demo\DemoTemplate.c" />
+    <ClCompile Include="..\..\demo\JointDemo.c" />
+    <ClCompile Include="..\..\demo\PegsDemo.c" />
+    <ClCompile Include="..\..\demo\PendulumDemo.c" />
+    <ClCompile Include="..\..\demo\pyramidDemo.c" />
+    <ClCompile Include="..\..\demo\spDemo.c" />
+    <ClCompile Include="..\..\demo\spDemoFactory.c" />
+    <ClCompile Include="..\..\demo\spDraw.c" />
+    <ClCompile Include="..\..\demo\spShader.c" />
+    <ClCompile Include="..\..\demo\testDemo.c" />
+    <ClCompile Include="..\..\demo\VehicleDemo.c" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\spAngularSpringJoint.cpp" />
     <ClCompile Include="..\..\source\spApplication.cpp" />
@@ -85,7 +85,7 @@
     <ClCompile Include="..\..\tests\spPolygonTest.cpp" />
     <ClCompile Include="..\..\tests\spShapeTest.cpp" />
     <ClCompile Include="..\..\tests\spUnitTest.cpp" />
-    <ClCompile Include="StacksDemo.cpp" />
+    <ClCompile Include="StacksDemo.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2AF3A2ED-CA12-4A82-A9D7-AF82C1791099}</ProjectGuid>

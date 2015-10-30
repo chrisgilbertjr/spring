@@ -77,19 +77,19 @@ spApplication* spApplicationNew(
     spLazyPointer*    data);
 
 /// free an applications memory
-inline void spAplicationFree(spApplication** app)
+INLINE void spAplicationFree(spApplication** app)
 {
     spFree(app);
 }
 
 /// 'faked' constructor for stack allocation
-inline spViewport _spViewport(spInt width, spInt height)
+INLINE spViewport _spViewport(spInt width, spInt height)
 {
     return { width, height };
 }
 
 /// 'faked' constructor for stack allocation
-inline spFrustum _spFrustum(spFloat l, spFloat r, spFloat b, spFloat t, spFloat n, spFloat f)
+INLINE spFrustum _spFrustum(spFloat l, spFloat r, spFloat b, spFloat t, spFloat n, spFloat f)
 {
     spFrustum frustum;
     frustum.left = l;

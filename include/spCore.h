@@ -1,7 +1,7 @@
 /// license
 
-#ifndef SP_TYPE_H
-#define SP_TYPE_H
+#ifndef SP_CORE_H
+#define SP_CORE_H
 
 /// c headers
 #include <assert.h>
@@ -11,8 +11,10 @@
 #include <float.h>
 #include <math.h>
 
-#define SP_DEBUG
-#define SP_DEBUG_DRAW
+#include "spPlatform.h"
+
+//#define SP_DEBUG
+//#define SP_DEBUG_DRAW
 
 /// @defgroup spCore spCore
 /// @{
@@ -103,7 +105,7 @@ typedef struct spEdge               spEdge;
 typedef struct spBody               spBody;
 
 /// swap a and b
-inline void spSwap(spFloat* a, spFloat* b)
+INLINE void spSwapFloat(spFloat* a, spFloat* b)
 {
     spFloat tmp = *a;
     *a = *b;
@@ -111,7 +113,7 @@ inline void spSwap(spFloat* a, spFloat* b)
 }
 
 /// swap a and b
-inline void spSwap(spInt* a, spInt* b)
+INLINE void spSwapInt(spInt* a, spInt* b)
 {
     spInt tmp = *a;
     *a = *b;
@@ -119,25 +121,25 @@ inline void spSwap(spInt* a, spInt* b)
 }
 
 /// get the abs value of a
-inline spFloat spAbs(const spFloat a)
+INLINE spFloat spAbs(const spFloat a)
 {
     return a > 0.0f ? a : -a;
 }
 
 /// get the min of a and b
-inline spFloat spMin(const spFloat a, const spFloat b)
+INLINE spFloat spMin(const spFloat a, const spFloat b)
 {
     return a < b ? a : b;
 }
 
 /// get the max of a and b
-inline spFloat spMax(const spFloat a, const spFloat b)
+INLINE spFloat spMax(const spFloat a, const spFloat b)
 {
     return a > b ? a : b;
 }
 
 /// clamp x between min and max
-inline spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
+INLINE spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
 {
     if (x < min)
     {
@@ -151,13 +153,13 @@ inline spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
 }
 
 /// check if two floats are equal within an epsilon value
-inline spBool spAlmostEqual(const spFloat a, const spFloat b, const spFloat EPSILON = 1e-6)
+INLINE spBool spAlmostEqualFlts(const spFloat a, const spFloat b)
 {
-     return (b - EPSILON) <= a && a <= (b + EPSILON) ? spTrue : spFalse;
+     return (b - 1e-6) <= a && a <= (b + 1e-6) ? spTrue : spFalse;
 }
 
 /// i could make this faster copying more than 1 byte at a time, but i dont think its necessary
-inline void* spMemset(void* mem, spInt value, spSize bytes)
+INLINE void* spMemset(void* mem, spInt value, spSize bytes)
 {
     spUint8* ptr = (spUint8*)mem;
 
@@ -187,7 +189,7 @@ inline void* spMemset(void* mem, spInt value, spSize bytes)
         if (condition == spFalse)\
         {\
             SP_LOG(stderr, msg);\
-            assert(false);\
+            assert(spFalse);\
         }
 
     #define spWarning DEBUGWarning

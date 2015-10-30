@@ -38,7 +38,7 @@ spPolygon* spPolygonAlloc();
 spShape* spPolygonNew(spVector* vertices, spInt count, spFloat mass);
 
 /// free allocated memory for a polygon from the heap
-void spPolygonFree(spPolygon** poly);
+void spPolygonFree(spShape** poly);
 
 /// tests if a point is inside of the polygon
 spBool spPolygonTestPoint(spPolygon* poly, spVector point);

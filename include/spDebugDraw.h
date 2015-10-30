@@ -22,7 +22,7 @@ struct spColor
     spFloat a;
 };
 
-inline spColor _spColor(spFloat r, spFloat g, spFloat b, spFloat a)
+INLINE spColor _spColor(spFloat r, spFloat g, spFloat b, spFloat a)
 {
     return { r, g, b, a };
 }
@@ -35,24 +35,24 @@ inline spColor _spColor(spFloat r, spFloat g, spFloat b, spFloat a)
 #define spBlue(a)   _spColor(0.0f, 0.0f, 1.0f, a)
 #define spRed(a)    _spColor(1.0f, 0.0f, 0.0f, a)
 
-void spDebugDrawPoint(const spVector& pos, const spColor& color);
+void spDebugDrawPoint(const spVector pos, const spColor& color);
 
-void spDebugDrawPoint(const spFloat x, const spFloat y, const spColor& color);
+void spDebugDrawPoint(const spFloat x, const spFloat y, const spColor color);
 
-void spDebugDrawLine(const spVector& a, const spVector b, const spColor& color);
+void spDebugDrawLine(const spVector a, const spVector b, const spColor color);
 
-void spDebugDrawFatLine(const spVector& a, const spVector b, spFloat size, const spColor& color);
+void spDebugDrawFatLine(const spVector a, const spVector b, spFloat size, const spColor color);
 
-void spDebugDrawTriangle(const spVector& a, const spVector& b, const spVector& c, const spColor& color);
+void spDebugDrawTriangle(const spVector a, const spVector& b, const spVector& c, const spColor& color);
 
-void spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform& xf);
+void spDebugDrawCircle(spDebugDraw* draw, const spCircle* circle, const spTransform xf);
 
-void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTransform& xf);
+void spDebugDrawPolygon(spDebugDraw* draw, const spPolygon* polygon, const spTransform xf);
 
 void spDebugDrawSegment(spDebugDraw* draw, const spSegment* segment);
 
-void spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform& xf);
+void spDebugDrawContact(spDebugDraw* draw, spContact* contact, const spTransform xf);
 
-void spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform& xf);
+void spDebugDrawBound(spDebugDraw* draw, spBound* bound, const spTransform xf);
 
 #endif

@@ -30,7 +30,7 @@ spSegment* spSegmentAlloc();
 spShape* spSegmentNew(spVector pointA, spVector pointB, spFloat radius, spFloat mass);
 
 /// free a segment from the heap
-void spSegmentFree(spSegment** segment);
+void spSegmentFree(spShape** segment);
 
 /// check if a point is inside of the segment
 spBool spSegmentTestPoint(spSegment* segment, const spVector point);

@@ -35,7 +35,7 @@
                                                                               \
     else                                                                      \
     {                                                                         \
-        spAssert(false, "removing ... shouldnt reach this...");               \
+        spAssert(spFalse, "removing ... shouldnt reach this...");               \
     }                                                                         \
 
 /// prepend a node to a linked list

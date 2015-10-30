@@ -9,12 +9,12 @@
 /// @{
 
 /// different types of rigid body
-enum spBodyType
+typedef enum 
 {
     SP_BODY_KINEMATIC, ///< user controlled bodies
     SP_BODY_DYNAMIC,   ///< body that reacts to forces
     SP_BODY_STATIC,    ///< bodies that do no move. doesnt react to forces
-};
+} spBodyType;
 
 /// a rigid body is an entity in the world. It describes where/how two things react when they collide.
 /// you must attach collision shapes to rigid bodies for them to react to the world.
@@ -87,13 +87,13 @@ void spBodyClearForces(spBody* body);
 void spBodyClearVelocity(spBody* body);
 
 /// integrates forces and updates velocity - semi-implicit euler
-void spBodyIntegrateVelocity(spBody* body, const spVector& gravity, const spFloat h);
+void spBodyIntegrateVelocity(spBody* body, const spVector gravity, const spFloat h);
 
 /// integrates velocity and updates position - semi-implicit euler
 void spBodyIntegratePosition(spBody* body, const spFloat h);
 
 /// calculates a bodies acceleration given gravity
-spVector spBodyAcceleration(spBody* body, const spVector& gravity);
+spVector spBodyAcceleration(spBody* body, const spVector gravity);
 
 /// calculates the combined mass data of all shapes
 void spBodyComputeShapeMassData(spBody* body);
@@ -183,10 +183,10 @@ spWorld* spBodyGetWorld(spBody* body);
 spLazyPointer spBodyGetUserData(spBody* body);
 
 /// sets the position and rotation of the rigid body
-void spBodySetTransform(spBody* body, const spVector& position, spFloat angle);
+void spBodySetTransform(spBody* body, const spVector position, spFloat angle);
 
 /// sets the position of the rigid body
-void spBodySetPosition(spBody* body, const spVector& position);
+void spBodySetPosition(spBody* body, const spVector position);
 
 /// sets the rotation of the rigid body
 void spBodySetRotation(spBody* body, spRotation rotate);

@@ -24,19 +24,19 @@ extern spUnitTest polygon_tests[SP_MAX_TESTS];
 extern spUnitTest shape_tests[SP_MAX_TESTS];
 
 /// logs that a unit test category is starting
-inline void spStartTest(const spInt8* test_name)
+INLINE void spStartTest(const spInt8* test_name)
 {
     spLog("%s test\n", test_name);
 }
 
 /// logs that a subtest is starting
-inline void spStartSubtest(const spInt8* subtest_name)
+INLINE void spStartSubtest(const spInt8* subtest_name)
 {
     spLog(" %s test\n", subtest_name);
 }
 
 /// logs a subtests results
-inline void spLogSubtestResult(spResult result, const spInt8* subtest_name)
+INLINE void spLogSubtestResult(spResult result, const spInt8* subtest_name)
 {
     const spInt8* test_result[2] = { "*FAIL*", " PASS " };
     const spInt8* result_str = " result";
@@ -49,7 +49,7 @@ inline void spLogSubtestResult(spResult result, const spInt8* subtest_name)
 }
 
 /// logs an equality check during a test
-inline void spLogEquality(spResult result, const spInt8* test, const spInt8* a, const spInt8* b)
+INLINE void spLogEquality(spResult result, const spInt8* test, const spInt8* a, const spInt8* b)
 {
     const spInt8* test_result[2] = { " fail ", " pass " };
     spInt8 buffer[70] = { 0 };
@@ -69,7 +69,7 @@ inline void spLogEquality(spResult result, const spInt8* test, const spInt8* a, 
 }
 
 /// registers a test so it can be ran
-inline spUnitTest spRegisterTest(test_func function, const spInt8* name)
+INLINE spUnitTest spRegisterTest(test_func function, const spInt8* name)
 {
     spUnitTest t;
     t.function = function;

@@ -193,49 +193,49 @@
     <ClCompile Include="..\..\source\spBound.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\spDraw.cpp">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\demo\spDemo.cpp">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\demo\spShader.cpp">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\demo\testDemo.cpp">
-      <Filter>demo</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\spApplication.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\spDebugDraw.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\BridgeDemo.cpp">
+    <ClCompile Include="..\..\demo\BridgeDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\spDemoFactory.cpp">
+    <ClCompile Include="..\..\demo\DemoTemplate.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\VehicleDemo.cpp">
+    <ClCompile Include="..\..\demo\JointDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="StacksDemo.cpp">
+    <ClCompile Include="..\..\demo\PegsDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\PendulumDemo.cpp">
+    <ClCompile Include="..\..\demo\PendulumDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\pyramidDemo.cpp">
+    <ClCompile Include="..\..\demo\pyramidDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\PegsDemo.cpp">
+    <ClCompile Include="..\..\demo\spDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\JointDemo.cpp">
+    <ClCompile Include="..\..\demo\spDemoFactory.c">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\demo\DemoTemplate.cpp">
+    <ClCompile Include="..\..\demo\spDraw.c">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\spShader.c">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="StacksDemo.c">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\VehicleDemo.c">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\demo\testDemo.c">
       <Filter>demo</Filter>
     </ClCompile>
   </ItemGroup>

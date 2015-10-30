@@ -7,6 +7,7 @@ typedef void (*updateFunc)(spFloat dt);
 typedef void (*destroyFunc)();
 typedef void (*renderFunc)();
 typedef void (*keyboardFunc)();
+
 typedef GLFWwindow spWindow;
 typedef spInt spDemoIndex;
 typedef int spKey;
@@ -14,14 +15,14 @@ typedef int spKey;
 extern spFloat spLineScaleSmall;
 extern spFloat spLineScaleBig;
 
-struct spMouse
+typedef struct spMouse
 {
     spConstraint* constraint;
     spShape* shape;
     spVector position;
-};
+} spMouse;
 
-struct spDemo
+typedef struct spDemo
 {
     spWorld world;
     spMouse mouse;
@@ -40,41 +41,34 @@ struct spDemo
     spFrustum frustum;
     spViewport viewport;
     spBool paused;
-};
+} spDemo;
 
-struct spSingleBodyObject
+typedef struct spSingleBodyObject
 {
     spBody* body;
     spShape* shape;
     spColor color;
     spColor border;
-};
+} spSingleBodyObject;
 
-struct spMultiBodyObject
+typedef struct spMultiBodyObject
 {
     spBody* body;
     spShape** shapes;
     spColor* colors;
     spColor* borders;
     spInt count;
-};
+} spMultiBodyObject;
 
-extern spDemo* demo;
-extern spDemo* test;
-extern spDemo* bridge;
-extern spDemo* vehicle;
-extern spDemo* stacks;
-extern spDemo* pendulum;
-extern spDemo* pyramid;
-extern spDemo* Pegs;
+extern spDemo* Demo;
 
 spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 
 void spDemoSetCameraTranslation(spVector translation);
 
-void spDemoFree(spDemo** demo);
+void spDemoFree(spDemo* demo);
 
-void spRunDemo(spDemoIndex demo);
+void spDemoRun(spDemo* demo);
 
 void spDemoInitRandomSeed();
 

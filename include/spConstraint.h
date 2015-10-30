@@ -12,7 +12,7 @@
 extern spFloat spBaumgarte;
 
 /// different joint types
-enum spConstraintType
+typedef enum 
 {
     SP_ANGULAR_SPRING_JOINT,
     SP_DISTANCE_JOINT,
@@ -24,7 +24,7 @@ enum spConstraintType
     SP_ROPE_JOINT,
     SP_GEAR_JOINT,
     SP_JOINT_SIZE
-};
+} spConstraintType;
 
 typedef void (*spFreeFunc)(spConstraint* constraint);
 typedef void (*spPreSolveFunc)(spConstraint* constraint, const spFloat h);
@@ -53,7 +53,7 @@ struct spConstraint
     spWorld* world;          ///< world the constraint is in
 };
 
-inline void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve)
+INLINE void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve)
 {
     funcs->free = free;
     funcs->preSolve = preSolve;

@@ -29,7 +29,7 @@ spCircle* spCircleAlloc();
 spShape* spCircleNew(spVector center, spFloat radius, spFloat mass);
 
 /// free a circle from the heap
-void spCircleFree(spCircle** circle);
+void spCircleFree(spShape** circle);
 
 /// tests if a point is inside of the circle
 spBool spCircleTestPoint(spCircle* circle, spVector point);

@@ -9,13 +9,13 @@
 /// @{
 
 /// different types of shapes
-enum spShapeType
+typedef enum 
 {
     SP_SHAPE_CIRCLE  = 0,
     SP_SHAPE_POLYGON = 1,
     SP_SHAPE_SEGMENT = 2,
     SP_SHAPE_COUNT
-};
+} spShapeType;
 
 /// describes a shapes mass, inertia, and center of mass
 struct spMassData
@@ -64,7 +64,7 @@ void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, sp
 void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
 
 /// free a shape from the heap
-void spShapeFree(spShape* shape);
+void spShapeFree(spShape** shape);
 
 /// sorts two shapes based on their pointer values
 spBool spShapeLessThan(const spShape* a, const spShape* b);

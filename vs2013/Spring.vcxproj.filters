@@ -68,9 +68,6 @@
     <ClInclude Include="..\include\spPolygon.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spring.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\spRopeJoint.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="..\demo\spShader.h">
       <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\spring.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -172,9 +172,6 @@
     <ClCompile Include="..\source\spMouseJoint.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\spNarrowPhase.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\spPointJoint.c">
       <Filter>source</Filter>
     </ClCompile>
@@ -188,9 +185,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spSegment.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\spSolver.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spSpringJoint.c">

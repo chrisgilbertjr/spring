@@ -1,9 +1,7 @@
 
-//#include "spDemo.h"
-#include "spWorld.h"
+#include "spring.h"
 
 int main()
 {
-    //spRunDemo(0);
     return 0;
 }

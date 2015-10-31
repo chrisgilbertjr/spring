@@ -11,54 +11,54 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\spring\spAngularSpringJoint.h" />
-    <ClInclude Include="..\include\spring\spBody.h" />
-    <ClInclude Include="..\include\spring\spBound.h" />
-    <ClInclude Include="..\include\spring\spCircle.h" />
-    <ClInclude Include="..\include\spring\spCollision.h" />
-    <ClInclude Include="..\include\spring\spConstraint.h" />
-    <ClInclude Include="..\include\spring\spContact.h" />
-    <ClInclude Include="..\include\spring\spContactKey.h" />
-    <ClInclude Include="..\include\spring\spCore.h" />
-    <ClInclude Include="..\include\spring\spDistanceJoint.h" />
-    <ClInclude Include="..\include\spring\spGearJoint.h" />
-    <ClInclude Include="..\include\spring\spLinkedList.h" />
-    <ClInclude Include="..\include\spring\spMath.h" />
-    <ClInclude Include="..\include\spring\spMotorJoint.h" />
-    <ClInclude Include="..\include\spring\spMouseJoint.h" />
-    <ClInclude Include="..\include\spring\spPlatform.h" />
-    <ClInclude Include="..\include\spring\spPointJoint.h" />
-    <ClInclude Include="..\include\spring\spPolygon.h" />
-    <ClInclude Include="..\include\spring\spring.h" />
-    <ClInclude Include="..\include\spring\spRopeJoint.h" />
-    <ClInclude Include="..\include\spring\spSegment.h" />
-    <ClInclude Include="..\include\spring\spShape.h" />
-    <ClInclude Include="..\include\spring\spSpringJoint.h" />
-    <ClInclude Include="..\include\spring\spWheelJoint.h" />
-    <ClInclude Include="..\include\spring\spWorld.h" />
+    <ClCompile Include="..\..\..\source\spAngularSpringJoint.c" />
+    <ClCompile Include="..\..\..\source\spBody.c" />
+    <ClCompile Include="..\..\..\source\spBound.c" />
+    <ClCompile Include="..\..\..\source\spCircle.c" />
+    <ClCompile Include="..\..\..\source\spCollision.c" />
+    <ClCompile Include="..\..\..\source\spConstraint.c" />
+    <ClCompile Include="..\..\..\source\spContact.c" />
+    <ClCompile Include="..\..\..\source\spContactKey.c" />
+    <ClCompile Include="..\..\..\source\spCore.c" />
+    <ClCompile Include="..\..\..\source\spDistanceJoint.c" />
+    <ClCompile Include="..\..\..\source\spGearJoint.c" />
+    <ClCompile Include="..\..\..\source\spMotorJoint.c" />
+    <ClCompile Include="..\..\..\source\spMouseJoint.c" />
+    <ClCompile Include="..\..\..\source\spPointJoint.c" />
+    <ClCompile Include="..\..\..\source\spPolygon.c" />
+    <ClCompile Include="..\..\..\source\spRopeJoint.c" />
+    <ClCompile Include="..\..\..\source\spSegment.c" />
+    <ClCompile Include="..\..\..\source\spShape.c" />
+    <ClCompile Include="..\..\..\source\spSpringJoint.c" />
+    <ClCompile Include="..\..\..\source\spWheelJoint.c" />
+    <ClCompile Include="..\..\..\source\spWorld.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\spAngularSpringJoint.c" />
-    <ClCompile Include="..\source\spBody.c" />
-    <ClCompile Include="..\source\spBound.c" />
-    <ClCompile Include="..\source\spCircle.c" />
-    <ClCompile Include="..\source\spCollision.c" />
-    <ClCompile Include="..\source\spConstraint.c" />
-    <ClCompile Include="..\source\spContact.c" />
-    <ClCompile Include="..\source\spContactKey.c" />
-    <ClCompile Include="..\source\spCore.c" />
-    <ClCompile Include="..\source\spDistanceJoint.c" />
-    <ClCompile Include="..\source\spGearJoint.c" />
-    <ClCompile Include="..\source\spMotorJoint.c" />
-    <ClCompile Include="..\source\spMouseJoint.c" />
-    <ClCompile Include="..\source\spPointJoint.c" />
-    <ClCompile Include="..\source\spPolygon.c" />
-    <ClCompile Include="..\source\spRopeJoint.c" />
-    <ClCompile Include="..\source\spSegment.c" />
-    <ClCompile Include="..\source\spShape.c" />
-    <ClCompile Include="..\source\spSpringJoint.c" />
-    <ClCompile Include="..\source\spWheelJoint.c" />
-    <ClCompile Include="..\source\spWorld.c" />
+    <ClInclude Include="..\..\..\include\spring\spAngularSpringJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spBody.h" />
+    <ClInclude Include="..\..\..\include\spring\spBound.h" />
+    <ClInclude Include="..\..\..\include\spring\spCircle.h" />
+    <ClInclude Include="..\..\..\include\spring\spCollision.h" />
+    <ClInclude Include="..\..\..\include\spring\spConstraint.h" />
+    <ClInclude Include="..\..\..\include\spring\spContact.h" />
+    <ClInclude Include="..\..\..\include\spring\spContactKey.h" />
+    <ClInclude Include="..\..\..\include\spring\spCore.h" />
+    <ClInclude Include="..\..\..\include\spring\spDistanceJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spGearJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spLinkedList.h" />
+    <ClInclude Include="..\..\..\include\spring\spMath.h" />
+    <ClInclude Include="..\..\..\include\spring\spMotorJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spMouseJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spPlatform.h" />
+    <ClInclude Include="..\..\..\include\spring\spPointJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spPolygon.h" />
+    <ClInclude Include="..\..\..\include\spring\spring.h" />
+    <ClInclude Include="..\..\..\include\spring\spRopeJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spSegment.h" />
+    <ClInclude Include="..\..\..\include\spring\spShape.h" />
+    <ClInclude Include="..\..\..\include\spring\spSpringJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spWheelJoint.h" />
+    <ClInclude Include="..\..\..\include\spring\spWorld.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2AF3A2ED-CA12-4A82-A9D7-AF82C1791099}</ProjectGuid>
@@ -94,7 +94,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\cygwin\home\chris\projects\spring\include\spring</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include/spring</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SPRING_EXPORT</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -111,7 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\cygwin\home\chris\projects\spring\include\spring</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include/spring</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SPRING_EXPORT;NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>

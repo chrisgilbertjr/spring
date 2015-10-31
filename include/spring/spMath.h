@@ -21,11 +21,11 @@
 #define spRotationZero() spRotationConstruct(0.0f)
 
 /// easy access to matrix axis
-enum spAxis
+typedef enum 
 {
     x = 0,
     y = 1,
-};
+} spAxis;
 
 /// @defgroup spVector spVector
 /// @{

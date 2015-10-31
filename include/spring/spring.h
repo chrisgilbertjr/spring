@@ -2,7 +2,6 @@
 #ifndef SPRING_H
 #define SPRING_H
 
-
 #include "spPlatform.h"
 #include "spCore.h"
 #include "spMath.h"

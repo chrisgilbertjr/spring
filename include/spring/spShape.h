@@ -55,98 +55,98 @@ struct spShape
 };
 
 /// create a physics material on the stack
-spMaterial spMaterialConstruct(spFloat restitution, spFloat friction);
+SPRING_API spMaterial spMaterialConstruct(spFloat restitution, spFloat friction);
 
 /// initialize mass data with a mass, inertia, and center of mass
-void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass);
+SPRING_API void spMassDataInit(spMassData* data, const spVector center, spFloat inertia, spFloat mass);
 
 /// initializes a shape with mass data, a bounding box, and a shape type
-void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
+SPRING_API void spShapeInit(spShape* shape, spMassData* data, spBound* bound, spShapeType type);
 
 /// free a shape from the heap
-void spShapeFree(spShape** shape);
+SPRING_API void spShapeFree(spShape** shape);
 
 /// sorts two shapes based on their pointer values
-spBool spShapeLessThan(const spShape* a, const spShape* b);
+SPRING_API spBool spShapeLessThan(const spShape* a, const spShape* b);
 
 /// tests a point to see if it is inside of a shape
-spBool spShapeTestPoint(spShape* shape, spVector point);
+SPRING_API spBool spShapeTestPoint(spShape* shape, spVector point);
 
 /// check if two shapes can collide via collision filtering
-spBool spShapesCanCollide(spShape* a, spShape* b);
+SPRING_API spBool spShapesCanCollide(spShape* a, spShape* b);
 
 /// casts a shape into a circle pointer (if it is a circle shape)
-struct spCircle* spShapeCastCircle(const spShape* shape);
+SPRING_API struct spCircle* spShapeCastCircle(const spShape* shape);
 
 /// casts a shape into a polygon pointer (if it is a polygon shape)
-struct spPolygon* spShapeCastPolygon(const spShape* shape);
+SPRING_API struct spPolygon* spShapeCastPolygon(const spShape* shape);
 
 /// casts a shape into a segment pointer (if it is a segment shape)
-struct spSegment* spShapeCastSegment(const spShape* shape);
+SPRING_API struct spSegment* spShapeCastSegment(const spShape* shape);
 
 /// get the shapes type
-spShapeType spShapeGetType(spShape* shape);
+SPRING_API spShapeType spShapeGetType(spShape* shape);
 
 /// get the shapes mass data
-spMassData spShapeGetMassData(spShape* shape);
+SPRING_API spMassData spShapeGetMassData(spShape* shape);
 
 /// get the shapes center of mass
-spVector spShapeGetCOM(const spShape* shape);
+SPRING_API spVector spShapeGetCOM(const spShape* shape);
 
 /// get the shapes mass
-spFloat spShapeGetMass(const spShape* shape);
+SPRING_API spFloat spShapeGetMass(const spShape* shape);
 
 /// get the shapes moment of inertia
-spFloat spShapeGetInertia(const spShape* shape);
+SPRING_API spFloat spShapeGetInertia(const spShape* shape);
 
 /// get the shapes material
-spMaterial spShapeGetMaterial(spShape* shape);
+SPRING_API spMaterial spShapeGetMaterial(spShape* shape);
 
 /// get the shapes collision filter
-spFilter spShapeGetFilter(spShape* shape);
+SPRING_API spFilter spShapeGetFilter(spShape* shape);
 
 /// get the shapes bound
-spBound spShapeGetBound(spShape* shape);
+SPRING_API spBound spShapeGetBound(spShape* shape);
 
 /// get the shapes body
-spBody* spShapeGetBody(spShape* shape);
+SPRING_API spBody* spShapeGetBody(spShape* shape);
 
 /// get a local point in world space
-spVector spShapeLocalToWorldPoint(spShape* shape, spVector point);
+SPRING_API spVector spShapeLocalToWorldPoint(spShape* shape, spVector point);
 
 /// get a world point in local space
-spVector spShapeWorldToLocalPoint(spShape* shape, spVector point);
+SPRING_API spVector spShapeWorldToLocalPoint(spShape* shape, spVector point);
 
 /// get a local point in world space
-spVector spShapeLocalToWorldVector(spShape* shape, spVector vector);
+SPRING_API spVector spShapeLocalToWorldVector(spShape* shape, spVector vector);
 
 /// get a world point in local space
-spVector spShapeWorldToLocalVector(spShape* shape, spVector vector);
+SPRING_API spVector spShapeWorldToLocalVector(spShape* shape, spVector vector);
 
 /// set the shapes material given restitution and a friction value
-void spShapeSetMaterial(spShape* shape, spFloat restitution, spFloat friction);
+SPRING_API void spShapeSetMaterial(spShape* shape, spFloat restitution, spFloat friction);
 
 /// set the shapes material given a new material
-void spShapeSetNewMaterial(spShape* shape, spMaterial material);
+SPRING_API void spShapeSetNewMaterial(spShape* shape, spMaterial material);
 
 /// set the shapes material friction
-void spShapeSetFriction(spShape* shape, spFloat friction);
+SPRING_API void spShapeSetFriction(spShape* shape, spFloat friction);
 
 /// set the shapes material restitution
-void spShapeSetRestitution(spShape* shape, spFloat restitution);
+SPRING_API void spShapeSetRestitution(spShape* shape, spFloat restitution);
 
 /// set the shapes collision filter
-void spShapeSetFilter(spShape* shape, const spFilter filter);
+SPRING_API void spShapeSetFilter(spShape* shape, const spFilter filter);
 
 /// creates a new collision filter on the stack
-spFilter spFilterConstruct(spGroup group, spMask type, spMask collide);
+SPRING_API spFilter spFilterConstruct(spGroup group, spMask type, spMask collide);
 
 /// common collision filters and a default material
-extern const spMask spCollideAll;
-extern const spMask spCollideNone;
-extern const spFilter spFilterCollideNone;
-extern const spFilter spFilterCollideAll; 
-extern const spMaterial spDefaultMaterial;
+SPRING_API extern const spMask spCollideAll;
+SPRING_API extern const spMask spCollideNone;
+SPRING_API extern const spFilter spFilterCollideNone;
+SPRING_API extern const spFilter spFilterCollideAll; 
+SPRING_API extern const spMaterial spDefaultMaterial;
 
 /// @}
 

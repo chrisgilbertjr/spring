@@ -2,10 +2,10 @@
 #ifndef SP_COLLISION_H
 #define SP_COLLISION_H
 
+#include "spShape.h"
+
 /// @defgroup spCollision spCollision
 /// @{
-
-#include "spShape.h"
 
 /// tells you information on two shapes contact information, returned by collision functions
 struct spCollisionResult

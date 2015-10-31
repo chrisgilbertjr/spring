@@ -2,7 +2,6 @@
 #ifndef SP_CONSTRAINT_H
 #define SP_CONSTRAINT_H
 
-#include "spCore.h"
 #include "spMath.h"
 
 /// @defgroup spConstraint spConstraint
@@ -62,28 +61,28 @@ INLINE void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spP
 }
 
 /// initialize a constraint given two bodies and a type
-void spConstraintInit(spConstraint* constraint, struct spBody* a, struct spBody* b, spConstraintType type); 
+SPRING_API void spConstraintInit(spConstraint* constraint, struct spBody* a, struct spBody* b, spConstraintType type); 
 
 /// free a constraint from the heap
-void spConstraintFree(spConstraint* constraint);
+SPRING_API void spConstraintFree(spConstraint* constraint);
 
 /// construct a constraint on the stack given two bodies and a type
-spConstraint spConstraintConstruct(struct spBody* a, struct spBody* b, spConstraintType type);
+SPRING_API spConstraint spConstraintConstruct(struct spBody* a, struct spBody* b, spConstraintType type);
 
 /// get the next constraint in the list
-spConstraint* spConstraintGetNext(spConstraint* constraint);
+SPRING_API spConstraint* spConstraintGetNext(spConstraint* constraint);
 
 /// get the prev constraint in the list
-spConstraint* spConstraintGetPrev(spConstraint* constraint);
+SPRING_API spConstraint* spConstraintGetPrev(spConstraint* constraint);
 
 /// get the constraints first body
-struct spBody* spConstraintGetBodyA(spConstraint* constraint);
+SPRING_API spBody* spConstraintGetBodyA(spConstraint* constraint);
 
 /// get the constraints second body
-struct spBody* spConstraintGetBodyB(spConstraint* constraint);
+SPRING_API spBody* spConstraintGetBodyB(spConstraint* constraint);
 
 /// get the constraints type
-spConstraintType spConstraintGetType(spConstraint* constraint);
+SPRING_API spConstraintType spConstraintGetType(spConstraint* constraint);
 
 /// @}
 

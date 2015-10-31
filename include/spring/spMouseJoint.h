@@ -25,64 +25,64 @@ struct spMouseJoint
 };
 
 /// init a mouse joint given a body, frequency, damping, anchor point, and target point
-void spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
+SPRING_API void spMouseJointInit(spMouseJoint* joint, spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
 
 /// allocate memory for a mouse joint on the heap
-spMouseJoint* spMouseJointAlloc();
+SPRING_API spMouseJoint* spMouseJointAlloc();
 
 /// create a mouse joint on the heap given a body, frequency, damping, anchor point, and target point
-spConstraint* spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
+SPRING_API spConstraint* spMouseJointNew(spBody* a, spFloat frequency, spFloat damping, spVector anchor, spVector target);
 
 /// check if a constraint is a mouse joint
-spBool spConstraintIsMouseJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsMouseJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a gear joint if its that type
-spMouseJoint* spConstraintCastMouseJoint(spConstraint* constraint);
+SPRING_API spMouseJoint* spConstraintCastMouseJoint(spConstraint* constraint);
 
 /// start a mouse drag on body a given a world anchor point
-void spMouseJointStart(spConstraint* constraint, spBody* a, spVector point);
+SPRING_API void spMouseJointStart(spConstraint* constraint, spBody* a, spVector point);
 
 /// end a mouse drag 
-void spMouseJointEnd(spConstraint* constraint);
+SPRING_API void spMouseJointEnd(spConstraint* constraint);
 
 /// get the mouse joints impulse
-spVector spMouseJointGetImpulse(spConstraint* constraint);
+SPRING_API spVector spMouseJointGetImpulse(spConstraint* constraint);
 
 /// get the body anchor in local space
-spVector spMouseJointGetAnchor(spConstraint* constraint);
+SPRING_API spVector spMouseJointGetAnchor(spConstraint* constraint);
 
 /// get the body anchor in world space
-spVector spMouseJointGetWorldAnchor(spConstraint* constraint);
+SPRING_API spVector spMouseJointGetWorldAnchor(spConstraint* constraint);
 
 /// get the target in world space
-spVector spMouseJointGetTarget(spConstraint* constraint);
+SPRING_API spVector spMouseJointGetTarget(spConstraint* constraint);
 
 /// get the target in body A's local space
-spVector spMouseJointGetLocalTarget(spConstraint* constraint);
+SPRING_API spVector spMouseJointGetLocalTarget(spConstraint* constraint);
 
 /// get the spring frequency of the mouse constraint
-spFloat spMouseJointGetFrequency(spConstraint* constraint);
+SPRING_API spFloat spMouseJointGetFrequency(spConstraint* constraint);
 
 /// get the spring damping of the mouse joint
-spFloat spMouseJointGetDamping(spConstraint* constraint);
+SPRING_API spFloat spMouseJointGetDamping(spConstraint* constraint);
 
 /// set the mouse joints anchor in body A's local space
-void spMouseJointSetAnchor(spConstraint* constraint, spVector anchor);
+SPRING_API void spMouseJointSetAnchor(spConstraint* constraint, spVector anchor);
 
 /// set the mouse joints anchor in world space
-void spMouseJointSetWorldAnchor(spConstraint* constraint, spVector anchor);
+SPRING_API void spMouseJointSetWorldAnchor(spConstraint* constraint, spVector anchor);
 
 /// set the mouse joints target with a world space point
-void spMouseJointSetTarget(spConstraint* constraint, spVector target);
+SPRING_API void spMouseJointSetTarget(spConstraint* constraint, spVector target);
 
 /// set the mouse joints target with a point in body A's local space
-void spMouseJointSetLocalTarget(spConstraint* constraint, spVector target);
+SPRING_API void spMouseJointSetLocalTarget(spConstraint* constraint, spVector target);
 
 /// set the spring frequency of the mouse joint
-void spMouseJointSetFrequency(spConstraint* constraint, spFloat frequency);
+SPRING_API void spMouseJointSetFrequency(spConstraint* constraint, spFloat frequency);
 
 /// set the spring damping of the mouse joint
-void spMouseJointSetDamping(spConstraint* constraint, spFloat damping);
+SPRING_API void spMouseJointSetDamping(spConstraint* constraint, spFloat damping);
 
 /// @}
 

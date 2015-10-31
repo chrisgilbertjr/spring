@@ -23,52 +23,52 @@ struct spDistanceJoint
 };
 
 /// init the distance joint given 2 bodies, 2 anchor points in local space, and a distance
-void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
+SPRING_API void spDistanceJointInit(spDistanceJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 /// allocate a distance joint on the heap
-spDistanceJoint* spDistanceJointAlloc();
+SPRING_API spDistanceJoint* spDistanceJointAlloc();
 
 /// create a distance joint on the heap given 2 bodies, 2 anchor points in local space, and a distance
-spConstraint* spDistanceJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
+SPRING_API spConstraint* spDistanceJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat distance);
 
 /// check if a constraint is a distance joint
-spBool spConstraintIsDistanceJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsDistanceJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a distance joint if its that type
-spDistanceJoint* spConstraintCastDistanceJoint(spConstraint* constraint);
+SPRING_API spDistanceJoint* spConstraintCastDistanceJoint(spConstraint* constraint);
 
 /// get the distance joints impulse
-spFloat spDistanceJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spDistanceJointGetImpulse(spConstraint* constraint);
 
 /// get the distance joints first anchor in body A's local space
-spVector spDistanceJointGetAnchorA(spConstraint* constraint);
+SPRING_API spVector spDistanceJointGetAnchorA(spConstraint* constraint);
 
 /// get the distance joints second anchor in body B's local space
-spVector spDistanceJointGetAnchorB(spConstraint* constraint);
+SPRING_API spVector spDistanceJointGetAnchorB(spConstraint* constraint);
 
 /// get the distance joints first anchor in world space
-spVector spDistanceJointGetWorldAnchorA(spConstraint* constraint);
+SPRING_API spVector spDistanceJointGetWorldAnchorA(spConstraint* constraint);
 
 /// get the distance joints second anchor in world space
-spVector spDistanceJointGetWorldAnchorB(spConstraint* constraint);
+SPRING_API spVector spDistanceJointGetWorldAnchorB(spConstraint* constraint);
 
 /// get the distance joints distance between anchor points
-spFloat spDistanceJointGetDistance(spConstraint* constraint);
+SPRING_API spFloat spDistanceJointGetDistance(spConstraint* constraint);
 
 /// set the distance joints first anchor in body A's local space
-void spDistanceJointSetAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spDistanceJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the distance joints second anchor in body B's local space
-void spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the distance joints first anchor in world space
-void spDistanceJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spDistanceJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the distance joints second anchor in world space
-void spDistanceJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spDistanceJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the distance joints distance between anchor points
-void spDistanceJointSetDistance(spConstraint* constraint, spFloat distance);
+SPRING_API void spDistanceJointSetDistance(spConstraint* constraint, spFloat distance);
 
 /// @}
 

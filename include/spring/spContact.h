@@ -9,14 +9,14 @@
 /// @{
 
 /// penetration slop
-extern spFloat spSlop;
+SPRING_API extern spFloat spSlop;
 
-enum spContactFlag
+typedef enum 
 {
     SP_CONTACT_SHOULD_SWAP_FLAG = 1<<0,
     SP_CONTACT_DO_SWAP_FLAG     = 1<<1,
     SP_CONTACT_IS_SENSOR_FLAG   = 1<<2,
-};
+} spContactFlag;
 
 /// a point of contact between two shapes
 struct spContactPoint
@@ -46,49 +46,49 @@ struct spContact
 };
 
 /// initialize a contact point
-void spContactPointInit(spContactPoint* point);
+SPRING_API void spContactPointInit(spContactPoint* point);
 
 /// initialize a contact
-void spContactInit(spContact* contact, const spContactKey key);
+SPRING_API void spContactInit(spContact* contact, const spContactKey key);
 
 /// allocate space for a new contact on the heap
-spContact* spContactAlloc();
+SPRING_API spContact* spContactAlloc();
 
 /// allocate and init a new contact on the heap
-spContact* spContactNew(const spContactKey key);
+SPRING_API spContact* spContactNew(const spContactKey key);
 
 /// release the memory of a contact
-void spContactFree(spContact** contact);
+SPRING_API void spContactFree(spContact** contact);
 
 /// initialize a constraint for use in the impulse solver
-void spContactPreSolve(spContact* contact, const spFloat h);
+SPRING_API void spContactPreSolve(spContact* contact, const spFloat h);
 
 /// warm start contacts from last frame
-void spContactWarmStart(spContact* contact);
+SPRING_API void spContactWarmStart(spContact* contact);
 
 /// calculate and apply an impulse to each body in the contact
-void spContactSolve(spContact* contact);
+SPRING_API void spContactSolve(spContact* contact);
 
 /// get the contact key of this contact
-spContactKey spContactGetKey(spContact* contact);
+SPRING_API spContactKey spContactGetKey(spContact* contact);
 
 /// get the next contact in the list
-spContact* spContactGetNext(spContact* contact);
+SPRING_API spContact* spContactGetNext(spContact* contact);
 
 /// get the prev contact in the list
-spContact* spContactGetPrev(spContact* contact);
+SPRING_API spContact* spContactGetPrev(spContact* contact);
 
 /// get the contact's normal
-spVector spContactGetNormal(spContact* contact);
+SPRING_API spVector spContactGetNormal(spContact* contact);
 
 /// get the contact's restitution
-spFloat spContactGetRestitution(spContact* contact);
+SPRING_API spFloat spContactGetRestitution(spContact* contact);
 
 /// get the contact's friction
-spFloat spContactGetFriction(spContact* contact);
+SPRING_API spFloat spContactGetFriction(spContact* contact);
 
 /// get the contact point count
-spInt spContactGetPointCount(spContact* contact);
+SPRING_API spInt spContactGetPointCount(spContact* contact);
 
 /// @}
 

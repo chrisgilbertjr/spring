@@ -9,146 +9,92 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="unit_tests">
-      <UniqueIdentifier>{4e65499f-906e-4947-bb29-7ac107720d4c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="demo">
-      <UniqueIdentifier>{ab3015ea-1dd3-49cd-a4fc-bdd71c697973}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\spAngularSpringJoint.h">
+    <ClInclude Include="..\include\spring\spAngularSpringJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spBody.h">
+    <ClInclude Include="..\include\spring\spBody.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spBound.h">
+    <ClInclude Include="..\include\spring\spBound.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spCircle.h">
+    <ClInclude Include="..\include\spring\spCircle.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spCollision.h">
+    <ClInclude Include="..\include\spring\spCollision.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spConstraint.h">
+    <ClInclude Include="..\include\spring\spConstraint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spContact.h">
+    <ClInclude Include="..\include\spring\spContact.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spContactKey.h">
+    <ClInclude Include="..\include\spring\spContactKey.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spCore.h">
+    <ClInclude Include="..\include\spring\spCore.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spDistanceJoint.h">
+    <ClInclude Include="..\include\spring\spDistanceJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spGearJoint.h">
+    <ClInclude Include="..\include\spring\spGearJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spLinkedList.h">
+    <ClInclude Include="..\include\spring\spLinkedList.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spMath.h">
+    <ClInclude Include="..\include\spring\spMath.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spMotorJoint.h">
+    <ClInclude Include="..\include\spring\spMotorJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spMouseJoint.h">
+    <ClInclude Include="..\include\spring\spMouseJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spPointJoint.h">
+    <ClInclude Include="..\include\spring\spPlatform.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spPolygon.h">
+    <ClInclude Include="..\include\spring\spPointJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spRopeJoint.h">
+    <ClInclude Include="..\include\spring\spPolygon.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spSegment.h">
+    <ClInclude Include="..\include\spring\spring.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spShape.h">
+    <ClInclude Include="..\include\spring\spRopeJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spSpringJoint.h">
+    <ClInclude Include="..\include\spring\spSegment.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spWheelJoint.h">
+    <ClInclude Include="..\include\spring\spShape.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\spWorld.h">
+    <ClInclude Include="..\include\spring\spSpringJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\tests\spUnitTest.h">
-      <Filter>unit_tests</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\spPlatform.h">
+    <ClInclude Include="..\include\spring\spWheelJoint.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\demo\spDemo.h">
-      <Filter>demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\demo\spDraw.h">
-      <Filter>demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\demo\spShader.h">
-      <Filter>demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\spring.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="..\include\spring\spWorld.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\tests\spBoundTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spChainTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spCircleTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spMathTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spPolygonTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spShapeTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tests\spUnitTest.cpp">
-      <Filter>unit_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\spCore.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\main.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\spBound.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\spContact.c">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\spShape.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\spAngularSpringJoint.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spBody.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\spBound.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spCircle.c">
@@ -160,7 +106,13 @@
     <ClCompile Include="..\source\spConstraint.c">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\spContact.c">
+      <Filter>source</Filter>
+    </ClCompile>
     <ClCompile Include="..\source\spContactKey.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\spCore.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spDistanceJoint.c">
@@ -181,13 +133,16 @@
     <ClCompile Include="..\source\spPolygon.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\spring.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\spRopeJoint.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spSegment.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\spShape.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\spSolver.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\spSpringJoint.c">
@@ -198,21 +153,6 @@
     </ClCompile>
     <ClCompile Include="..\source\spWorld.c">
       <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\demo\DemoTemplate.cpp">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\demo\JointDemo.c">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\demo\spDemo.c">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\demo\spDraw.c">
-      <Filter>demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\demo\spShader.c">
-      <Filter>demo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

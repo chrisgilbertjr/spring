@@ -23,46 +23,46 @@ struct spAngularSpringJoint
 };
 
 /// init an angular spring with 2 bodies, an invert rot variable, spring frequency/damping, and the rest angle of the bodies
-void spAngularSpringJointInit(spAngularSpringJoint* joint, spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle);
+SPRING_API void spAngularSpringJointInit(spAngularSpringJoint* joint, spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle);
 
 /// allocate an angular spring on the heap
-spAngularSpringJoint* spAngularSpringJointAlloc();
+SPRING_API spAngularSpringJoint* spAngularSpringJointAlloc();
 
 /// create an angular spring on the heap with 2 bodies, an invert rot variable, spring frequency/damping, and the rest angle of the bodies
-spConstraint* spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle);
+SPRING_API spConstraint* spAngularSpringJointNew(spBody* a, spBody* b, spBool inverse, spFloat frequency, spFloat damping, spFloat restAngle);
 
 /// check if a constraint is a angular spring joint
-spBool spConstraintIsAngularSpringJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsAngularSpringJoint(spConstraint* constraint);
 
 /// safely cast a constraint to an angular spring joint if its that type
-spAngularSpringJoint* spConstraintCastAngularSpringJoint(spConstraint* constraint);
+SPRING_API spAngularSpringJoint* spConstraintCastAngularSpringJoint(spConstraint* constraint);
 
 /// get the joints impulse
-spFloat spAngularSpringJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spAngularSpringJointGetImpulse(spConstraint* constraint);
 
 /// get the angular springs rest angle
-spFloat spAngularSpringJointGetRestAngle(spConstraint* constraint);
+SPRING_API spFloat spAngularSpringJointGetRestAngle(spConstraint* constraint);
 
 /// get the angular springs frequency
-spFloat spAngularSpringJointGetFrequency(spConstraint* constraint);
+SPRING_API spFloat spAngularSpringJointGetFrequency(spConstraint* constraint);
 
 /// get the angular springs damping
-spFloat spAngularSpringJointGetDamping(spConstraint* constraint);
+SPRING_API spFloat spAngularSpringJointGetDamping(spConstraint* constraint);
 
 /// get the angular springs inverse rot flag
-spBool spAngularSpringJointGetInverse(spConstraint* constraint);
+SPRING_API spBool spAngularSpringJointGetInverse(spConstraint* constraint);
 
 /// set the angular springs rest angle
-void spAngularSpringJointSetRestAngle(spConstraint* constraint, spFloat restAngle);
+SPRING_API void spAngularSpringJointSetRestAngle(spConstraint* constraint, spFloat restAngle);
 
 /// set the angular springs frequency
-void spAngularSpringJointSetFrequency(spConstraint* constraint, spFloat frequency);
+SPRING_API void spAngularSpringJointSetFrequency(spConstraint* constraint, spFloat frequency);
 
 /// set the angular springs damping
-void spAngularSpringJointSetDamping(spConstraint* constraint, spFloat damping);
+SPRING_API void spAngularSpringJointSetDamping(spConstraint* constraint, spFloat damping);
 
 /// set the angular springs inverse rot flag
-void spAngularSpringJointSetInverse(spConstraint* constraint, spBool inverse);
+SPRING_API void spAngularSpringJointSetInverse(spConstraint* constraint, spBool inverse);
 
 /// @}
 

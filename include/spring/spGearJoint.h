@@ -20,34 +20,34 @@ struct spGearJoint
 };
 
 /// initialize a gear joint with two bodies, an angular ratio, and a phase angle
-void spGearJointInit(spGearJoint* joint, spBody* a, spBody* b, spFloat ratio, spFloat phase);
+SPRING_API void spGearJointInit(spGearJoint* joint, spBody* a, spBody* b, spFloat ratio, spFloat phase);
 
 /// allocate memory for a gear joint on the heap
-spGearJoint* spGearJointAlloc();
+SPRING_API spGearJoint* spGearJointAlloc();
 
 /// create a gear joint with two bodies, an angular ratio, and a phase angle
-spConstraint* spGearJointNew(spBody* a, spBody* b, spFloat ratio, spFloat phase);
+SPRING_API spConstraint* spGearJointNew(spBody* a, spBody* b, spFloat ratio, spFloat phase);
 
 /// check if a constraint is a gear joint
-spBool spConstraintIsGearJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsGearJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a gear joint if its that type
-spGearJoint* spConstraintCastGearJoint(spConstraint* constraint);
+SPRING_API spGearJoint* spConstraintCastGearJoint(spConstraint* constraint);
 
 /// get the gear joints impulse
-spFloat spGearJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spGearJointGetImpulse(spConstraint* constraint);
 
 /// get the gear ratio
-spFloat spGearGetRatio(spConstraint* constraint);
+SPRING_API spFloat spGearGetRatio(spConstraint* constraint);
 
 /// get the gear phase angle
-spFloat spGearGetPhase(spConstraint* constraint);
+SPRING_API spFloat spGearGetPhase(spConstraint* constraint);
 
 /// set the gear ratio
-void spGearSetRatio(spConstraint* constraint, spFloat ratio);
+SPRING_API void spGearSetRatio(spConstraint* constraint, spFloat ratio);
 
 /// set the gear phase angle
-void spGearSetPhase(spConstraint* constraint, spFloat phase);
+SPRING_API void spGearSetPhase(spConstraint* constraint, spFloat phase);
 
 /// @}
 

@@ -26,64 +26,64 @@ struct spSpringJoint
 };
 
 /// init a spring joint with 2 bodies, 2 anchor points, damping, frequency, and damping.
-void spSpringJointInit(spSpringJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
+SPRING_API void spSpringJointInit(spSpringJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
 
 /// allocate a spring joint on the heap
-spSpringJoint* spSpringJointAlloc();
+SPRING_API spSpringJoint* spSpringJointAlloc();
 
 /// create a spring joint on the heap with 2 bodies, 2 anchor points, damping, frequency, and damping.
-spConstraint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
+SPRING_API spConstraint* spSpringJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat frequency, spFloat damping, spFloat restLength);
 
 /// check if a constraint is a spring joint
-spBool spConstraintIsSpringJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsSpringJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a spring joint if its that type
-spSpringJoint* spConstraintCastSpringJoint(spConstraint* constraint);
+SPRING_API spSpringJoint* spConstraintCastSpringJoint(spConstraint* constraint);
 
 /// get the spring joints impulse
-spFloat spSpringJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spSpringJointGetImpulse(spConstraint* constraint);
 
 /// get the spring joints first anchor in body A's local space
-spVector spSpringJointGetAnchorA(spConstraint* constraint);
+SPRING_API spVector spSpringJointGetAnchorA(spConstraint* constraint);
 
 /// get the spring joints second anchor in body B's local space
-spVector spSpringJointGetAnchorB(spConstraint* constraint);
+SPRING_API spVector spSpringJointGetAnchorB(spConstraint* constraint);
 
 /// get the spring joints first anchor in world space
-spVector spSpringJointGetWorldAnchorA(spConstraint* constraint);
+SPRING_API spVector spSpringJointGetWorldAnchorA(spConstraint* constraint);
 
 /// get the spring joints second anchor in world space
-spVector spSpringJointGetWorldAnchorB(spConstraint* constraint);
+SPRING_API spVector spSpringJointGetWorldAnchorB(spConstraint* constraint);
 
 /// get the spring joints rest length
-spFloat spSpringJointGetRestLength(spConstraint* constraint);
+SPRING_API spFloat spSpringJointGetRestLength(spConstraint* constraint);
 
 /// get the spring joints frequency
-spFloat spSpringJointGetFrequency(spConstraint* constraint);
+SPRING_API spFloat spSpringJointGetFrequency(spConstraint* constraint);
 
 /// get the spring joints damping
-spFloat spSpringJointGetDamping(spConstraint* constraint);
+SPRING_API spFloat spSpringJointGetDamping(spConstraint* constraint);
 
 /// set the spring joints first anchor in body A's local space
-void spSpringJointSetAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spSpringJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the spring joints second anchor in body B's local space
-void spSpringJointSetAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spSpringJointSetAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the spring joints first anchor in world space
-void spSpringJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spSpringJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the spring joints second anchor in world space
-void spSpringJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spSpringJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the spring joints rest length
-void spSpringJointSetRestLength(spConstraint* constraint, spFloat restLength);
+SPRING_API void spSpringJointSetRestLength(spConstraint* constraint, spFloat restLength);
 
 /// set the spring joints frequency
-void spSpringJointSetFrequency(spConstraint* constraint, spFloat frequency);
+SPRING_API void spSpringJointSetFrequency(spConstraint* constraint, spFloat frequency);
 
 /// set the spring joints damping
-void spSpringJointSetDamping(spConstraint* constraint, spFloat damping);
+SPRING_API void spSpringJointSetDamping(spConstraint* constraint, spFloat damping);
 
 /// @}
 

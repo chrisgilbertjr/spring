@@ -239,6 +239,7 @@ spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, sp
     joint->beta = 0.0f;
     joint->biasLine = 0.0f;
     joint->enableMotor = spFalse;
+
     spConstraintInitFuncs(&joint->constraint.funcs, 
         (spFreeFunc)Free, 
         (spPreSolveFunc)PreSolve, 

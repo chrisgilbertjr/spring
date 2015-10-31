@@ -1,6 +1,9 @@
 
-#include "spConstraint.h"
 #include "spWorld.h"
+#include "spConstraint.h"
+#include "spCollision.h"
+#include "spContact.h"
+#include "spBody.h"
 
 /// for each iters
 #define foreach_constraint(joint, initializer) for (spConstraint* joint = initializer; joint != NULL; joint = joint->next)

@@ -26,31 +26,31 @@ struct spPolygon
 };
 
 /// check if a shape is a polygon
-spBool spShapeIsPolygon(spShape* shape);
+SPRING_API spBool spShapeIsPolygon(spShape* shape);
 
 /// initialize a polygon
-void spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass);
+SPRING_API void spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass);
 
 /// allocate space for a polygon on the heap
-spPolygon* spPolygonAlloc();
+SPRING_API spPolygon* spPolygonAlloc();
 
 /// allocate and init a new polygon on the heap
-spShape* spPolygonNew(spVector* vertices, spInt count, spFloat mass);
+SPRING_API spShape* spPolygonNew(spVector* vertices, spInt count, spFloat mass);
 
 /// free allocated memory for a polygon from the heap
-void spPolygonFree(spShape** poly);
+SPRING_API void spPolygonFree(spShape** poly);
 
 /// tests if a point is inside of the polygon
-spBool spPolygonTestPoint(spPolygon* poly, spVector point);
+SPRING_API spBool spPolygonTestPoint(spPolygon* poly, spVector point);
 
 /// gets the polygons radius
-spFloat spPolygonGetRadius(spPolygon* poly);
+SPRING_API spFloat spPolygonGetRadius(spPolygon* poly);
 
 /// get the edge count of the polygon
-spInt spPolygonGetCount(spPolygon* poly);
+SPRING_API spInt spPolygonGetCount(spPolygon* poly);
 
 /// sets the radius of the polygon
-void spPolygonSetRadius(spPolygon* poly, spFloat radius);
+SPRING_API void spPolygonSetRadius(spPolygon* poly, spFloat radius);
 
 /// @}
 

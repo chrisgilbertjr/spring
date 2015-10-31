@@ -39,85 +39,85 @@ struct spWheelJoint
 void spWheelJointInit(spWheelJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping);
 
 /// allocate a wheel joint on the heap
-spWheelJoint* spWheelJointAlloc();
+SPRING_API spWheelJoint* spWheelJointAlloc();
 
 /// create a wheel joint on the heap with 2 bodies, 2 local space anchors, a line axis, and spring frequency/damping
-spConstraint* spWheelJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping);
+SPRING_API spConstraint* spWheelJointNew(spBody* a, spBody* b, spVector anchorA, spVector anchorB, spVector axis, spFloat frequency, spFloat damping);
 
 /// check if a constraint is a wheel joint
-spBool spConstraintIsWheelJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsWheelJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a wheel joint if its that type
-spWheelJoint* spConstraintCastWheelJoint(spConstraint* constraint);
+SPRING_API spWheelJoint* spConstraintCastWheelJoint(spConstraint* constraint);
 
 /// get the wheels impulse
-spFloat spWheelJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetImpulse(spConstraint* constraint);
 
 /// get the wheels spring impulse
-spFloat spWheelJointGetSpringImpulse(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetSpringImpulse(spConstraint* constraint);
 
 /// get the wheels motor impulse
-spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
 
 /// get the wheels line impulse
-spFloat spWheelJointGetLineImpulse(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetLineImpulse(spConstraint* constraint);
 
 /// get the first anchor in body A's local space
-spVector spWheelJointGetAnchorA(spConstraint* constraint);
+SPRING_API spVector spWheelJointGetAnchorA(spConstraint* constraint);
 
 /// get the second anchor in body B's local space
-spVector spWheelJointGetAnchorB(spConstraint* constraint);
+SPRING_API spVector spWheelJointGetAnchorB(spConstraint* constraint);
 
 /// get the first anchor in world space
-spVector spWheelJointGetWorldAnchorA(spConstraint* constraint);
+SPRING_API spVector spWheelJointGetWorldAnchorA(spConstraint* constraint);
 
 /// get the second anchor in world space
-spVector spWheelJointGetWorldAnchorB(spConstraint* constraint);
+SPRING_API spVector spWheelJointGetWorldAnchorB(spConstraint* constraint);
 
 /// get the motors last impulse
-spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetMotorImpulse(spConstraint* constraint);
 
 /// get the wheel joints max motor torque
-spFloat spWheelJointGetMaxMotorTorque(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetMaxMotorTorque(spConstraint* constraint);
 
 /// get the wheel joints motor speed
-spFloat spWheelJointGetMotorSpeed(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetMotorSpeed(spConstraint* constraint);
 
 /// get the wheel joints spring frequency
-spFloat spWheelJointGetSpringFrequency(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetSpringFrequency(spConstraint* constraint);
 
 /// get the wheel joints spring damping
-spFloat spWheelJointGetSpringDamping(spConstraint* constraint);
+SPRING_API spFloat spWheelJointGetSpringDamping(spConstraint* constraint);
 
 /// get if the wheel joints motor is enabled
-spBool spWheelJointGetEnableMotor(spConstraint* constraint);
+SPRING_API spBool spWheelJointGetEnableMotor(spConstraint* constraint);
 
 /// set the wheel joints first anchor in body A's local space
-void spWheelJointSetAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spWheelJointSetAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the wheel joints second anchor in body B's local space
-void spWheelJointSetAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spWheelJointSetAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the wheel joints first anchor in world space
-void spWheelJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
+SPRING_API void spWheelJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA);
 
 /// set the wheel joints second anchor in world space
-void spWheelJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
+SPRING_API void spWheelJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB);
 
 /// set the wheel joints max motor torque
-void spWheelJointSetMaxMotorTorque(spConstraint* constraint, spFloat maxTorque);
+SPRING_API void spWheelJointSetMaxMotorTorque(spConstraint* constraint, spFloat maxTorque);
 
 /// set the wheel joints speed
-void spWheelJointSetMotorSpeed(spConstraint* constraint, spFloat speed);
+SPRING_API void spWheelJointSetMotorSpeed(spConstraint* constraint, spFloat speed);
 
 /// set the wheel joints spring frequency
-void spWheelJointSetSpringFrequency(spConstraint* constraint, spFloat frequency);
+SPRING_API void spWheelJointSetSpringFrequency(spConstraint* constraint, spFloat frequency);
 
 /// set the wheel joints spring damping
-void spWheelJointSetSpringDamping(spConstraint* constraint, spFloat damping);
+SPRING_API void spWheelJointSetSpringDamping(spConstraint* constraint, spFloat damping);
 
 /// set if the wheel joints motor is enabled
-void spWheelJointSetEnableMotor(spConstraint* constraint, spBool enabled);
+SPRING_API void spWheelJointSetEnableMotor(spConstraint* constraint, spBool enabled);
 
 /// @{
 

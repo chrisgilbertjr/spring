@@ -45,183 +45,183 @@ struct spBody
 };
 
 /// initialize a rigid body
-void spBodyInit(spBody* body, spBodyType type);
+SPRING_API void spBodyInit(spBody* body, spBodyType type);
 
 /// frees the body and all shapes attached to the body
-void spBodyDestroyShapes(spBody* body);
+SPRING_API void spBodyDestroyShapes(spBody* body);
 
 /// frees the body and all constraints attached to the body
-void spBodyDestroyConstraints(spBody* body);
+SPRING_API void spBodyDestroyConstraints(spBody* body);
 
 /// frees the body and all shapes/constraints attached to the body
-void spBodyDestroy(spBody** bodyPtr);
+SPRING_API void spBodyDestroy(spBody** bodyPtr);
 
 /// allocates space for a rigid body on the heap
-spBody* spBodyAlloc();
+SPRING_API spBody* spBodyAlloc();
 
 /// allocates space for a rigid body and initializes it with a type
-spBody* spBodyNew(spBodyType type);
+SPRING_API spBody* spBodyNew(spBodyType type);
 
 /// create a new kinematic body
-spBody* spBodyNewKinematic();
+SPRING_API spBody* spBodyNewKinematic();
 
 /// create a new dynamic body
-spBody* spBodyNewDynamic();
+SPRING_API spBody* spBodyNewDynamic();
 
 /// create a new static body
-spBody* spBodyNewStatic();
+SPRING_API spBody* spBodyNewStatic();
 
 /// frees the rigid body
-void spBodyFree(spBody** body);
+SPRING_API void spBodyFree(spBody** body);
 
 /// attach a shape to this body
-void spBodyAddShape(spBody* body, spShape* shape);
+SPRING_API void spBodyAddShape(spBody* body, spShape* shape);
 
 /// remove a shape from this body
-void spBodyRemoveShape(spBody* body, spShape* shape);
+SPRING_API void spBodyRemoveShape(spBody* body, spShape* shape);
 
 /// clear all forces acting on this body
-void spBodyClearForces(spBody* body);
+SPRING_API void spBodyClearForces(spBody* body);
 
 /// clear the bodies velocity
-void spBodyClearVelocity(spBody* body);
+SPRING_API void spBodyClearVelocity(spBody* body);
 
 /// integrates forces and updates velocity - semi-implicit euler
-void spBodyIntegrateVelocity(spBody* body, const spVector gravity, const spFloat h);
+SPRING_API void spBodyIntegrateVelocity(spBody* body, const spVector gravity, const spFloat h);
 
 /// integrates velocity and updates position - semi-implicit euler
-void spBodyIntegratePosition(spBody* body, const spFloat h);
+SPRING_API void spBodyIntegratePosition(spBody* body, const spFloat h);
 
 /// calculates a bodies acceleration given gravity
-spVector spBodyAcceleration(spBody* body, const spVector gravity);
+SPRING_API spVector spBodyAcceleration(spBody* body, const spVector gravity);
 
 /// calculates the combined mass data of all shapes
-void spBodyComputeShapeMassData(spBody* body);
+SPRING_API void spBodyComputeShapeMassData(spBody* body);
 
 /// get a local point in the world space of body
-spVector spBodyLocalToWorldPoint(spBody* body, spVector point);
+SPRING_API spVector spBodyLocalToWorldPoint(spBody* body, spVector point);
 
 /// get a world point in the local space of body
-spVector spBodyWorldToLocalPoint(spBody* body, spVector point);
+SPRING_API spVector spBodyWorldToLocalPoint(spBody* body, spVector point);
 
 /// get a local vector in the world space of body
-spVector spBodyLocalToWorldVector(spBody* body, spVector vector);
+SPRING_API spVector spBodyLocalToWorldVector(spBody* body, spVector vector);
 
 /// get a world vector in the local space of body
-spVector spBodyWorldToLocalVector(spBody* body, spVector vector);
+SPRING_API spVector spBodyWorldToLocalVector(spBody* body, spVector vector);
 
 /// apply a torque to the body
-void spBodyApplyTorque(spBody* body, spFloat torque);
+SPRING_API void spBodyApplyTorque(spBody* body, spFloat torque);
 
 /// apply a force to the body from a point in local space
-void spBodyApplyForceAtLocalPoint(spBody* body, spVector point, spVector force);
+SPRING_API void spBodyApplyForceAtLocalPoint(spBody* body, spVector point, spVector force);
 
 /// apply a force to the body from a point in world space
-void spBodyApplyForceAtWorldPoint(spBody* body, spVector point, spVector force);
+SPRING_API void spBodyApplyForceAtWorldPoint(spBody* body, spVector point, spVector force);
 
 /// apply an impulse to the body at a point given an impulse
-void spBodyApplyImpulseAtPoint(spBody* body, spVector point, spVector impulse);
+SPRING_API void spBodyApplyImpulseAtPoint(spBody* body, spVector point, spVector impulse);
 
 /// apply an impulse to the body given the rel velocity to a point and an impulse
-void spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse);
+SPRING_API void spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse);
 
 /// get the body's transform
-spTransform spBodyGetTransform(spBody* body);
+SPRING_API spTransform spBodyGetTransform(spBody* body);
 
 /// get the body's position
-spVector spBodyGetPosition(spBody* body);
+SPRING_API spVector spBodyGetPosition(spBody* body);
 
 /// get the body's rotation
-spRotation spBodyGetRotation(spBody* body);
+SPRING_API spRotation spBodyGetRotation(spBody* body);
 
 /// get the body's angle
-spFloat spBodyGetAngle(spBody* body);
+SPRING_API spFloat spBodyGetAngle(spBody* body);
 
 /// get the body's center of mass
-spVector spBodyGetCenterOfMass(spBody* body);
+SPRING_API spVector spBodyGetCenterOfMass(spBody* body);
 
 /// get the body's force
-spVector spBodyGetForce(spBody* body);
+SPRING_API spVector spBodyGetForce(spBody* body);
 
 /// get the body's gravity scale
-spFloat spBodyGetGravityScale(spBody* body);
+SPRING_API spFloat spBodyGetGravityScale(spBody* body);
 
 /// get the body's linear velocity damping
-spFloat spBodyGetLinearVelocityDamping(spBody* body);
+SPRING_API spFloat spBodyGetLinearVelocityDamping(spBody* body);
 
 /// get the body's angular velocity damping
-spFloat spBodyGetAngularVelocityDamping(spBody* body);
+SPRING_API spFloat spBodyGetAngularVelocityDamping(spBody* body);
 
 /// get the body's inertia
-spFloat spBodyGetInertia(spBody* body);
+SPRING_API spFloat spBodyGetInertia(spBody* body);
 
 /// get the body's mass
-spFloat spBodyGetMass(spBody* body);
+SPRING_API spFloat spBodyGetMass(spBody* body);
 
 /// get the body's torque
-spFloat spBodyGetTorque(spBody* body);
+SPRING_API spFloat spBodyGetTorque(spBody* body);
 
 /// get the next body in the body list
-spBody* spBodyGetNext(spBody* body);
+SPRING_API spBody* spBodyGetNext(spBody* body);
 
 /// get the prev body in the body list
-spBody* spBodyGetPrev(spBody* body);
+SPRING_API spBody* spBodyGetPrev(spBody* body);
 
 /// get the body's type
-spBodyType spBodyGetType(spBody* body);
+SPRING_API spBodyType spBodyGetType(spBody* body);
 
 /// get the body's shape list
-spShape* spBodyGetShapeList(spBody* body);
+SPRING_API spShape* spBodyGetShapeList(spBody* body);
 
 /// get the body's constraint list
-spConstraint* spBodyGetConstraintList(spBody* body);
+SPRING_API spConstraint* spBodyGetConstraintList(spBody* body);
 
 /// get the body's world
-spWorld* spBodyGetWorld(spBody* body);
+SPRING_API spWorld* spBodyGetWorld(spBody* body);
 
 /// get the body's user data
-spLazyPointer spBodyGetUserData(spBody* body);
+SPRING_API spLazyPointer spBodyGetUserData(spBody* body);
 
 /// sets the position and rotation of the rigid body
-void spBodySetTransform(spBody* body, const spVector position, spFloat angle);
+SPRING_API void spBodySetTransform(spBody* body, const spVector position, spFloat angle);
 
 /// sets the position of the rigid body
-void spBodySetPosition(spBody* body, const spVector position);
+SPRING_API void spBodySetPosition(spBody* body, const spVector position);
 
 /// sets the rotation of the rigid body
-void spBodySetRotation(spBody* body, spRotation rotate);
+SPRING_API void spBodySetRotation(spBody* body, spRotation rotate);
 
 /// sets the rotation of the rigid body
-void spBodySetAngle(spBody* body, spFloat angle);
+SPRING_API void spBodySetAngle(spBody* body, spFloat angle);
 
 /// sets the body's center of mass
-void spBodySetCenterOfMass(spBody* body, spVector com);
+SPRING_API void spBodySetCenterOfMass(spBody* body, spVector com);
 
 /// sets the body's force, resets all other forces
-void spBodySetForce(spBody* body, spVector force);
+SPRING_API void spBodySetForce(spBody* body, spVector force);
 
 /// sets the body's gravity scale
-void spBodySetGravityScale(spBody* body, spFloat gScale);
+SPRING_API void spBodySetGravityScale(spBody* body, spFloat gScale);
 
 /// sets the body's linear velocity damping
-void spBodySetLinearVelocityDamping(spBody* body, spFloat damping);
+SPRING_API void spBodySetLinearVelocityDamping(spBody* body, spFloat damping);
 
 /// sets the body's angular velocity damping
-void spBodySetAngularVelocityDamping(spBody* body, spFloat damping);
+SPRING_API void spBodySetAngularVelocityDamping(spBody* body, spFloat damping);
 
 /// set the inertia of the body, overrides shape data.
 /// @warning inertia reset when type is changed, or other shapes are added/removed
-void spBodySetInertia(spBody* body, spFloat inertia);
+SPRING_API void spBodySetInertia(spBody* body, spFloat inertia);
 
 /// set the mass of the body, overrides shape data.
 /// @warning mass reset when type is changed, or other shapes are added/removed
-void spBodySetMass(spBody* body, spFloat mass);
+SPRING_API void spBodySetMass(spBody* body, spFloat mass);
 
 /// sets the body type, resets custom mass data to shapes mass data
-void spBodySetType(spBody* body, spBodyType type);
+SPRING_API void spBodySetType(spBody* body, spBodyType type);
 
 /// sets the body's user data pointer
-void spBodySetUserData(spBody* body, spLazyPointer* data);
+SPRING_API void spBodySetUserData(spBody* body, spLazyPointer* data);
 
 /// @}
 

@@ -16,28 +16,28 @@ struct spMotorJoint
 };
 
 /// init the motor joint with 2 bodies, and an angular velocity
-void spMotorJointInit(spMotorJoint* joint, spBody* a, spBody* b, spFloat w);
+SPRING_API void spMotorJointInit(spMotorJoint* joint, spBody* a, spBody* b, spFloat w);
 
 /// allocate a motor joint on the heap
-spMotorJoint* spMotorJointAlloc();
+SPRING_API spMotorJoint* spMotorJointAlloc();
 
 /// init the motor joint with 2 bodies, and an angular velocity
-spConstraint* spMotorJointNew(spBody* a, spBody* b, spFloat w);
+SPRING_API spConstraint* spMotorJointNew(spBody* a, spBody* b, spFloat w);
 
 /// check if a constraint is a motor joint
-spBool spConstraintIsMotorJoint(spConstraint* constraint);
+SPRING_API spBool spConstraintIsMotorJoint(spConstraint* constraint);
 
 /// safely cast a constraint to a motor joint if its that type
-spMotorJoint* spConstraintCastMotorJoint(spConstraint* constraint);
+SPRING_API spMotorJoint* spConstraintCastMotorJoint(spConstraint* constraint);
 
 /// get the motor joints impulse
-spFloat spMotorJointGetImpulse(spConstraint* constraint);
+SPRING_API spFloat spMotorJointGetImpulse(spConstraint* constraint);
 
 /// get the motor joints angular velocity
-spFloat spMotorJointGetAngVelocity(spConstraint* constraint);
+SPRING_API spFloat spMotorJointGetAngVelocity(spConstraint* constraint);
 
 /// set the motor joints angular velocity
-void spMotorJointSetAngVelocity(spConstraint* constraint, spFloat w);
+SPRING_API void spMotorJointSetAngVelocity(spConstraint* constraint, spFloat w);
 
 /// @}
 

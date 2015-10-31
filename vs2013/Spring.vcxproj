@@ -56,7 +56,6 @@
     <ClCompile Include="..\source\spRopeJoint.c" />
     <ClCompile Include="..\source\spSegment.c" />
     <ClCompile Include="..\source\spShape.c" />
-    <ClCompile Include="..\source\spSolver.c" />
     <ClCompile Include="..\source\spSpringJoint.c" />
     <ClCompile Include="..\source\spWheelJoint.c" />
     <ClCompile Include="..\source\spWorld.c" />
@@ -96,7 +95,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\cygwin\home\chris\projects\spring\include\spring</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SPRING_EXPORT</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -113,7 +112,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\cygwin\home\chris\projects\spring\include\spring</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SPRING_EXPORT;NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>

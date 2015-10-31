@@ -9,9 +9,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-//#define SP_DEBUG
-//#define SP_DEBUG_DRAW
-
 /// @defgroup spCore spCore
 /// @{
 
@@ -173,7 +170,13 @@ INLINE void* spMemset(void* mem, spInt value, spSize bytes)
 /// @defgroup spDebug spDebug
 /// @{
 
-#ifdef SP_DEBUG
+#ifdef NDEBUG
+    #define NULLCHECK(ptr)
+    #define NANCHECK(val)
+    #define spAssert  
+    #define spWarning 
+    #define spLog  
+#else
     #define NULLCHECK(ptr) spAssert(ptr != NULL, "pointer is NULL!\n")
     #define NANCHECK(val)  spAssert(val == val,  "value is NaN!\n")
     //#define spAssert  DEBUGAssert
@@ -194,22 +197,16 @@ INLINE void* spMemset(void* mem, spInt value, spSize bytes)
     #define spLog     DEBUGLog
 
     /// TODO:
-	void DEBUGDoLog(FILE* file, const char* msg, va_list args);
+	SPRING_API void DEBUGDoLog(FILE* file, const char* msg, va_list args);
 
 	/// TODO:
-	void DEBUGAssert(spBool condition, const char* msg, ...);
+	SPRING_API void DEBUGAssert(spBool condition, const char* msg, ...);
 
 	/// TODO:
-	void DEBUGWarning(spBool condition, const char* msg, ...);
+	SPRING_API void DEBUGWarning(spBool condition, const char* msg, ...);
 
 	/// TODO:
-	void DEBUGLog(const char* msg, ...);
-#else
-    #define NULLCHECK(ptr)
-    #define NANCHECK(val)
-    #define spAssert  
-    #define spWarning 
-    #define spLog     
+	SPRING_API void DEBUGLog(const char* msg, ...);
 #endif
 
 /// @}

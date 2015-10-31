@@ -142,9 +142,6 @@
     <ClCompile Include="..\source\spShape.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\spSolver.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\spSpringJoint.c">
       <Filter>source</Filter>
     </ClCompile>

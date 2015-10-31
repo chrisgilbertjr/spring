@@ -2,7 +2,7 @@
 #include "spCore.h"
 
 /// debug functions
-#ifdef SP_DEBUG
+#ifndef NDEBUG
 
     void DEBUGDoLog(FILE* file, const char* msg, va_list args)
     {

@@ -1,4 +1,22 @@
 
+#ifndef SP_DEMO_H
+#define SP_DEMO_H
+
+#if (_WIN32 || _WIN64)
+  #if (_MSC_VER)
+    #ifdef DEMO_EXPORT
+      #define DEMO_API __declspec(dllexport)
+    #else
+      #define DEMO_API __declspec(dllimport)
+    #endif
+
+    #define INLINE __inline
+  #endif
+#else
+  #define INLINE inline
+  #define DEMO_API
+#endif
+
 #include "spDraw.h"
 #include <GLFW/glfw3.h>
 
@@ -12,8 +30,8 @@ typedef GLFWwindow spWindow;
 typedef spInt spDemoIndex;
 typedef int spKey;
 
-extern spFloat spLineScaleSmall;
-extern spFloat spLineScaleBig;
+DEMO_API extern spFloat spLineScaleSmall;
+DEMO_API extern spFloat spLineScaleBig;
 
 typedef struct spMouse
 {
@@ -60,56 +78,58 @@ typedef struct spMultiBodyObject
     spInt count;
 } spMultiBodyObject;
 
-extern spDemo* Demo;
+DEMO_API extern spDemo* Demo;
 
-spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
+DEMO_API spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
 
-void spDemoSetCameraTranslation(spVector translation);
+DEMO_API void spDemoSetCameraTranslation(spVector translation);
 
-void spDemoFree(spDemo* demo);
+DEMO_API void spDemoFree(spDemo* demo);
 
-void spDemoRun(spDemo* demo);
+DEMO_API void spDemoRun(spDemo* demo);
 
-void spDemoInitRandomSeed();
+DEMO_API void spDemoInitRandomSeed();
 
 spFloat spDemoRandomFloatRange(float min, float max);
 
-spColor spDemoRandomColor();
+DEMO_API spColor spDemoRandomColor();
 
-spColor spDemoRandomPastelColor();
+DEMO_API spColor spDemoRandomPastelColor();
 
-spBool spDemoKeyPressed(spKey key);
+DEMO_API spBool spDemoKeyPressed(spKey key);
 
-spBool spDemoKeyReleased(spKey key);
+DEMO_API spBool spDemoKeyReleased(spKey key);
 
-void spDemoDrawSingleBody(spSingleBodyObject* object);
+DEMO_API void spDemoDrawSingleBody(spSingleBodyObject* object);
 
-void spDemoDrawMultiBody(spMultiBodyObject* object);
+DEMO_API void spDemoDrawMultiBody(spMultiBodyObject* object);
 
-void spDemoDrawShape(spShape* shape, spColor color, spColor border);
+DEMO_API void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 
-void spDemoDrawConstraint(spConstraint* constraint);
+DEMO_API void spDemoDrawConstraint(spConstraint* constraint);
 
-void spDemoDrawCircle(spShape* shape, spColor color, spColor border);
+DEMO_API void spDemoDrawCircle(spShape* shape, spColor color, spColor border);
 
-void spDemoDrawPolygon(spShape* shape, spColor color, spColor border);
+DEMO_API void spDemoDrawPolygon(spShape* shape, spColor color, spColor border);
 
-void spDemoDrawSegment(spShape* shape, spColor color, spColor border);
+DEMO_API void spDemoDrawSegment(spShape* shape, spColor color, spColor border);
 
-void spDemoDrawGearJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawGearJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawAngularSpringJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawAngularSpringJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawMotorJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawMotorJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border);
+DEMO_API void spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, spColor border);
 
-void spDemoDrawRopeJoint(spConstraint* constraint, spColor circles, spColor rope, spColor border);
+DEMO_API void spDemoDrawRopeJoint(spConstraint* constraint, spColor circles, spColor rope, spColor border);
 
-void spDemoDrawDistanceJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawDistanceJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawPointJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawPointJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawSpringJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawSpringJoint(spConstraint* constraint, spColor color, spColor border);
 
-void spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border);
+DEMO_API void spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border);
+
+#endif

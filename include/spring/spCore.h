@@ -186,13 +186,7 @@ INLINE void* spMemset(void* mem, spInt value, spSize bytes)
         DEBUGDoLog(file, msg, args); \
         va_end(args);
 
-    #define spAssert(condition, msg)  \
-        if (condition == spFalse)\
-        {\
-            SP_LOG(stderr, msg);\
-            assert(spFalse);\
-        }
-
+    #define spAssert  DEBUGAssert
     #define spWarning DEBUGWarning
     #define spLog     DEBUGLog
 

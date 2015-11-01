@@ -14,7 +14,6 @@ spRenderContext context;
 #define BUFFER_OFFSET(index) ((char *)NULL + (index)) 
 #define VERTEX(a) (spVertex) {a}
 
-
 static void 
 Transpose(spFloat* transpose)
 {

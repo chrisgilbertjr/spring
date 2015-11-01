@@ -1,10 +1,10 @@
 
-#ifndef SP_DEBUG_DRAW_GL2_H
-#define SP_DEBUG_DRAW_GL2_H
+#ifndef SP_DRAW_H
+#define SP_DRAW_H
 
-#include <GL\glew.h>
+#include "spring\spring.h"
 #include "spShader.h"
-#include "spWorld.h"
+#include <GL\glew.h>
 
 typedef struct { GLfloat x, y; } spVec;
 typedef struct { GLfloat x, y, z; } spBary;
@@ -41,20 +41,20 @@ typedef struct
     GLint triangles, capacity;
 } spRenderContext;
 
-spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
-void spOrthoMatrix(spFloat ortho[16]);
-    
-void spDrawInit();
-void spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor border);
-void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt count, spVector center, spColor color, spColor border);
-void spDrawSegment(spVector a, spVector b, spFloat radius, spColor color, spColor border);
-void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border);
-void spDrawSpring(spVector start, spVector end, spFloat linewidth, spFloat springWidth, spColor color, spColor border);
-void spDrawRope(spVector start, spVector end, spInt iterations, spFloat size, spColor colorA, spColor colorB, spColor border);
+#define DEMO_API __declspec(dllexport)
 
-void spClearBuffers();
-void spDrawDemo();
+DEMO_API spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
+DEMO_API void spOrthoMatrix(spFloat ortho[16]);
+DEMO_API void spDrawInit();
+DEMO_API void spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor border);
+DEMO_API void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt count, spVector center, spColor color, spColor border);
+DEMO_API void spDrawSegment(spVector a, spVector b, spFloat radius, spColor color, spColor border);
+DEMO_API void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border);
+DEMO_API void spDrawSpring(spVector start, spVector end, spFloat linewidth, spFloat springWidth, spColor color, spColor border);
+DEMO_API void spDrawRope(spVector start, spVector end, spInt iterations, spFloat size, spColor colorA, spColor colorB, spColor border);
+DEMO_API void spClearBuffers();
+DEMO_API void spDrawDemo();
 
-extern spRenderContext context;
+DEMO_API extern spRenderContext context;
 
 #endif

@@ -10,9 +10,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\demo\JointDemo.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\demo\spDraw.c">
       <Filter>source</Filter>
     </ClCompile>

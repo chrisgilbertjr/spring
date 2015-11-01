@@ -1,9 +1,6 @@
 
 #include <time.h>
 #include "spDemo.h"
-#include "spPolygon.h"
-#include "spSegment.h"
-#include "spCircle.h"
 
 spDemo* Demo;
 
@@ -102,7 +99,7 @@ spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frust
 void 
 spDemoFree(spDemo* demo)
 {
-    NULLCHECK(*demo);
+    NULLCHECK(demo);
     free(demo);
 }
 

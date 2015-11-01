@@ -2,22 +2,8 @@
 #ifndef SP_DEMO_H
 #define SP_DEMO_H
 
-#if (_WIN32 || _WIN64)
-  #if (_MSC_VER)
-    #ifdef DEMO_EXPORT
-      #define DEMO_API __declspec(dllexport)
-    #else
-      #define DEMO_API __declspec(dllimport)
-    #endif
-
-    #define INLINE __inline
-  #endif
-#else
-  #define INLINE inline
-  #define DEMO_API
-#endif
-
 #include "spDraw.h"
+#include "spDemoPlatform.h"
 #include <GLFW/glfw3.h>
 
 typedef void (*initFunc)();
@@ -90,7 +76,7 @@ DEMO_API void spDemoRun(spDemo* demo);
 
 DEMO_API void spDemoInitRandomSeed();
 
-spFloat spDemoRandomFloatRange(float min, float max);
+DEMO_API spFloat spDemoRandomFloatRange(float min, float max);
 
 DEMO_API spColor spDemoRandomColor();
 

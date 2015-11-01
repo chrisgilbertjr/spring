@@ -1,6 +1,6 @@
 
 #include <time.h>
-#include "spDemo.h"
+#include "demo\spDemo.h"
 
 spDemo* Demo;
 
@@ -273,7 +273,7 @@ spDemoInitRandomSeed()
     srand((unsigned int)time(NULL));
 }
 
-static spFloat
+spFloat
 spDemoRandomFloatRange(float min, float max) 
 {
     float random = ((float)rand()) / (float)RAND_MAX;

@@ -62,6 +62,7 @@ spWorldInit(spWorld* world, spInt iterations, spVector gravity)
     world->jointList = NULL;
     world->bodyList  = NULL;
     world->contactList = NULL;
+    world->sweepAndPrune = spSapConstruct();
 }
 
 void 
@@ -97,6 +98,7 @@ spWorldDestroy(spWorld* world)
     world->contactList = NULL;
     world->jointList = NULL;
     world->bodyList = NULL;
+    spSapDestroy(&world->sweepAndPrune);
 }
 
 spWorld 
@@ -111,7 +113,7 @@ void
 spWorldStep(spWorld* world, const spFloat h)
 {
     /// do broad phase collision detection
-    spWorldBroadPhase(world);
+    spWorldBroadPhaseBruteForce(world);
 
     /// do narrow phase collision detection
     spWorldNarrowPhase(world);
@@ -170,7 +172,59 @@ spWorldStep(spWorld* world, const spFloat h)
     int x = 0;
 }
 
-void spWorldBroadPhase(spWorld* world)
+void 
+spWorldBroadPhaseSAP(spWorld* world)
+{
+    spSap* sap = &world->sweepAndPrune;
+
+    /// update the sap boxes to world space
+    spSapUpdate(sap);
+
+    /// quick sort the boxes to sort them spatially
+    spSapSort(sap);
+
+    /// check for interval overlap and if have potential for collision
+    spInt count = sap->count;
+    spBox** boxes = sap->boxes;
+    for (spInt i = 0; i < count; ++i)
+    {
+        spShape* shapeA = boxes[i]->shape;
+        for (spInt j = i + 1; j < count; ++j)
+        {
+            spShape* shapeB = boxes[j]->shape;
+
+            /// check if the intervals overlap
+            if (spIntervalsDontOverlap(boxes, i, j))
+            {
+                break;
+            }
+
+            /// check if the two shapes can collide
+            if (spShapesCanCollide(shapeA, shapeB) == spFalse) continue;
+
+            /// check if the two boxes overlap
+            if (spBoxesOverlap(boxes[i], boxes[j]) == spFalse) continue;
+
+            /// they do overlap, create a contact key
+            spContactKey key = spContactKeyConstruct(shapeA, shapeB);
+
+            /// check if the contact key is currently in the contact list
+            if (spContactKeyExists(key, world->contactList) == spFalse && 
+               (spBodyGetType(shapeA->body) != SP_BODY_STATIC || 
+                spBodyGetType(shapeB->body) != SP_BODY_STATIC))
+            {
+                /// the contact key is not in the list, create a new contact with the key
+                spContact* contact = spContactNew(key);
+
+                /// insert the contact into the contact list
+                addContact(world, contact);
+            }
+        }
+    }
+}
+
+void 
+spWorldBroadPhaseBruteForce(spWorld* world)
 {
     foreach_body(body_a, world->bodyList) { foreach_body(body_b, body_a->next)
     {
@@ -203,7 +257,8 @@ void spWorldBroadPhase(spWorld* world)
     }}
 }
 
-void spWorldNarrowPhase(spWorld* world)
+void 
+spWorldNarrowPhase(spWorld* world)
 {
     spContact* contact = world->contactList;
     spInt i = 0;
@@ -235,32 +290,6 @@ void spWorldNarrowPhase(spWorld* world)
             contact = contact->next;
         }
     }
-}
-
-void spWorldDraw(spWorld* world)
-{
-//#ifdef SP_DEBUG_DRAW
-//    spBody* body_list = world->bodyList;
-//    foreach_body(body, body_list)
-//    {
-//        foreach_shape(shape, body->shapes)
-//        {
-//            spDebugDrawBound(0, &shape->bound, body->xf);
-//            if (shape->type == SP_SHAPE_CIRCLE)
-//            {
-//                spDebugDrawCircle(0, (spCircle*)shape, body->xf);
-//            }
-//            if (shape->type == SP_SHAPE_POLYGON)
-//            {
-//                spDebugDrawPolygon(0, (spPolygon*)shape, body->xf);
-//            }
-//            if (shape->type == SP_SHAPE_SEGMENT)
-//            {
-//                spDebugDrawSegment(0, (spSegment*)shape);
-//            }
-//        }
-//    }
-//#endif
 }
 
 spShape* 

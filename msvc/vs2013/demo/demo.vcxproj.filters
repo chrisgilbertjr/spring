@@ -10,24 +10,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\demo\spDraw.c">
+    <ClCompile Include="..\..\..\source\demo\spDemo.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\demo\spShader.c">
+    <ClCompile Include="..\..\..\source\demo\spDraw.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\demo\spDemo.c">
+    <ClCompile Include="..\..\..\source\demo\spShader.c">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\demo\spDemo.h">
+    <ClInclude Include="..\..\..\include\demo\spDemo.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\demo\spDraw.h">
+    <ClInclude Include="..\..\..\include\demo\spDraw.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\demo\spShader.h">
+    <ClInclude Include="..\..\..\include\demo\spShader.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\demo\spDemoPlatform.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

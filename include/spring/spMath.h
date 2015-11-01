@@ -23,8 +23,8 @@
 /// easy access to matrix axis
 typedef enum 
 {
-    x = 0,
-    y = 1,
+    SP_X = 0,
+    SP_Y = 1,
 } spAxis;
 
 /// @defgroup spVector spVector

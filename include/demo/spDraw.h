@@ -2,8 +2,9 @@
 #ifndef SP_DRAW_H
 #define SP_DRAW_H
 
+#include "spDemoPlatform.h"
 #include "spring\spring.h"
-#include "spShader.h"
+#include "demo\spShader.h"
 #include <GL\glew.h>
 
 typedef struct { GLfloat x, y; } spVec;
@@ -40,8 +41,6 @@ typedef struct
     GLint vertexShader, pixelShader, shaderProgram;
     GLint triangles, capacity;
 } spRenderContext;
-
-#define DEMO_API __declspec(dllexport)
 
 DEMO_API spVector spDeproject(spVector position, const spFloat model[16], const spFloat proj[16], spViewport view);
 DEMO_API void spOrthoMatrix(spFloat ortho[16]);

@@ -25,6 +25,7 @@
 #include "spSegment.h"
 #include "spShape.h"
 #include "spSpringJoint.h"
+#include "spSweepAndPrune.h"
 #include "spWheelJoint.h"
 #include "spWorld.h"
 

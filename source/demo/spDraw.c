@@ -1,7 +1,7 @@
 
 #include <string.h>
-#include "spDraw.h"
-#include "spDemo.h"
+#include "demo\spDraw.h"
+#include "demo\spDemo.h"
 
 static const spInt BufferGrowSize = 64;
 spRenderContext context;
@@ -396,8 +396,8 @@ static void
 SetupShaders()
 {
     /// create the shader program
-    context.vertexShader  = CreateVertexShader(vertexShape);
-    context.pixelShader   = CreatePixelShader(pixelShape);
+    context.vertexShader  = CreateVertexShader(vertexShader);
+    context.pixelShader   = CreatePixelShader(pixelShader);
     context.shaderProgram = CreateShaderProgram(context.vertexShader, context.pixelShader);
 
     SetupBuffers();

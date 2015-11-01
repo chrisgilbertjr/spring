@@ -1,7 +1,7 @@
 
-#include "spShader.h"
+#include "demo\spShader.h"
 
-const char* vertexShape = 
+const char* vertexShader = 
     "#version 330\n"
 
     "uniform mat4 v_transform;\n"
@@ -30,7 +30,7 @@ const char* vertexShape =
     "    gl_Position   = v_transform * vec4(v_position, 0.0f, 1.0f);\n"
     "};\n";
 
-const char* pixelShape = 
+const char* pixelShader = 
     "#version 330\n"
 
     //"uniform float v_size;\n"

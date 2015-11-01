@@ -2,6 +2,7 @@
 #ifndef SP_WORLD_H
 #define SP_WORLD_H
 
+#include "spSweepAndPrune.h"
 #include "spMath.h"
 
 /// forward declarations to reduce includes
@@ -19,6 +20,7 @@ struct spWorld
     spConstraint* jointList; ///< list of active constraints
     spContact* contactList;  ///< list of active contacts
     spBody* bodyList;        ///< list of active bodies
+    spSap sweepAndPrune;     ///< sweep and prune broadphase
     spVector gravity;        ///< world gravity
     spInt iterations;        ///< solver iterations
 };
@@ -35,8 +37,11 @@ SPRING_API spWorld spWorldConstruct(spInt interations, spVector gravity);
 /// step through the simulation.
 SPRING_API void spWorldStep(spWorld* world, const spFloat dt);
 
-// do broad phase collision detection
-SPRING_API void spWorldBroadPhase(spWorld* world);
+// do broad phase collision detection using sweep and prune
+SPRING_API void spWorldBroadPhaseSAP(spWorld* world);
+
+// do broad phase collision detection using brute force
+SPRING_API void spWorldBroadPhaseBruteForce(spWorld* world);
 
 /// do narrow phase collision detection
 SPRING_API void spWorldNarrowPhase(spWorld* world);
@@ -55,9 +60,6 @@ SPRING_API void spWorldAddConstraint(spWorld* world, spConstraint* constraint);
 
 /// remove a constraint from the world
 SPRING_API void spWorldRemoveConstraint(spWorld* world, spConstraint* constraint);
-
-/// TEMP: draw the world with OPENGL1
-SPRING_API void spWorldDraw(spWorld* world);
 
 /// get the worlds joint list
 SPRING_API spConstraint* spWorldGetJointList(spWorld* world);

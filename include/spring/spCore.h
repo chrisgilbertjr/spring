@@ -83,6 +83,7 @@ typedef struct spConstraint         spConstraint;
 typedef struct spTransform          spTransform;
 typedef struct spRopeJoint          spRopeJoint;
 typedef struct spGearJoint          spGearJoint;
+typedef struct spInterval           spInterval;
 typedef struct spRotation           spRotation;
 typedef struct spMassData           spMassData;
 typedef struct spMaterial           spMaterial;
@@ -98,6 +99,8 @@ typedef struct spBound              spBound;
 typedef struct spWorld              spWorld;
 typedef struct spEdge               spEdge;
 typedef struct spBody               spBody;
+typedef struct spBox                spBox;
+typedef struct spSap                spSap;
 
 /// swap a and b
 INLINE void spSwapFloat(spFloat* a, spFloat* b)

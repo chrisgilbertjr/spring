@@ -1,8 +1,5 @@
 
-#include "spDemo.h"
-#include "spPolygon.h"
-#include "spSegment.h"
-#include "spCircle.h"
+#include "demo\spDemo.h"
 
 typedef spSingleBodyObject spBox;
 typedef spSingleBodyObject spBall;
@@ -187,4 +184,5 @@ Destroy()
 int main(void)
 {
     spDemoRun(spDemoNew(Setup, Update, Destroy, spFrustumView(100, 100), spViewportNew(800, 800)));
+    return 0;
 }

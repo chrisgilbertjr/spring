@@ -1,13 +1,18 @@
 
 #include "spSweepAndPrune.h"
+#include "spBound.h"
+#include "spShape.h"
+#include "spBody.h"
 
 spAxis g_axis = SP_X;
 
 static int 
 CompareIntervals(const void* a, const void* b)
 {
-    spBox* boxA = (spBox*)a;
-    spBox* boxB = (spBox*)b;
+    spSapBox** BoxA = (spSapBox**)a;
+    spSapBox** BoxB = (spSapBox**)b;
+    spSapBox* boxA = *BoxA;
+    spSapBox* boxB = *BoxB;
 
     float minA = boxA->axis[g_axis].min;
     float minB = boxB->axis[g_axis].min;
@@ -16,13 +21,17 @@ CompareIntervals(const void* a, const void* b)
     {
         return 1;
     }
-    return -1;
+    else if (minA < minB)
+    {
+        return -1;
+    }
+    return 0;
 }
 
-static spBox*
+static spSapBox*
 BoxNew(spShape* shape)
 {
-    spBox* box = (spBox*) spMalloc(sizeof(spBox));
+    spSapBox* box = (spSapBox*) spMalloc(sizeof(spSapBox));
 
     spInterval zero;
     zero.min = 0.0f;
@@ -35,23 +44,32 @@ BoxNew(spShape* shape)
     return box;
 }
 
-static spBox*
-BoxFree(spBox** box)
+static void
+BoxFree(spSapBox* box)
 {
     NULLCHECK(box);
-    spFree(box);
+    free(box);
 }
 
 static void
-UpdateBox(spBox* box)
+UpdateBox(spSapBox* box)
 {
+    spShape* shape = box->shape;
+    spBound* bound = &shape->bound;
+    spVector center = spBoundGetWorldCenter(bound, &shape->body->xf);
+    spVector width = spMultVecFlt(spBoundGetHalfWidth(bound), 3.0f);
+
+    box->axis[SP_X].min = center.x - width.x;
+    box->axis[SP_X].max = center.x + width.x;
+    box->axis[SP_Y].min = center.y - width.y;
+    box->axis[SP_Y].max = center.y + width.y;
 }
 
 spSap 
 spSapConstruct()
 {
     spSap sap;
-    spMemset(sap.boxes, 0, sizeof(spBox*)*SP_MAX_SAP_OBJECTS);
+    spMemset(sap.boxes, 0, sizeof(spSapBox**)*SP_MAX_SAP_OBJECTS);
     sap.count = 0;
 
     return sap;
@@ -70,18 +88,37 @@ spSapDestroy(spSap* sap)
 void 
 spSapInsert(spSap* sap, spShape* shape)
 {
-    /// @TODO:
+    spSapBox* box = BoxNew(shape);
+    sap->boxes[sap->count++] = box;
 }
 
 void 
 spSapRemove(spSap* sap, spShape* shape)
 {
-    /// @TODO:
+    spInt index = -1;
+    for (spInt i = 0; i < sap->count; ++i)
+    {
+        if (sap->boxes[i]->shape == shape)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    spAssert(index >= -1, "Error: cannot remove an object that isnt in the sap list!");
+
+    BoxFree(sap->boxes[index]);
+
+    sap->count--;
+    sap->boxes[index] = sap->boxes[sap->count];
+    sap->boxes[sap->count] = NULL;
 }
 
 void 
 spSapUpdate(spSap* sap)
 {
+    spSapUpdateSortAxis(sap);
+
     for (spInt i = 0; i < sap->count; ++i)
     {
         UpdateBox(sap->boxes[i]);
@@ -91,14 +128,14 @@ spSapUpdate(spSap* sap)
 void 
 spSapSort(spSap* sap)
 {
-    qsort(sap->boxes, sap->count, sizeof(spBox*), CompareIntervals);
+    qsort(sap->boxes, sap->count, sizeof(spSapBox*), CompareIntervals);
 }
 
 spVariance 
 spSapVariance(spSap* sap)
 {
     spVariance s, s2, variance;
-    spBox** boxes = sap->boxes;
+    spSapBox** boxes = sap->boxes;
 
     for (spInt i = 0; i < sap->count; ++i)
     {
@@ -134,11 +171,24 @@ spSapUpdateSortAxis(spSap* sap)
 }
 
 spBool 
-spIntervalsDontOverlap(spBox** boxes, spInt i, spInt j)
+spIntervalsDontOverlap(spSapBox** boxes, spInt i, spInt j)
 {
     if (boxes[j]->axis[g_axis].min > boxes[i]->axis[g_axis].max)
     {
         return spTrue;
     }
     return spFalse;
+}
+
+spBool 
+spBoxesOverlap(spSapBox* a, spSapBox* b)
+{
+    /// check if the two intervals overlap at all
+    if (a->axis[SP_X].max < b->axis[SP_X].min) return spFalse;
+    if (a->axis[SP_X].min > b->axis[SP_X].max) return spFalse;
+    if (a->axis[SP_Y].max < b->axis[SP_Y].min) return spFalse;
+    if (a->axis[SP_Y].min > b->axis[SP_Y].max) return spFalse;
+
+    /// they do overlap, return true
+    return spTrue;
 }

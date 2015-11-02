@@ -113,7 +113,8 @@ void
 spWorldStep(spWorld* world, const spFloat h)
 {
     /// do broad phase collision detection
-    spWorldBroadPhaseBruteForce(world);
+    //spWorldBroadPhaseBruteForce(world);
+    spWorldBroadPhaseSAP(world);
 
     /// do narrow phase collision detection
     spWorldNarrowPhase(world);
@@ -167,9 +168,6 @@ spWorldStep(spWorld* world, const spFloat h)
     {
         spBodyIntegratePosition(body, h);
     }
-
-    spWorldDraw(world);
-    int x = 0;
 }
 
 void 
@@ -185,7 +183,7 @@ spWorldBroadPhaseSAP(spWorld* world)
 
     /// check for interval overlap and if have potential for collision
     spInt count = sap->count;
-    spBox** boxes = sap->boxes;
+    spSapBox** boxes = sap->boxes;
     for (spInt i = 0; i < count; ++i)
     {
         spShape* shapeA = boxes[i]->shape;
@@ -313,6 +311,11 @@ spWorldAddBody(spWorld* world, spBody* body)
 {
     SP_LINKED_LIST_PREPEND(spBody, body, world->bodyList);
     body->world = world;
+
+    foreach_shape(shape, body->shapes)
+    {
+        spSapInsert(&world->sweepAndPrune, shape);
+    }
 }
 
 void 
@@ -320,6 +323,33 @@ spWorldRemoveBody(spWorld* world, spBody* body)
 {
     SP_LINKED_LIST_REMOVE(spBody, body, world->bodyList);
     body->world = NULL;
+
+    spShape* shape = body->shapes;
+    if (shape != NULL)
+    {
+        while(shape)
+        {
+            if (shape->next == NULL)
+            {
+                break;
+            }
+            else
+            {
+                shape = shape->next;
+            }
+        }
+    }
+
+    while (shape)
+    {
+        spSapRemove(&world->sweepAndPrune, shape);
+        if (shape->prev == NULL)
+        {
+            break;
+        }
+        shape = shape->prev;
+    }
+    int x = 0;
 }
 
 void 

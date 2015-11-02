@@ -73,14 +73,15 @@ DemoViewMatrix(spFloat* view, spVector translation)
 static void KeyboardDefault() {}
 
 spDemo*
-spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum frustum, spViewport view)
+spDemoNew(initFunc init, updateFunc update, renderFunc render, destroyFunc destroy, spFrustum frustum, spViewport view)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
-    Demo->world = spWorldConstruct(10, spVectorConstruct(0.0f, 0.098065f * -frustum.top+frustum.bottom));
-    Demo->mouse = (spMouse){spMouseJointNew(NULL, 1.5f, 0.4f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
+    Demo->world = spWorldConstruct(6, spVectorConstruct(0.0f, 0.098065f * -frustum.top+frustum.bottom));
+    Demo->mouse = (spMouse){spMouseJointNew(NULL, 2.0f, 0.4f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
     Demo->window = NULL;
     Demo->initialize = init;
     Demo->update = update;
+    Demo->render = render;
     Demo->destroy = destroy;
     Demo->keyboard = KeyboardDefault;
     Demo->background = BLACK();
@@ -228,13 +229,6 @@ TickPhysics()
 static void
 Update()
 {
-    //demo->time = (spFloat)glfwGetTime();
-    //spFloat dt = demo->time - demo->timePrev;
-
-    //demo->timeAccum += dt > MAX_DT ? MAX_DT : dt;
-    ////while(demo->timeAccum > demo->timestep)
-    ////{
-    ////}
     spFloat dt = (spFloat)glfwGetTime() / 1000.f;
     while (dt < Demo->timestep)
     {
@@ -255,6 +249,8 @@ Update()
 static void
 Render()
 {
+    Demo->render();
+
     spDrawDemo();
 
     glfwSwapBuffers(Demo->window);
@@ -663,7 +659,17 @@ spDemoDrawConstraint(spConstraint* constraint)
     }
 }
 
-void spDemoRun(spDemo* demo)
+void 
+spDemoDrawMouse()
+{
+    if (Demo->mouse.shape != NULL)
+    {
+        spDemoDrawConstraint(Demo->mouse.constraint);
+    }
+}
+
+void 
+spDemoRun(spDemo* demo)
 {
     Initialize(demo);
 

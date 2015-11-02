@@ -93,13 +93,13 @@ typedef struct spContact            spContact;
 typedef struct spVector             spVector;
 typedef struct spCircle             spCircle;
 typedef struct spMatrix             spMatrix;
+typedef struct spSapBox             spSapBox;
 typedef struct spFilter             spFilter;
 typedef struct spShape              spShape;
 typedef struct spBound              spBound;
 typedef struct spWorld              spWorld;
 typedef struct spEdge               spEdge;
 typedef struct spBody               spBody;
-typedef struct spBox                spBox;
 typedef struct spSap                spSap;
 
 /// swap a and b

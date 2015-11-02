@@ -33,6 +33,7 @@ typedef struct spDemo
     spWindow* window;
     initFunc initialize;
     updateFunc update;
+    renderFunc render;
     destroyFunc destroy;
     keyboardFunc keyboard;
     spColor background;
@@ -66,7 +67,7 @@ typedef struct spMultiBodyObject
 
 DEMO_API extern spDemo* Demo;
 
-DEMO_API spDemo* spDemoNew(initFunc init, updateFunc update, destroyFunc destroy, spFrustum, spViewport view);
+DEMO_API spDemo* spDemoNew(initFunc init, updateFunc update, renderFunc render, destroyFunc destroy, spFrustum, spViewport view);
 
 DEMO_API void spDemoSetCameraTranslation(spVector translation);
 
@@ -117,5 +118,7 @@ DEMO_API void spDemoDrawPointJoint(spConstraint* constraint, spColor color, spCo
 DEMO_API void spDemoDrawSpringJoint(spConstraint* constraint, spColor color, spColor border);
 
 DEMO_API void spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border);
+
+DEMO_API void spDemoDrawMouse();
 
 #endif

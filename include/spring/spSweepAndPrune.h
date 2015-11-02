@@ -4,7 +4,7 @@
 
 #include "spBound.h"
 
-#define SP_MAX_SAP_OBJECTS 256
+#define SP_MAX_SAP_OBJECTS 512
 
 /// interval along a 1D axis
 struct spInterval
@@ -13,7 +13,7 @@ struct spInterval
 };
 
 /// sap box entry in the broadphase, min bound sorted along the x or y axis
-struct spBox
+struct spSapBox
 {
     spShape* shape;
     spInterval axis[2];
@@ -22,7 +22,7 @@ struct spBox
 /// sap broadphase
 struct spSap
 {
-    spBox* boxes[SP_MAX_SAP_OBJECTS]; /// array of boxes @TODO: change to dynamic array in the future
+    spSapBox* boxes[SP_MAX_SAP_OBJECTS]; /// array of boxes @TODO: change to dynamic array in the future
     spInt count; /// count of objects in the array
 };
 
@@ -57,6 +57,10 @@ SPRING_API spVariance spSapVariance(spSap* sap);
 /// update to have SAP sort on the axis with the highest variance
 SPRING_API void spSapUpdateSortAxis(spSap* sap);
 
-SPRING_API spBool spIntervalsDontOverlap(spBox** boxes, spInt i, spInt j);
+/// check if two intervals do not overlap
+SPRING_API spBool spIntervalsDontOverlap(spSapBox** boxes, spInt i, spInt j);
+
+/// check if two boxes overlap
+SPRING_API spBool spBoxesOverlap(spSapBox* a, spSapBox* b);
 
 #endif

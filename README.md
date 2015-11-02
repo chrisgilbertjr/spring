@@ -20,3 +20,6 @@ __MSVC:__ Visual studio 2013 projects/solutions for libraries and demos are avai
 __UNIX:__ The UNIX build system is in the works. I will using be Cmake, and will have a CMakeLists file up within a few days.
 
 __MAC OSX:__ Mac will also be supported once the UNIX build is working. You can use Cmake if you like, but i will be adding an xcode project in the future. I will also have to update some OpenGL code in order for demos to be ran, so this might take a while longer.
+
+# Documentation
+At the moment, the only place to get documentation on the code is the code itself. I will be working on getting doxygen documentation setup and included with the project once builds for all platforms are complete.

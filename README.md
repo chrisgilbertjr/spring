@@ -10,7 +10,7 @@ Spring game dynamics is a small small physics engine used to simulate rigid bodi
 * Broadphase collision detection using an array based sweep and prune algorithm.
 * Narrowphase collision detection done using the GJK algorithm to determine if two objects intersect.
 * Expanding polytype algorithm used to extract contact information from GJK collision.
-* Fast constraint solver based on Erin Catto's sequential impulses algorithm.
+* Fast constraint solver using the sequential impulse algorithm.
 * Nine different joint types that allow the creation of things such as vehicles, bridges and ragdolls
 * Simple to use API with good plenty of documentation within the code (doxygen is in the works)
 

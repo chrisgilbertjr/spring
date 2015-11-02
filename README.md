@@ -2,7 +2,7 @@
 A lightweight 2D rigid body physics engine for games.
 
 # About:
-Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D.  Its written in C, and compiles on MSVC13 at the moment (linux builds are in the works, check back soon).
+Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D.  Its written in C, and will have builds for multiple platforms. I hope you find something useful or at least have some fun with spring!
 
 # Features:
 * Circle, convex polygon, and line segment collision primitives.

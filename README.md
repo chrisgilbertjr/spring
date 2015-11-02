@@ -21,5 +21,8 @@ __UNIX:__ The UNIX build system is in the works. I will using be Cmake, and will
 
 __MAC OSX:__ Mac will also be supported once the UNIX build is working. You can use Cmake if you like, but i will be adding an xcode project in the future. I will also have to update some OpenGL code in order for demos to be ran, so this might take a while longer.
 
+# Demos
+There are a few demos and more will be added over time. I will be added some to showcase the functionality of the engine. The demo API is also not well documented, as it was not intended for realtime use. Because of this, the documentation is very sparse.
+
 # Documentation
 At the moment, the only place to get documentation on the code is the code itself. I will be working on getting doxygen documentation setup and included with the project once builds for all platforms are complete.

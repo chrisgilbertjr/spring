@@ -21,20 +21,20 @@ PreSolve(spWheelJoint* joint, const spFloat h)
     spBody* b = joint->constraint.bodyB;
 
     /// compute world anchors
-    spVector pA = spMultXformVec(a->xf, joint->anchorA);
-    spVector pB = spMultXformVec(b->xf, joint->anchorB);
+    spVector pA = spxTransform(a->xf, joint->anchorA);
+    spVector pB = spxTransform(b->xf, joint->anchorB);
 
     /// compute rel velocity
-    spVector rA = spSubVecs(pA, a->p);
-    spVector rB = spSubVecs(pB, b->p);
-    spVector dir = spSubVecs(pB, pA);
+    spVector rA = spvSub(pA, a->p);
+    spVector rB = spvSub(pB, b->p);
+    spVector dir = spvSub(pB, pA);
 
     /// pre solve the point/line constraint
     {
         /// compute effective mass
-        joint->tWorld = spMultRotVec(a->xf.q, joint->tLocal);
-        joint->sAy = spCrossVecs(spAddVecs(dir, rA), joint->tWorld);
-        joint->sBy = spCrossVecs(rB, joint->tWorld);
+        joint->tWorld = sprTransform(a->xf.q, joint->tLocal);
+        joint->sAy = spvCross(spvAdd(dir, rA), joint->tWorld);
+        joint->sBy = spvCross(rB, joint->tWorld);
 
         spFloat rvA = a->mInv + a->iInv * joint->sAy * joint->sAy;
         spFloat rvB = b->mInv + b->iInv * joint->sBy * joint->sBy;
@@ -54,9 +54,9 @@ PreSolve(spWheelJoint* joint, const spFloat h)
     if (joint->frequency > 0.0f)
     {
         /// compute inverse mass and effective mass
-        joint->nWorld = spMultRotVec(a->xf.q, joint->nLocal);
-        joint->sAx = spCrossVecs(spAddVecs(dir, rA), joint->nWorld);
-        joint->sBx = spCrossVecs(rB, joint->nWorld);
+        joint->nWorld = sprTransform(a->xf.q, joint->nLocal);
+        joint->sAx = spvCross(spvAdd(dir, rA), joint->nWorld);
+        joint->sBx = spvCross(rB, joint->nWorld);
 
         spFloat iMassA = a->mInv + a->iInv * joint->sAx * joint->sAx;
         spFloat iMassB = b->mInv + b->iInv * joint->sBx * joint->sBx;
@@ -160,18 +160,18 @@ Solve(spWheelJoint* joint)
     /// solve spring constraint
     {
         /// compute the velocity constraint and compute the multiplier
-        spFloat Cdot = spDot(joint->nWorld, spSubVecs(vB, vA)) + joint->sBx * wB - joint->sAx * wA;
+        spFloat Cdot = spDot(joint->nWorld, spvSub(vB, vA)) + joint->sBx * wB - joint->sAx * wA;
         spFloat lambda = -joint->eMassSpring * (Cdot + joint->beta + joint->gamma * joint->lambdaAccumSpring);
         joint->lambdaAccumSpring += lambda;
 
         /// compute the impulses
-        spVector impulse = spMultVecFlt(joint->nWorld, lambda);
+        spVector impulse = spvfMult(joint->nWorld, lambda);
         spFloat impulseA = lambda * joint->sAx;
         spFloat impulseB = lambda * joint->sBx;
 
         /// apply the impulses
-        a->v = spSubVecs(a->v, spMultFltVec(a->mInv, impulse));
-        b->v = spAddVecs(b->v, spMultFltVec(b->mInv, impulse));
+        a->v = spvSub(a->v, spfvMult(a->mInv, impulse));
+        b->v = spvAdd(b->v, spfvMult(b->mInv, impulse));
         a->w -= a->iInv * impulseA;
         b->w += b->iInv * impulseB;
     }
@@ -196,18 +196,18 @@ Solve(spWheelJoint* joint)
     /// solve point/line constraint
     {
         /// compute the velocity constraint and compute the multiplier
-        spFloat Cdot = spDot(joint->tWorld, spSubVecs(vB, vA)) + joint->sBy * wB - joint->sAy * wA;
+        spFloat Cdot = spDot(joint->tWorld, spvSub(vB, vA)) + joint->sBy * wB - joint->sAy * wA;
         spFloat lambda = -joint->eMassLine * (Cdot + joint->biasLine);
         joint->lambdaAccumLine += lambda;
 
         /// compute the impulses
-        spVector impulse = spMultFltVec(lambda, joint->tWorld);
+        spVector impulse = spfvMult(lambda, joint->tWorld);
         spFloat impulseA = joint->sAy * lambda;
         spFloat impulseB = joint->sBy * lambda;
 
         /// apply the impulses
-        a->v = spSubVecs(a->v, spMultFltVec(a->mInv, impulse));
-        b->v = spAddVecs(b->v, spMultFltVec(b->mInv, impulse));
+        a->v = spvSub(a->v, spfvMult(a->mInv, impulse));
+        b->v = spvAdd(b->v, spfvMult(b->mInv, impulse));
         a->w -= a->iInv * impulseA;
         b->w += b->iInv * impulseB;
     }
@@ -322,13 +322,13 @@ spWheelJointGetAnchorB(spConstraint* constraint)
 spVector 
 spWheelJointGetWorldAnchorA(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyA->xf, wheelJoint->anchorA);
+    return spxTransform(constraint->bodyA->xf, wheelJoint->anchorA);
 }
 
 spVector 
 spWheelJointGetWorldAnchorB(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyB->xf, wheelJoint->anchorB);
+    return spxTransform(constraint->bodyB->xf, wheelJoint->anchorB);
 }
 
 spFloat 
@@ -376,13 +376,13 @@ spWheelJointSetAnchorB(spConstraint* constraint, spVector anchorB)
 void 
 spWheelJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
 {
-    wheelJoint->anchorA = spMultXformVec(constraint->bodyA->xf, anchorA);
+    wheelJoint->anchorA = spxTransform(constraint->bodyA->xf, anchorA);
 }
 
 void 
 spWheelJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
 {
-    wheelJoint->anchorB = spMultXformVec(constraint->bodyB->xf, anchorB);
+    wheelJoint->anchorB = spxTransform(constraint->bodyB->xf, anchorB);
 }
 
 void 

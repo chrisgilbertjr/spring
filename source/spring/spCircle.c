@@ -76,7 +76,7 @@ spCircleTestPoint(spCircle* circle, spVector point)
 {
     NULLCHECK(circle);
     spVector center = spCircleGetWorldCenter(circle);
-    return spLength(spSubVecs(point, center)) <= circle->radius;
+    return spvLength(spvSub(point, center)) <= circle->radius;
 }
 
 spVector 

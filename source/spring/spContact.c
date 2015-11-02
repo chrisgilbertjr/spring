@@ -77,25 +77,25 @@ spContactPreSolve(spContact* contact, const spFloat h)
 
         {
             /// compute non penetration effective mass
-            spFloat cA = spCrossVecs(point->rA, normal);
-            spFloat cB = spCrossVecs(point->rB, normal);
+            spFloat cA = spvCross(point->rA, normal);
+            spFloat cB = spvCross(point->rB, normal);
             point->eMassNorm = invMass + a->iInv * cA * cA + b->iInv * cB * cB;
             point->eMassNorm = point->eMassNorm ? 1.0f / point->eMassNorm : 0.0f;
         }{
             /// compute friction effective mass
-            spFloat cA = spCrossVecs(point->rA, tangent);
-            spFloat cB = spCrossVecs(point->rB, tangent);
+            spFloat cA = spvCross(point->rA, tangent);
+            spFloat cB = spvCross(point->rB, tangent);
             point->eMassTang = invMass + a->iInv * cA * cA + b->iInv * cB * cB;
             point->eMassTang = point->eMassTang ? 1.0f / point->eMassTang : 0.0f;
         }
 
         /// compute relative velocity
-        spVector rvA = spAddVecs(a->v, spCross(a->w, point->rA));
-        spVector rvB = spAddVecs(b->v, spCross(b->w, point->rB));
-        spVector relVelocity = spSubVecs(rvB, rvA);
+        spVector rvA = spvAdd(a->v, spfvCross(a->w, point->rA));
+        spVector rvB = spvAdd(b->v, spfvCross(b->w, point->rB));
+        spVector relVelocity = spvSub(rvB, rvA);
 
         /// compute penetration and set position slop
-        spFloat penetration = -spDot(spAddVecs(spSubVecs(point->rB, point->rA), spSubVecs(b->p, a->p)), normal);
+        spFloat penetration = -spDot(spvAdd(spvSub(point->rB, point->rA), spvSub(b->p, a->p)), normal);
 
         /// compute bounce bias and velocity bias (compute position constraint)
         point->bounce = spDot(relVelocity, normal) * -contact->restitution;
@@ -149,9 +149,9 @@ spContactSolve(spContact* contact)
         spContactPoint* point = &contact->points[i];
 
         /// compute relative velocity between the two bodies
-        spVector rvA = spAddVecs(a->v, spCross(a->w, point->rA));
-        spVector rvB = spAddVecs(b->v, spCross(b->w, point->rB));
-        spVector relVelocity = spSubVecs(rvB, rvA);
+        spVector rvA = spvAdd(a->v, spfvCross(a->w, point->rA));
+        spVector rvB = spvAdd(b->v, spfvCross(b->w, point->rB));
+        spVector relVelocity = spvSub(rvB, rvA);
 
         /// lagrange multipliers used to compute the impulse
         spFloat impulseNorm, impulseTang;

@@ -33,8 +33,8 @@ initContact(spCollisionResult* result, spContact* contact, spShape* shapeA, spSh
     /// get rel velocity of contact points
 	for (spInt i = 0; i < contact->count; i++)
 	{
-        contact->points[i].rA = spSubVecs(result->pointA[i], bodyA->p);
-        contact->points[i].rB = spSubVecs(result->pointB[i], bodyB->p);
+        contact->points[i].rA = spvSub(result->pointA[i], bodyA->p);
+        contact->points[i].rB = spvSub(result->pointB[i], bodyB->p);
 	}
 }
 

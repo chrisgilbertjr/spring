@@ -25,7 +25,7 @@ static void
 updateTransform(spBody* body)
 {
     body->xf.q = spRotationConstruct(body->a);
-    body->xf.p = spAddVecs(spMultRotVec(body->xf.q, body->com), body->p);
+    body->xf.p = spvAdd(sprTransform(body->xf.q, body->com), body->p);
     VALID(body);
 }
 
@@ -197,11 +197,11 @@ spBodyIntegrateVelocity(spBody* body, const spVector gravity, const spFloat h)
     if (body->type != SP_BODY_DYNAMIC) return;
 
     /// integrate forces to get new velocities
-    body->v  = spAddVecs(body->v, spMultFltVec(h, spBodyAcceleration(body, gravity)));
+    body->v  = spvAdd(body->v, spfvMult(h, spBodyAcceleration(body, gravity)));
     body->w += h * body->mInv * body->t;
 
     /// apply damping
-    body->v  = spMultVecFlt(body->v, 1.0f / (1.0f + h * body->vDamp));
+    body->v  = spvfMult(body->v, 1.0f / (1.0f + h * body->vDamp));
     body->w *= 1.0f / (1.0f + h * body->wDamp);
 
     spBodyClearForces(body);
@@ -214,7 +214,7 @@ spBodyIntegratePosition(spBody* body, const spFloat h)
     /// rotation += h * angular_velocity
 
     /// integrate velocity to get new position/rotation
-    body->p = spAddVecs(body->p, spMultFltVec(h, body->v));
+    body->p = spvAdd(body->p, spfvMult(h, body->v));
     body->a = body->a + body->w * h;
 
     /// update the bodys' transform according to the new position/rotation
@@ -227,7 +227,7 @@ spBodyAcceleration(spBody* body, const spVector gravity)
     /// F = ma
     /// => a = F(1/m)
     /// a = gravity + F(1/m)
-    return spAddVecs(spMultFltVec(body->gScale, gravity), spMultVecFlt(body->f, body->mInv));
+    return spvAdd(spfvMult(body->gScale, gravity), spvfMult(body->f, body->mInv));
 }
 
 void spBodyComputeShapeMassData(spBody* body)
@@ -262,7 +262,7 @@ void spBodyComputeShapeMassData(spBody* body)
             tmass += m;
             spFloat tmass_inv = 1.0f / tmass;
             tinertia += m * i + spDistanceSquared(tcom, com) * m * t0mass * tmass_inv;
-            tcom = spLerpVec(tcom, com, m * tmass_inv);
+            tcom = spvLerp(tcom, com, m * tmass_inv);
         }
     }
 
@@ -279,25 +279,25 @@ void spBodyComputeShapeMassData(spBody* body)
 spVector
 spBodyLocalToWorldPoint(spBody* body, spVector point)
 {
-    return spMultXformVec(body->xf, point);
+    return spxTransform(body->xf, point);
 }
 
 spVector
 spBodyWorldToLocalPoint(spBody* body, spVector point)
 {
-    return spTMultXformVec(body->xf, point);
+    return spxTTransform(body->xf, point);
 }
 
 spVector 
 spBodyLocalToWorldVector(spBody* body, spVector vector)
 {
-    return spMultRotVec(body->xf.q, vector);
+    return sprTransform(body->xf.q, vector);
 }
 
 spVector 
 spBodyWorldToLocalVector(spBody* body, spVector vector)
 {
-    return spTMultRotVec(body->xf.q, vector);
+    return sprTTransform(body->xf.q, vector);
 }
 
 void 
@@ -309,27 +309,27 @@ spBodyApplyTorque(spBody* body, spFloat torque)
 void 
 spBodyApplyForceAtLocalPoint(spBody* body, spVector point, spVector force)
 {
-    spBodyApplyForceAtWorldPoint(body, spMultXformVec(body->xf, point), spMultRotVec(body->xf.q, force));
+    spBodyApplyForceAtWorldPoint(body, spxTransform(body->xf, point), sprTransform(body->xf.q, force));
 }
 
 void 
 spBodyApplyForceAtWorldPoint(spBody* body, spVector point, spVector force)
 {
-    body->f  = spAddVecs(body->f, force);
-    body->t += spCrossVecs(spSubVecs(point, spMultXformVec(body->xf, body->com)), force);
+    body->f  = spvAdd(body->f, force);
+    body->t += spvCross(spvSub(point, spxTransform(body->xf, body->com)), force);
 }
 
 void 
 spBodyApplyImpulseAtPoint(spBody* body, spVector point, spVector impulse)
 {
-    spBodyApplyImpulse(body, impulse, spSubVecs(point, body->p));
+    spBodyApplyImpulse(body, impulse, spvSub(point, body->p));
 }
 
 void 
 spBodyApplyImpulse(spBody* body, spVector relVelocity, spVector impulse)
 {
-    body->v  = spAddVecs(body->v, spMultVecFlt(impulse, body->mInv));
-    body->w += body->iInv * spCrossVecs(relVelocity, impulse);
+    body->v  = spvAdd(body->v, spvfMult(impulse, body->mInv));
+    body->w += body->iInv * spvCross(relVelocity, impulse);
 }
 
 spTransform 
@@ -443,7 +443,7 @@ spBodyGetUserData(spBody* body)
 void 
 spBodySetTransform(spBody* body, const spVector position, spFloat angle)
 {
-    body->p = spAddVecs(spMultRotVec(body->xf.q, body->com), position);
+    body->p = spvAdd(sprTransform(body->xf.q, body->com), position);
     body->a = angle * SP_DEG_TO_RAD;
     updateTransform(body);
 }
@@ -451,7 +451,7 @@ spBodySetTransform(spBody* body, const spVector position, spFloat angle)
 void 
 spBodySetPosition(spBody* body, const spVector position)
 {
-    body->p = spAddVecs(spMultRotVec(body->xf.q, body->com), position);
+    body->p = spvAdd(sprTransform(body->xf.q, body->com), position);
     updateTransform(body);
 }
 

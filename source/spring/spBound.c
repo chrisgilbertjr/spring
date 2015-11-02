@@ -33,8 +33,8 @@ spBool
 spBoundBoxOverlap(spBound* a, spBound* b, spTransform* xfA, spTransform* xfB)
 {
     NULLCHECK(a); NULLCHECK(b); NULLCHECK(xfA); NULLCHECK(xfB);
-    spVector cA = spMultXformVec(*xfA, a->center);
-    spVector cB = spMultXformVec(*xfB, b->center);
+    spVector cA = spxTransform(*xfA, a->center);
+    spVector cB = spxTransform(*xfB, b->center);
 
     if (spAbs(cA.x - cB.x) > (a->halfWidth.x + b->halfWidth.x)) return spFalse;
     if (spAbs(cA.y - cB.y) > (a->halfWidth.y + b->halfWidth.y)) return spFalse;
@@ -46,7 +46,7 @@ spBoundGetWorldBound(spBound* bound, spTransform* xf)
 {
     NULLCHECK(bound); NULLCHECK(xf);
     spBound newBound;
-    newBound.center = spMultXformVec(*xf, bound->center);
+    newBound.center = spxTransform(*xf, bound->center);
     newBound.halfWidth = bound->halfWidth;
     newBound.radius = bound->radius;
     return newBound;
@@ -56,7 +56,7 @@ spVector
 spBoundGetWorldCenter(spBound* bound, spTransform* xf)
 {
     NULLCHECK(bound); NULLCHECK(xf);
-    return spMultXformVec(*xf, bound->center);
+    return spxTransform(*xf, bound->center);
 }
 
 spVector spBoundGetHalfWidth(spBound* bound)

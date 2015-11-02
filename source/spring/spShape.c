@@ -222,28 +222,28 @@ spVector
 spShapeLocalToWorldPoint(spShape* shape, spVector point)
 {
     NULLCHECK(shape);
-    return spMultXformVec(shape->body->xf, point);
+    return spxTransform(shape->body->xf, point);
 }
 
 spVector 
 spShapeWorldToLocalPoint(spShape* shape, spVector point)
 {
     NULLCHECK(shape);
-    return spTMultXformVec(shape->body->xf, point);
+    return spxTTransform(shape->body->xf, point);
 }
 
 spVector 
 spShapeLocalToWorldVector(spShape* shape, spVector vector)
 {
     NULLCHECK(shape);
-    return spMultRotVec(shape->body->xf.q, vector);
+    return sprTransform(shape->body->xf.q, vector);
 }
 
 spVector 
 spShapeWorldToLocalVector(spShape* shape, spVector vector)
 {
     NULLCHECK(shape);
-    return spTMultRotVec(shape->body->xf.q, vector);
+    return sprTTransform(shape->body->xf.q, vector);
 }
 
 void 

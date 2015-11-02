@@ -28,7 +28,7 @@ PreSolve(spMouseJoint* joint, const spFloat h)
     joint->gamma = joint->gamma ? 1.0f / joint->gamma : 0.0f;
     spFloat beta = hk * joint->gamma;
 
-    joint->rA = spMultRotVec(a->xf.q, spSubVecs(joint->anchor, a->com));
+    joint->rA = sprTransform(a->xf.q, spvSub(joint->anchor, a->com));
 
     /// compute mass matrix
     spMatrix K = spMatrixZero();
@@ -37,13 +37,13 @@ PreSolve(spMouseJoint* joint, const spFloat h)
     K.d = a->mInv + a->iInv * joint->rA.x * joint->rA.x + joint->gamma;
 
     /// compute effective mass
-    joint->eMass = spInverseMat(K);
+    joint->eMass = spmInverse(K);
 
     a->w *= .98f;
 
     /// compute the position constraint and baumgarte velocity bias
-    spVector C = spSubVecs(spMultXformVec(a->xf, joint->anchor), joint->target);
-    joint->bias = spMultVecFlt(C, beta);
+    spVector C = spvSub(spxTransform(a->xf, joint->anchor), joint->target);
+    joint->bias = spvfMult(C, beta);
     joint->lambdaAccum = spVectorZero();
 }
 
@@ -57,16 +57,16 @@ Solve(spMouseJoint* joint)
     spBody* a = joint->constraint.bodyA;
 
     /// compute velocity constraint and compute the multiplier
-    spVector Cdot = spAddVecs(a->v, spCross(a->w, joint->rA));
-    spVector A = spAddVecs(Cdot, joint->bias);
-    spVector B = spMultFltVec(joint->gamma, joint->lambdaAccum);
-    spVector D = spNegative(spAddVecs(A, B));
+    spVector Cdot = spvAdd(a->v, spfvCross(a->w, joint->rA));
+    spVector A = spvAdd(Cdot, joint->bias);
+    spVector B = spfvMult(joint->gamma, joint->lambdaAccum);
+    spVector D = spNegative(spvAdd(A, B));
 
     /// accumulate the impulse
-    spVector lambda = spMultMatVec(joint->eMass, D);
+    spVector lambda = spmTransform(joint->eMass, D);
     spVector lambdaOld = joint->lambdaAccum;
-    joint->lambdaAccum = spAddVecs(joint->lambdaAccum, lambda);
-    spVector impulse = spSubVecs(joint->lambdaAccum, lambdaOld);
+    joint->lambdaAccum = spvAdd(joint->lambdaAccum, lambda);
+    spVector impulse = spvSub(joint->lambdaAccum, lambdaOld);
 
     /// apply the impulse
     spBodyApplyImpulse(a, joint->rA, impulse);
@@ -132,7 +132,7 @@ void
 spMouseJointStart(spConstraint* constraint, spBody* a, spVector point)
 { 
     mouseJoint->constraint.bodyA = a; 
-    mouseJoint->anchor = spTMultXformVec(a->xf, point);
+    mouseJoint->anchor = spxTTransform(a->xf, point);
     mouseJoint->target = point; 
 }
 
@@ -158,7 +158,7 @@ spMouseJointGetAnchor(spConstraint* constraint)
 spVector 
 spMouseJointGetWorldAnchor(spConstraint* constraint)
 {
-    return spMultXformVec(mouseJoint->constraint.bodyA->xf, mouseJoint->anchor);
+    return spxTransform(mouseJoint->constraint.bodyA->xf, mouseJoint->anchor);
 }
 
 spVector 
@@ -170,7 +170,7 @@ spMouseJointGetTarget(spConstraint* constraint)
 spVector 
 spMouseJointGetLocalTarget(spConstraint* constraint)
 {
-    return spTMultXformVec(mouseJoint->constraint.bodyA->xf, mouseJoint->target);
+    return spxTTransform(mouseJoint->constraint.bodyA->xf, mouseJoint->target);
 }
 
 spFloat 
@@ -194,7 +194,7 @@ spMouseJointSetAnchor(spConstraint* constraint, spVector anchor)
 void 
 spMouseJointSetWorldAnchor(spConstraint* constraint, spVector anchor)
 {
-    mouseJoint->anchor = spTMultXformVec(mouseJoint->constraint.bodyA->xf, anchor);
+    mouseJoint->anchor = spxTTransform(mouseJoint->constraint.bodyA->xf, anchor);
 }
 
 void 
@@ -206,7 +206,7 @@ spMouseJointSetTarget(spConstraint* constraint, spVector target)
 void 
 spMouseJointSetLocalTarget(spConstraint* constraint, spVector target)
 {
-    mouseJoint->target = spMultXformVec(mouseJoint->constraint.bodyA->xf, target);
+    mouseJoint->target = spxTransform(mouseJoint->constraint.bodyA->xf, target);
 }
 
 void 

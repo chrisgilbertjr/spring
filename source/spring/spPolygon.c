@@ -25,13 +25,13 @@ spPolygonComputeCenterOfMass(spPolygon* poly)
         spVector v0 = poly->edges[i].vertex;
         spVector v1 = poly->edges[(i+1) % count].vertex;
 
-        spVector A = spAddVecs(v0, v1);
-        spFloat  B = spCrossVecs(v0, v1);
+        spVector A = spvAdd(v0, v1);
+        spFloat  B = spvCross(v0, v1);
 
-        N  = spAddVecs(N, spMultVecFlt(A, B));
+        N  = spvAdd(N, spvfMult(A, B));
         D += B;
     }
-    return spMultVecFlt(N, 1.0f/(D*3.0f));
+    return spvfMult(N, 1.0f/(D*3.0f));
 }
 
 static spFloat
@@ -60,7 +60,7 @@ spPolygonComputeInertia(spPolygon* poly, spFloat mass)
         spVector v0 = poly->edges[i].vertex;
         spVector v1 = poly->edges[(i+1) % count].vertex;
 
-        spFloat A = spCrossVecs(v0, v1);
+        spFloat A = spvCross(v0, v1);
         spFloat B = spDot(v1, v1) + spDot(v1, v0) + spDot(v0, v0);
 
         N += A * B;
@@ -133,7 +133,7 @@ spPolygonInit(spPolygon* poly, spVector* vertices, spInt count, spFloat mass)
     {
         spVector tail = vertices[i]; /// get this edge vertex
         spVector head = vertices[(i+1) % count]; /// get the next, with a wrapping index
-        spVector normal = spNormal(spSkewT(spSubVecs(head, tail)));
+        spVector normal = spNormal(spSkewT(spvSub(head, tail)));
 
         poly->edges[i].vertex = tail;
         poly->edges[i].normal = normal;
@@ -181,7 +181,7 @@ spPolygonTestPoint(spPolygon* poly, spVector point)
 {
     NULLCHECK(poly);
     spTransform* xf = &poly->shape.body->xf;
-    spVector v0 = spTMultXformVec(*xf, point);
+    spVector v0 = spxTTransform(*xf, point);
 
     spInt count = poly->count;
     for (spInt i = 0; i < count; ++i)
@@ -189,8 +189,8 @@ spPolygonTestPoint(spPolygon* poly, spVector point)
         spVector v1 = poly->edges[i].vertex;
         spVector v2 = poly->edges[(i+1) % count].vertex;
 
-        spVector A = spSubVecs(v1, v0);
-        spVector B = spSubVecs(v2, v0);
+        spVector A = spvSub(v1, v0);
+        spVector B = spvSub(v2, v0);
 
         spMatrix mat = spMatrixConstruct(A.x, B.x, A.y, B.y);
         if (spDeterminant(mat) < 0.0f) return spFalse;

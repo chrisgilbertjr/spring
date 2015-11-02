@@ -22,26 +22,26 @@ PreSolve(spRopeJoint* joint, const spFloat h)
     spBody* b = joint->constraint.bodyB;
 
     /// compute anchors in world space
-    spVector anchorA = spMultXformVec(a->xf, joint->anchorA);
-    spVector anchorB = spMultXformVec(b->xf, joint->anchorB);
+    spVector anchorA = spxTransform(a->xf, joint->anchorA);
+    spVector anchorB = spxTransform(b->xf, joint->anchorB);
 
     /// compute relative velocity
-    joint->rA = spSubVecs(anchorA, a->p);
-    joint->rB = spSubVecs(anchorB, b->p);
+    joint->rA = spvSub(anchorA, a->p);
+    joint->rB = spvSub(anchorB, b->p);
 
     /// compute the normal
-    joint->n = spSubVecs(anchorA, anchorB);
-    spFloat length = spLength(joint->n);
+    joint->n = spvSub(anchorA, anchorB);
+    spFloat length = spvLength(joint->n);
     if (length <= (joint->maxDistance + spRopeJointDistBias))
     {
         joint->n = spVectorZero();
         return;
     }
-    joint->n = spMultVecFlt(joint->n, 1.0f / (length + SP_FLT_EPSILON));
+    joint->n = spvfMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
 
     /// compute the effective mass
-    spFloat nrA = spCrossVecs(joint->n, joint->rA);
-    spFloat nrB = spCrossVecs(joint->n, joint->rB);
+    spFloat nrA = spvCross(joint->n, joint->rA);
+    spFloat nrB = spvCross(joint->n, joint->rB);
     joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
     joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
 
@@ -59,7 +59,7 @@ WarmStart(spRopeJoint* joint)
     spBody* b = joint->constraint.bodyB;
 
     /// compute impulse
-    spVector impulseB = spMultVecFlt(joint->n, joint->lambdaAccum);
+    spVector impulseB = spvfMult(joint->n, joint->lambdaAccum);
     spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
@@ -74,23 +74,23 @@ static void
 Solve(spRopeJoint* joint)
 {
     /// exit if the distance was closer than the max distance
-    if (spEqual(joint->n, spVectorZero())) { return; }
+    if (spvEqual(joint->n, spVectorZero())) { return; }
 
     /// get the bodies
     spBody* a = joint->constraint.bodyA;
     spBody* b = joint->constraint.bodyB;
 
     /// compute the velocity constraint
-    spVector rvA = spAddVecs(a->v, spCross(a->w, joint->rA));
-    spVector rvB = spAddVecs(b->v, spCross(b->w, joint->rB));
-    spFloat Cdot = spDot(joint->n, spSubVecs(rvB, rvA));
+    spVector rvA = spvAdd(a->v, spfvCross(a->w, joint->rA));
+    spVector rvB = spvAdd(b->v, spfvCross(b->w, joint->rB));
+    spFloat Cdot = spDot(joint->n, spvSub(rvB, rvA));
 
     /// accumulate the impulse
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
     joint->lambdaAccum += lambda;
 
     /// compute the impulses
-    spVector impulseB = spMultVecFlt(joint->n, lambda);
+    spVector impulseB = spvfMult(joint->n, lambda);
     spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
@@ -122,7 +122,7 @@ spRopeJointInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVe
 void 
 spRopeJointWorldInit(spRopeJoint* joint, spBody* a, spBody* b, spVector anchorA, spVector anchorB, spFloat maxDistance)
 {
-    spRopeJointInit(joint, a, b, spTMultXformVec(a->xf, anchorA), spTMultXformVec(b->xf, anchorB), maxDistance);
+    spRopeJointInit(joint, a, b, spxTTransform(a->xf, anchorA), spxTTransform(b->xf, anchorB), maxDistance);
 }
 
 spRopeJoint* 
@@ -190,13 +190,13 @@ spRopeJointGetAnchorB(spConstraint* constraint)
 spVector 
 spRopeJointGetWorldAnchorA(spConstraint* constraint)
 {
-    return spMultXformVec(ropeJoint->constraint.bodyA->xf, ropeJoint->anchorA);
+    return spxTransform(ropeJoint->constraint.bodyA->xf, ropeJoint->anchorA);
 }
 
 spVector 
 spRopeJointGetWorldAnchorB(spConstraint* constraint)
 {
-    return spMultXformVec(ropeJoint->constraint.bodyB->xf, ropeJoint->anchorB);
+    return spxTransform(ropeJoint->constraint.bodyB->xf, ropeJoint->anchorB);
 }
 
 spFloat 
@@ -220,13 +220,13 @@ spRopeJointSetAnchorB(spConstraint* constraint, spVector anchorB)
 void 
 spRopeJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
 {
-    ropeJoint->anchorA = spTMultXformVec(ropeJoint->constraint.bodyA->xf, anchorA);
+    ropeJoint->anchorA = spxTTransform(ropeJoint->constraint.bodyA->xf, anchorA);
 }
 
 void 
 spRopeJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
 {
-    ropeJoint->anchorB = spTMultXformVec(ropeJoint->constraint.bodyB->xf, anchorB);
+    ropeJoint->anchorB = spxTTransform(ropeJoint->constraint.bodyB->xf, anchorB);
 }
 
 void 

@@ -20,21 +20,21 @@ PreSolve(spDistanceJoint* joint, const spFloat h)
     spBody* b = joint->constraint.bodyB;
 
     /// compute anchors in world space
-    spVector anchorA = spMultXformVec(a->xf, joint->anchorA);
-    spVector anchorB = spMultXformVec(b->xf, joint->anchorB);
+    spVector anchorA = spxTransform(a->xf, joint->anchorA);
+    spVector anchorB = spxTransform(b->xf, joint->anchorB);
 
     /// compute relative velocity
-    joint->rA = spSubVecs(anchorA, a->p);
-    joint->rB = spSubVecs(anchorB, b->p);
+    joint->rA = spvSub(anchorA, a->p);
+    joint->rB = spvSub(anchorB, b->p);
 
     /// compute the normal
-    joint->n = spSubVecs(anchorA, anchorB);
-    spFloat length = spLength(joint->n);
-    joint->n = spMultVecFlt(joint->n, 1.0f / (length + SP_FLT_EPSILON));
+    joint->n = spvSub(anchorA, anchorB);
+    spFloat length = spvLength(joint->n);
+    joint->n = spvfMult(joint->n, 1.0f / (length + SP_FLT_EPSILON));
 
     /// compute the effective mass
-    spFloat nrA = spCrossVecs(joint->n, joint->rA);
-    spFloat nrB = spCrossVecs(joint->n, joint->rB);
+    spFloat nrA = spvCross(joint->n, joint->rA);
+    spFloat nrB = spvCross(joint->n, joint->rB);
     joint->eMass = a->mInv + b->mInv + a->iInv * nrA * nrA + b->iInv * nrB * nrB;
     joint->eMass = joint->eMass ? 1.0f / joint->eMass : 0.0f;
 
@@ -51,7 +51,7 @@ WarmStart(spDistanceJoint* joint)
     spBody* b = joint->constraint.bodyB;
 
     /// compute impulse
-    spVector impulseB = spMultVecFlt(joint->n, joint->lambdaAccum);
+    spVector impulseB = spvfMult(joint->n, joint->lambdaAccum);
     spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
@@ -70,16 +70,16 @@ Solve(spDistanceJoint* joint)
     spBody* b = joint->constraint.bodyB;
 
     /// compute the velocity constraint
-    spVector rvA = spAddVecs(a->v, spCross(a->w, joint->rA));
-    spVector rvB = spAddVecs(b->v, spCross(b->w, joint->rB));
-    spFloat Cdot = spDot(joint->n, spSubVecs(rvB, rvA));
+    spVector rvA = spvAdd(a->v, spfvCross(a->w, joint->rA));
+    spVector rvB = spvAdd(b->v, spfvCross(b->w, joint->rB));
+    spFloat Cdot = spDot(joint->n, spvSub(rvB, rvA));
 
     /// accumulate the impulse
     spFloat lambda = (joint->bias - Cdot) * joint->eMass;
     joint->lambdaAccum += lambda;
 
     /// compute the impulses
-    spVector impulseB = spMultVecFlt(joint->n, lambda);
+    spVector impulseB = spvfMult(joint->n, lambda);
     spVector impulseA = spNegative(impulseB);
 
     /// apply the impulse
@@ -163,13 +163,13 @@ spDistanceJointGetAnchorB(spConstraint* constraint)
 spVector 
 spDistanceJointGetWorldAnchorA(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyA->xf, distanceJoint->anchorA);
+    return spxTransform(constraint->bodyA->xf, distanceJoint->anchorA);
 }
 
 spVector 
 spDistanceJointGetWorldAnchorB(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyB->xf, distanceJoint->anchorB);
+    return spxTransform(constraint->bodyB->xf, distanceJoint->anchorB);
 }
 
 spFloat 
@@ -193,13 +193,13 @@ spDistanceJointSetAnchorB(spConstraint* constraint, spVector anchorB)
 void 
 spDistanceJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
 {
-    distanceJoint->anchorA = spTMultXformVec(constraint->bodyA->xf, anchorA);
+    distanceJoint->anchorA = spxTTransform(constraint->bodyA->xf, anchorA);
 }
 
 void 
 spDistanceJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
 {
-    distanceJoint->anchorB = spTMultXformVec(constraint->bodyB->xf, anchorB);
+    distanceJoint->anchorB = spxTTransform(constraint->bodyB->xf, anchorB);
 }
 
 void 

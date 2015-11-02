@@ -57,7 +57,7 @@ UpdateBox(spSapBox* box)
     spShape* shape = box->shape;
     spBound* bound = &shape->bound;
     spVector center = spBoundGetWorldCenter(bound, &shape->body->xf);
-    spVector width = spMultVecFlt(spBoundGetHalfWidth(bound), 3.0f);
+    spVector width = spvfMult(spBoundGetHalfWidth(bound), 3.0f);
 
     box->axis[SP_X].min = center.x - width.x;
     box->axis[SP_X].max = center.x + width.x;

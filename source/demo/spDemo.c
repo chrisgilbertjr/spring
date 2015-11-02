@@ -356,9 +356,9 @@ spDemoDrawCircle(spShape* shape, spColor color, spColor border)
     spTransform* xf = &shape->body->xf;
 
     /// get the circles center in world space and create a lne from the center to the outside of the circle
-    spVector pos = spMultXformVec(*xf, circle->center);
+    spVector pos = spxTransform(*xf, circle->center);
     spFloat scale = 0.95f;
-    spVector line = spMultXformVec(*xf, spAddVecs(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
+    spVector line = spxTransform(*xf, spvAdd(circle->center, spVectorConstruct(0.0f, circle->radius*scale)));
     spFloat radius = circle->radius;
 
     /// draw the circle
@@ -377,7 +377,7 @@ spDemoDrawPolygon(spShape* shape, spColor color, spColor border)
 
     /// get the world space COM
     spTransform* xf = &shape->body->xf;
-    spVector center = spMultXformVec(*xf, spShapeGetCOM(shape));
+    spVector center = spxTransform(*xf, spShapeGetCOM(shape));
     spVector vertices[32];
     spEdge* edges = poly->edges;
     spInt count = poly->count;
@@ -385,7 +385,7 @@ spDemoDrawPolygon(spShape* shape, spColor color, spColor border)
     /// get all the poly vertices in world space
     for (spInt i = 0; i < count; ++i)
     {
-        vertices[i] = spMultXformVec(*xf, edges[i].vertex);
+        vertices[i] = spxTransform(*xf, edges[i].vertex);
     }
 
     /// draw the polygon
@@ -404,8 +404,8 @@ spDemoDrawSegment(spShape* shape, spColor color, spColor border)
 
     /// get the segment endpoints and radius
     spFloat radius = segment->radius * 2.0f;
-    spVector pointA = spMultXformVec(*xf, segment->pointA);
-    spVector pointB = spMultXformVec(*xf, segment->pointB);
+    spVector pointA = spxTransform(*xf, segment->pointA);
+    spVector pointB = spxTransform(*xf, segment->pointB);
 
     pointA = segment->pointA;
     pointB = segment->pointB;
@@ -507,7 +507,7 @@ spDemoDrawMouseJoint(spConstraint* constraint, spColor color, spColor cursor, sp
     spBody*  bodyA = spConstraintGetBodyA(constraint);
 
     /// compute the two world anchors to draw
-    spVector pointA = spMultXformVec(bodyA->xf, mouseJoint->anchor);
+    spVector pointA = spxTransform(bodyA->xf, mouseJoint->anchor);
     spVector pointB = mouseJoint->target;
 
     /// draw the points, a spring, and a large circle to represent the circle
@@ -596,12 +596,12 @@ spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border)
 
     /// reflect the springs anchor points around the wheel to look more plausible
     spVector normal = wheelJoint->tWorld;
-    spVector direction = spMultRotVec(bodyA->xf.q, wheelJoint->anchorA);
+    spVector direction = sprTransform(bodyA->xf.q, wheelJoint->anchorA);
     spFloat  dist = spDot(normal, direction);
 
     /// get the two spring anchors in world space
-    spVector pointB = spMultXformVec(bodyB->xf, wheelJoint->anchorB);
-    spVector pointA = spAddVecs(spMultVecFlt(normal, dist), bodyA->p);
+    spVector pointB = spxTransform(bodyB->xf, wheelJoint->anchorB);
+    spVector pointA = spvAdd(spvfMult(normal, dist), bodyA->p);
 
     /// draw the wheel joint
     spDrawCircle(pointA, 0.0f, spLineScaleSmall, color, border);

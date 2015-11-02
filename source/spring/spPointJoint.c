@@ -20,12 +20,12 @@ PreSolve(spPointJoint* joint, const spFloat h)
     spBody* b = joint->constraint.bodyB;
 
     /// compute world anchors
-    spVector pA = spMultXformVec(a->xf, joint->anchorA);
-    spVector pB = spMultXformVec(b->xf, joint->anchorB);
+    spVector pA = spxTransform(a->xf, joint->anchorA);
+    spVector pB = spxTransform(b->xf, joint->anchorB);
 
     /// compute rel velocity
-    spVector rA = joint->rA = spSubVecs(pA, a->p);
-    spVector rB = joint->rB = spSubVecs(pB, b->p);
+    spVector rA = joint->rA = spvSub(pA, a->p);
+    spVector rB = joint->rB = spvSub(pB, b->p);
 
     /// compute the effective mass matrix
     spFloat iiA = a->iInv;
@@ -44,11 +44,11 @@ PreSolve(spPointJoint* joint, const spFloat h)
     K.d += rA.x * rA.x * iiA + rB.x * rB.x * iiB;
 
     /// invert the matrix to get the effective mass
-    joint->eMass = spInverseMat(K);
+    joint->eMass = spmInverse(K);
 
     /// compute the position constraint and the baumgarte velocity bias
-    spVector C = spSubVecs(pB, pA);
-    joint->bias = spMultVecFlt(C, -spBaumgarte / h); 
+    spVector C = spvSub(pB, pA);
+    joint->bias = spvfMult(C, -spBaumgarte / h); 
 }
 
 static void 
@@ -78,15 +78,15 @@ Solve(spPointJoint* joint)
     spBody* b = joint->constraint.bodyB;
 
     /// compute the velocity constraint
-    spVector Cdot = spSubVecs(spAddVecs(b->v, spCross(b->w, joint->rB)), spAddVecs(a->v, spCross(a->w, joint->rA)));
+    spVector Cdot = spvSub(spvAdd(b->v, spfvCross(b->w, joint->rB)), spvAdd(a->v, spfvCross(a->w, joint->rA)));
 
     /// compute the lagrange multiplier
-    spVector lambda = spMultMatVec(joint->eMass, spSubVecs(joint->bias, Cdot));
+    spVector lambda = spmTransform(joint->eMass, spvSub(joint->bias, Cdot));
     spVector lambdaOld = joint->lambdaAccum;
-    joint->lambdaAccum = spAddVecs(joint->lambdaAccum, lambda);
+    joint->lambdaAccum = spvAdd(joint->lambdaAccum, lambda);
 
     /// compute the impulses
-    spVector impulseB = spSubVecs(joint->lambdaAccum, lambdaOld);
+    spVector impulseB = spvSub(joint->lambdaAccum, lambdaOld);
     spVector impulseA = spNegative(impulseB);
 
     /// apply the impulses
@@ -169,13 +169,13 @@ spPointJointGetAnchorB(spConstraint* constraint)
 spVector 
 spPointJointGetWorldAnchorA(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyA->xf, pointJoint->anchorA);
+    return spxTransform(constraint->bodyA->xf, pointJoint->anchorA);
 }
 
 spVector 
 spPointJointGetWorldAnchorB(spConstraint* constraint)
 {
-    return spMultXformVec(constraint->bodyB->xf, pointJoint->anchorB);
+    return spxTransform(constraint->bodyB->xf, pointJoint->anchorB);
 }
 
 spVector 
@@ -217,11 +217,11 @@ spPointJointSetAnchorB(spConstraint* constraint, spVector anchorB)
 void 
 spPointJointSetWorldAnchorA(spConstraint* constraint, spVector anchorA)
 {
-    pointJoint->anchorA = spTMultXformVec(constraint->bodyA->xf, anchorA);
+    pointJoint->anchorA = spxTTransform(constraint->bodyA->xf, anchorA);
 }
 
 void 
 spPointJointSetWorldAnchorB(spConstraint* constraint, spVector anchorB)
 {
-    pointJoint->anchorB = spTMultXformVec(constraint->bodyB->xf, anchorB);
+    pointJoint->anchorB = spxTTransform(constraint->bodyB->xf, anchorB);
 }

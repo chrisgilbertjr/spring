@@ -56,8 +56,8 @@ spLerpRatio(spVector t, spVector h)
 {
     /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
     /// lerp ratio of the origin onto the vector h - t
-    spVector M = spSubVecs(h, t);
-    return spClamp(spDot(M, spNegative(t))/spLengthSquared(M), 0.0f, 1.0f);
+    spVector M = spvSub(h, t);
+    return spClamp(spDot(M, spNegative(t))/spvLengthSquared(M), 0.0f, 1.0f);
 }
 
 static INLINE spBool
@@ -78,9 +78,9 @@ spClosestPointToOrigin(spVector t, spVector h)
     /// http://www.geometrictools.com/Documentation/DistancePointLine.pdf
     /// P = origin (0, 0).
     /// B = t
-    spVector M = spSubVecs(h, t);
-    spFloat t0 = spClamp(spDot(M, spNegative(t))/spLengthSquared(M), 0.0f, 1.0f);
-    return spNegative(spAddVecs(t, spMultVecFlt(M, t0)));
+    spVector M = spvSub(h, t);
+    spFloat t0 = spClamp(spDot(M, spNegative(t))/spvLengthSquared(M), 0.0f, 1.0f);
+    return spNegative(spvAdd(t, spvfMult(M, t0)));
 }
 
 static INLINE spFloat
@@ -89,7 +89,7 @@ spDistToOriginSq(spVector t, spVector h)
     /// t = vector tail
     /// h = vector head
     /// edge = sub(head, tail)
-    return spLengthSquared(spClosestPointToOrigin(t, h));
+    return spvLengthSquared(spClosestPointToOrigin(t, h));
 }
 
 static INLINE spFloat
@@ -98,7 +98,7 @@ spDistToOrigin(spVector t, spVector h)
     /// t = vector tail
     /// h = vector head
     /// edge = sub(head, tail)
-    return spLength(spClosestPointToOrigin(t, h));
+    return spvLength(spClosestPointToOrigin(t, h));
 }
 
 static INLINE struct MinkowskiEdge
@@ -107,10 +107,10 @@ MinkowskiEdgeConstruct(spMinkowskiPoint* head, spMinkowskiPoint* tail)
     NULLCHECK(head); NULLCHECK(tail);
     /// get the closest minkowski point
     spFloat t = spLerpRatio(tail->v, head->v);
-    spVector point = spLerpVec(tail->v, head->v, t);
+    spVector point = spvLerp(tail->v, head->v, t);
 
     /// calculate the contact normal and penetration distance
-    spVector delta   = spSubVecs(head->v, tail->v);
+    spVector delta   = spvSub(head->v, tail->v);
     spVector normal  = spNormal(spSkewT(delta));
     spFloat distance = spDot(normal, point);
 
@@ -131,8 +131,8 @@ MinkowskiEdgeComputePoints(MinkowskiEdge* edge)
 {
     NULLCHECK(edge);
     /// compute the two world space points of each body given the lerp value and edge vertices
-    spVector pointA = spLerpVec(edge->tail.a, edge->head.a, edge->t);
-    spVector pointB = spLerpVec(edge->tail.b, edge->head.b, edge->t);
+    spVector pointA = spvLerp(edge->tail.a, edge->head.a, edge->t);
+    spVector pointB = spvLerp(edge->tail.b, edge->head.b, edge->t);
 
     ClosestPoints points;
     points.a = pointA;
@@ -162,7 +162,7 @@ spMinkowskiPointConstruct(spVector a, spVector b)
 {
     /// construct a new minkowski point
     spMinkowskiPoint m;
-    m.v = spSubVecs(a, b);
+    m.v = spvSub(a, b);
     m.a = a;
     m.b = b;
 
@@ -201,7 +201,7 @@ extremalPointCircle(const spCircle* circle, const spVector normal)
 {
     NULLCHECK(circle);
     /// circles are tested as points with a radius, return the world center
-    return spMultXformVec(circle->shape.body->xf, circle->center);
+    return spxTransform(circle->shape.body->xf, circle->center);
 }
 
 static spVector
@@ -210,8 +210,8 @@ extremalPointSegment(const spSegment* segment, const spVector normal)
     NULLCHECK(segment);
     spTransform* xf = &segment->shape.body->xf;
     
-    spVector pointA = spMultXformVec(*xf, segment->pointA);
-    spVector pointB = spMultXformVec(*xf, segment->pointB);
+    spVector pointA = spxTransform(*xf, segment->pointA);
+    spVector pointB = spxTransform(*xf, segment->pointB);
 
     return spDot(pointA, normal) > spDot(pointB, normal) ? pointA : pointB;
 }
@@ -222,8 +222,8 @@ extremalEdgeSegment(const spSegment* segment, const spVector normal)
     NULLCHECK(segment);
     spTransform* xf = &segment->shape.body->xf;
     
-    spVector pointA = spMultXformVec(*xf, segment->pointA);
-    spVector pointB = spMultXformVec(*xf, segment->pointB);
+    spVector pointA = spxTransform(*xf, segment->pointA);
+    spVector pointB = spxTransform(*xf, segment->pointB);
 
     Edge edge;
 
@@ -258,7 +258,7 @@ extremalIndexPoly(const spPolygon* poly, const spVector normal)
     for (spInt i = 0; i < count; ++i)
     {
         spEdge*    e = edges + i;
-        spVector   v = spMultXformVec(*xf, e->vertex);
+        spVector   v = spxTransform(*xf, e->vertex);
         spFloat proj = spDot(v, normal);
 
         /// this projection is larger, save its info
@@ -290,7 +290,7 @@ extremalPointPoly(const spPolygon* poly, const spVector normal)
     for (spInt i = 0; i < count; ++i)
     {
         spEdge*    e = edges + i;
-        spVector   v = spMultXformVec(*xf, e->vertex);
+        spVector   v = spxTransform(*xf, e->vertex);
         spFloat proj = spDot(v, normal);
 
         /// this projection is larger, save its info
@@ -321,19 +321,19 @@ extremalEdgePoly(const spPolygon* poly, const spVector normal)
     spInt index0 = index1 == count-1 ? 0 : index1+1;
 
     /// get the normals rotated in world space
-    spVector normal1 = spNormal(spMultRotVec(xf->q, edges[index1].normal));
-    spVector normal2 = spNormal(spMultRotVec(xf->q, edges[index2].normal));
+    spVector normal1 = spNormal(sprTransform(xf->q, edges[index1].normal));
+    spVector normal2 = spNormal(sprTransform(xf->q, edges[index2].normal));
 
     Edge edge;
     if (spDot(normal, normal1) > spDot(normal, normal2))
     {
-        edge.a = spMultXformVec(*xf, edges[index1].vertex);
-        edge.b = spMultXformVec(*xf, edges[index0].vertex);
+        edge.a = spxTransform(*xf, edges[index1].vertex);
+        edge.b = spxTransform(*xf, edges[index0].vertex);
     }
     else
     {
-        edge.a = spMultXformVec(*xf, edges[index2].vertex);
-        edge.b = spMultXformVec(*xf, edges[index1].vertex);
+        edge.a = spxTransform(*xf, edges[index2].vertex);
+        edge.b = spxTransform(*xf, edges[index1].vertex);
     }
 
     return edge;
@@ -356,7 +356,7 @@ vertexVertexCorrection(MinkowskiEdge* edge, struct ClosestPoints points)
 {
     NULLCHECK(edge);
     /// compute the new normal
-	edge->normal = spNormal(spSubVecs(points.b, points.a));
+	edge->normal = spNormal(spvSub(points.b, points.a));
 
     /// compute the distance between the two vertices
 	edge->distance = spDot(edge->normal, edge->point);
@@ -388,8 +388,8 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
     spVector normal = result.normal = edge->normal;
 
     /// distance of points along perp axis of the normal
-    spFloat distAa = spCrossVecs(a->a, normal); spFloat distAb = spCrossVecs(a->b, normal);
-    spFloat distBa = spCrossVecs(b->a, normal); spFloat distBb = spCrossVecs(b->b, normal);
+    spFloat distAa = spvCross(a->a, normal); spFloat distAb = spvCross(a->b, normal);
+    spFloat distBa = spvCross(b->a, normal); spFloat distBb = spvCross(b->b, normal);
 
     /// distance of edges a and b
     spFloat distA = distAb - distAa;
@@ -405,11 +405,11 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat tB = spClamp((distAa - distBa) * invDistB, 0.f, 1.f);
 
         /// compute the points in world space, include their radius
-        spVector pointA = spAddVecs(spMultVecFlt(normal,  radiusA), spLerpVec(a->a, a->b, tA));
-        spVector pointB = spAddVecs(spMultVecFlt(normal, -radiusB), spLerpVec(b->a, b->b, tB));
+        spVector pointA = spvAdd(spvfMult(normal,  radiusA), spvLerp(a->a, a->b, tA));
+        spVector pointB = spvAdd(spvfMult(normal, -radiusB), spvLerp(b->a, b->b, tB));
 
         /// compute the penetration to see if they are in contact
-        spFloat penetration = -spDot(spSubVecs(pointB, pointA), normal);
+        spFloat penetration = -spDot(spvSub(pointB, pointA), normal);
         if (penetration > 0.0f)
         {
             addContact(&result, pointA, pointB);
@@ -420,11 +420,11 @@ clipEdges(const struct Edge* a, const struct Edge* b, const struct MinkowskiEdge
         spFloat tB = spClamp((distAb - distBa) * invDistB, 0.f, 1.f);
 
         /// compute the points in world space, include their radius
-        spVector pointA = spAddVecs(spMultVecFlt(normal,  radiusA), spLerpVec(a->a, a->b, tA));
-        spVector pointB = spAddVecs(spMultVecFlt(normal, -radiusB), spLerpVec(b->a, b->b, tB));
+        spVector pointA = spvAdd(spvfMult(normal,  radiusA), spvLerp(a->a, a->b, tA));
+        spVector pointB = spvAdd(spvfMult(normal, -radiusB), spvLerp(b->a, b->b, tB));
 
         /// compute the penetration to see if they are in contact
-        spFloat penetration = -spDot(spSubVecs(pointB, pointA), normal);
+        spFloat penetration = -spDot(spvSub(pointB, pointA), normal);
         if (penetration >= 0.0f)
         {
             addContact(&result, pointA, pointB);
@@ -479,13 +479,13 @@ EPA(const struct SupportPointContext* context, spMinkowskiPoint* m0, spMinkowski
         spMinkowskiPoint tail = hull[ti];
 
         /// get the new point on the hull
-        spVector dir = spSkewT(spSubVecs(head.v, tail.v));
+        spVector dir = spSkewT(spvSub(head.v, tail.v));
         spMinkowskiPoint m = supportPoint(context, dir);
 
         /// check if the point is already in the hull
         for (spInt i = 0; i < count; ++i)
         {
-            if (spEqual(hull[i].v, m.v))
+            if (spvEqual(hull[i].v, m.v))
             {
                 /// the point is already on the hull, return the minkowski edge
                 return MinkowskiEdgeConstruct(&head, &tail);
@@ -527,11 +527,11 @@ GJK(const struct SupportPointContext* context)
     const spTransform* xfB = &shapeB->body->xf;
 
     /// generate an initial axis direction for support points
-    spVector cA = spMultXformVec(*xfA, spShapeGetCOM(shapeA));
-    spVector cB = spMultXformVec(*xfB, spShapeGetCOM(shapeB));
+    spVector cA = spxTransform(*xfA, spShapeGetCOM(shapeA));
+    spVector cB = spxTransform(*xfB, spShapeGetCOM(shapeB));
 
     /// calculate normal directions for support points
-    spVector normal = spSkew(spSubVecs(cA, cB));
+    spVector normal = spSkew(spvSub(cA, cB));
     spVector negate = spNegative(normal);
 
     /// calculate initial minkowski points
@@ -551,13 +551,13 @@ GJK(const struct SupportPointContext* context)
     for (spInt i = 0; i < max_iters; ++i)
     {
         /// calculate a new direction for the next support point
-        spVector dir = spSkew(spSubVecs(m0.v, m1.v));
+        spVector dir = spSkew(spvSub(m0.v, m1.v));
 
         /// expand the simplex by generating a new support point
         spMinkowskiPoint m2 = supportPoint(context, dir);
 
         /// check if the origin is inside of the 3-simplex or the new minkowski point is on origin
-        if (spOriginToLeft(m1.v, m2.v) && spOriginToLeft(m2.v, m0.v) || spEqual(m2.v, spVectorZero()))
+        if (spOriginToLeft(m1.v, m2.v) && spOriginToLeft(m2.v, m0.v) || spvEqual(m2.v, spVectorZero()))
         {
             /// the origin is in the simplex, pass the 3-simplex to EPA and generate contact info
             return EPA(context, &m0, &m2, &m1);
@@ -604,26 +604,26 @@ CircleToCircle(const spCircle* circleA, const spCircle* circleB)
     spTransform* xfB = &circleB->shape.body->xf;
 
     /// compute the centers in world space, and difference between the two vectors
-    spVector centerA = spMultXformVec(*xfA, circleA->center);
-    spVector centerB = spMultXformVec(*xfB, circleB->center);
-    spVector delta = spSubVecs(centerB, centerA);
+    spVector centerA = spxTransform(*xfA, circleA->center);
+    spVector centerB = spxTransform(*xfB, circleB->center);
+    spVector delta = spvSub(centerB, centerA);
 
     /// get the combined radius of the circles, and compute the distance between them
     spFloat radiusA = circleA->radius;
     spFloat radiusB = circleB->radius;
     spFloat radius = radiusA + radiusB;
-    spFloat distance2 = spLengthSquared(delta);
+    spFloat distance2 = spvLengthSquared(delta);
 
     /// if they overlap, generate contact info
     if (distance2 < radius * radius)
     {
         /// calculate the penetration, and collision normal
         spFloat pen = spsqrt(distance2);
-        spVector normal = result.normal = pen != 0.0f ? spMultVecFlt(delta, 1.0f/pen) : spVectorConstruct(0.0f, 1.0f);
+        spVector normal = result.normal = pen != 0.0f ? spvfMult(delta, 1.0f/pen) : spVectorConstruct(0.0f, 1.0f);
 
         /// compute the contact points
-        spVector pointA = spAddVecs(centerA, spMultVecFlt(normal,  radiusA));
-        spVector pointB = spAddVecs(centerB, spMultVecFlt(normal, -radiusB));
+        spVector pointA = spvAdd(centerA, spvfMult(normal,  radiusA));
+        spVector pointB = spvAdd(centerB, spvfMult(normal, -radiusB));
 
         /// add the contact
         addContact(&result, pointA, pointB);
@@ -660,8 +660,8 @@ PolygonToCircle(const spPolygon* poly, const spCircle* circle)
         spVector normal = result.normal = mEdge.normal;
 
         /// compute the contact points
-        spVector pointA = spAddVecs(points.a, spMultFltVec(poly->radius, normal));
-        spVector pointB = spAddVecs(points.b, spMultFltVec(circle->radius, spNegative(normal)));;
+        spVector pointA = spvAdd(points.a, spfvMult(poly->radius, normal));
+        spVector pointB = spvAdd(points.b, spfvMult(circle->radius, spNegative(normal)));;
 
         /// add the contact to the collision result
         addContact(&result, pointA, pointB);
@@ -731,7 +731,7 @@ PolygonToPolygon(const spPolygon* polyA, const spPolygon* polyB)
     {
         /// get the two normal directions
         /// bias the normal slightly so we dont get swapping edge points due to floating point error (what a HEADACHE!)
-        spVector normal = spNormal(spAddVecs(mEdge.normal, spMultVecFlt(spVectorConstruct(0.0f, 1.0f), 1e-5f)));
+        spVector normal = spNormal(spvAdd(mEdge.normal, spvfMult(spVectorConstruct(0.0f, 1.0f), 1e-5f)));
         spVector negate = spNegative(normal);
 
         /// compute the extreme edges in the normals directions
@@ -781,8 +781,8 @@ SegmentToCircle(const spSegment* segment, const spCircle* circle)
         spVector negate = spNegative(normal);
 
         /// compute the circles world space point since we test it as a point
-        spVector pointA = spAddVecs(points.a, spMultFltVec(segment->radius, normal));
-        spVector pointB = spAddVecs(points.b, spMultFltVec(circle->radius,  negate));
+        spVector pointA = spvAdd(points.a, spfvMult(segment->radius, normal));
+        spVector pointB = spvAdd(points.b, spfvMult(circle->radius,  negate));
 
         /// add the contact to the collision result
         addContact(&result, pointA, pointB);
@@ -820,8 +820,8 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
         spVector negate = spNegative(normal);
 
         ClosestPoints points = MinkowskiEdgeComputePoints(&mEdge);
-        if (spAlmostEqualVecs(points.b, spMultXformVec(segment->shape.body->xf, segment->pointA)) || /// 1e-2
-            spAlmostEqualVecs(points.b, spMultXformVec(segment->shape.body->xf, segment->pointB)))
+        if (spvAlmostEqual(points.b, spxTransform(segment->shape.body->xf, segment->pointA)) || /// 1e-2
+            spvAlmostEqual(points.b, spxTransform(segment->shape.body->xf, segment->pointB)))
         {
             spCollisionResult result = spCollisionResultConstruct();
             vertexVertexCorrection(&mEdge, points);
@@ -831,8 +831,8 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
                 normal = mEdge.normal;
                 negate = spNegative(mEdge.normal);
 
-                spVector pointA = spAddVecs(points.a, spMultFltVec(poly->radius, normal));
-                spVector pointB = spAddVecs(points.b, spMultFltVec(segment->radius, negate));
+                spVector pointA = spvAdd(points.a, spfvMult(poly->radius, normal));
+                spVector pointB = spvAdd(points.b, spfvMult(segment->radius, negate));
 
                 /// add the contact to the collision result
                 addContact(&result, pointA, pointB);

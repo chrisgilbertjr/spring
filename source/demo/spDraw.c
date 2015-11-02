@@ -432,21 +432,21 @@ void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt coun
 
 void spDrawSegment(spVector a, spVector b, spFloat radius, spColor color, spColor border)
 {
-	spVector n = spNormal(spSkew(spSubVecs(b, a)));
+	spVector n = spNormal(spSkew(spvSub(b, a)));
 	spVector t = spSkew(n);
 	
 	spFloat r = radius * 0.5f;
 	
-	spVector nw = spMultVecFlt(n, r);
-	spVector tw = spMultVecFlt(t, r);
-	spVector v0 = spSubVecs(b, spAddVecs(nw, tw));
-	spVector v1 = spAddVecs(b, spSubVecs(nw, tw));
-	spVector v2 = spSubVecs(b, nw);
-	spVector v3 = spAddVecs(b, nw);
-	spVector v4 = spSubVecs(a, nw);
-	spVector v5 = spAddVecs(a, nw);
-	spVector v6 = spSubVecs(a, spSubVecs(nw, tw));
-	spVector v7 = spAddVecs(a, spAddVecs(nw, tw));
+	spVector nw = spvfMult(n, r);
+	spVector tw = spvfMult(t, r);
+	spVector v0 = spvSub(b, spvAdd(nw, tw));
+	spVector v1 = spvAdd(b, spvSub(nw, tw));
+	spVector v2 = spvSub(b, nw);
+	spVector v3 = spvAdd(b, nw);
+	spVector v4 = spvSub(a, nw);
+	spVector v5 = spvAdd(a, nw);
+	spVector v6 = spvSub(a, spvSub(nw, tw));
+	spVector v7 = spvAdd(a, spvAdd(nw, tw));
 
     spVertex p0 = {{v0.x, v0.y}, { 1.0f, -1.0f}, baryZero, color, border};
     spVertex p1 = {{v1.x, v1.y}, { 1.0f,  1.0f}, baryZero, color, border};
@@ -484,15 +484,15 @@ spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor bo
 {
     spVector a = start;
     spVector b = end;
-    spVector n = spNormal(spSkew(spSubVecs(b, a)));
+    spVector n = spNormal(spSkew(spvSub(b, a)));
 
     spFloat r = size * 0.5f;
 
-    spVector nw = spMultVecFlt(n, r);
-    spVector v2 = spSubVecs(b, nw);
-    spVector v3 = spAddVecs(b, nw);
-    spVector v4 = spSubVecs(a, nw);
-    spVector v5 = spAddVecs(a, nw);
+    spVector nw = spvfMult(n, r);
+    spVector v2 = spvSub(b, nw);
+    spVector v3 = spvAdd(b, nw);
+    spVector v4 = spvSub(a, nw);
+    spVector v5 = spvAdd(a, nw);
 
     spVertex p0 = {{ v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color, border};
     spVertex p1 = {{ v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color, border};
@@ -535,11 +535,11 @@ static spVector spring[12] =
 void 
 spDrawSpring(spVector start, spVector end, spFloat linewidth, spFloat springWidth, spColor color, spColor border)
 {
-    spVector tangent = spSkew(spNormal(spSubVecs(end, start)));
-    spVector pointA = spAddVecs(spMultVecFlt(tangent, spring[0].x * springWidth), spLerpVec(start, end, spring[0].y));
+    spVector tangent = spSkew(spNormal(spvSub(end, start)));
+    spVector pointA = spvAdd(spvfMult(tangent, spring[0].x * springWidth), spvLerp(start, end, spring[0].y));
     for (spInt i = 1; i < 12; ++i)
     {
-        spVector pointB = spAddVecs(spMultVecFlt(tangent, spring[i].x * springWidth), spLerpVec(start, end, spring[i].y));
+        spVector pointB = spvAdd(spvfMult(tangent, spring[i].x * springWidth), spvLerp(start, end, spring[i].y));
         spDrawSegment(pointA, pointB, linewidth, color, color);
         pointA = pointB;
     }
@@ -548,7 +548,7 @@ spDrawSpring(spVector start, spVector end, spFloat linewidth, spFloat springWidt
 void 
 spDrawRope(spVector start, spVector end, spInt segments, spFloat size, spColor colorA, spColor colorB, spColor border)
 {
-    spVector tangent = spNormal(spSkew(spSubVecs(start, end)));
+    spVector tangent = spNormal(spSkew(spvSub(start, end)));
     spFloat segment = 1.0f / (spFloat)segments;
 
     spColor color0 = colorA;
@@ -559,16 +559,16 @@ spDrawRope(spVector start, spVector end, spInt segments, spFloat size, spColor c
         spFloat iter0 = (spFloat)i;
         spFloat iter1 = (spFloat)i+1;
 
-        spVector pointA = spLerpVec(start, end, iter0*segment);
-        spVector pointB = spLerpVec(start, end, iter1*segment);
+        spVector pointA = spvLerp(start, end, iter0*segment);
+        spVector pointB = spvLerp(start, end, iter1*segment);
 
         spFloat r = size * 0.5f;
 
-        spVector offset = spMultVecFlt(tangent, r);
-        spVector v2 = spSubVecs(pointB, offset);
-        spVector v3 = spAddVecs(pointB, offset);
-        spVector v4 = spSubVecs(pointA, offset);
-        spVector v5 = spAddVecs(pointA, offset);
+        spVector offset = spvfMult(tangent, r);
+        spVector v2 = spvSub(pointB, offset);
+        spVector v3 = spvAdd(pointB, offset);
+        spVector v4 = spvSub(pointA, offset);
+        spVector v5 = spvAdd(pointA, offset);
 
         spVertex p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color0, border };
         spVertex p1 = { { v4.x, v4.y }, { 0.0f, -1.0f }, baryZero, color0, border };

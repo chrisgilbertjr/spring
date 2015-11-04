@@ -1,6 +1,10 @@
 # Spring game dynamics
 A lightweight 2D rigid body physics engine for games.
 
+#### Coming soon: ####
+* MSVC13 the only supported build option at the moment. Unix should be supported by Sunday (11/8) and Mac OSX soon after
+* Demos are not complete, but there should be a few up and running by the Friday (11/6)
+
 # About:
 Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D.  Its written in C, and will have builds for multiple platforms. I hope you find something useful or at least have some fun with spring!
 
@@ -15,7 +19,7 @@ Spring game dynamics is a small small physics engine used to simulate rigid bodi
 * Simple to use API with good plenty of documentation within the code (doxygen is in the works)
 
 # Build
-__MSVC:__ Visual studio 2013 projects/solutions for libraries and demos are available. Building them should be straightforward. I will support more visual studio versions once linux and mac builds are setup.
+__MSVC:__ Visual studio 2013 projects/solutions for libraries are available. Demos will be up shortly. Building them should be straightforward. I will support more visual studio versions once linux and mac builds are setup.
 
 __UNIX:__ The UNIX build system is in the works. I will using be Cmake, and will have a CMakeLists file up within a few days.
 

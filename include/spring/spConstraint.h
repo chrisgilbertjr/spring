@@ -13,15 +13,15 @@ extern spFloat spBaumgarte;
 /// different joint types
 typedef enum 
 {
-    SP_ANGULAR_SPRING_JOINT,
-    SP_DISTANCE_JOINT,
-    SP_SPRING_JOINT,
-    SP_MOTOR_JOINT,
-    SP_WHEEL_JOINT,
-    SP_POINT_JOINT,
-    SP_MOUSE_JOINT,
-    SP_ROPE_JOINT,
-    SP_GEAR_JOINT,
+    SP_ANGULAR_SPRING_JOINT = 0,
+    SP_DISTANCE_JOINT = 1,
+    SP_SPRING_JOINT = 2,
+    SP_MOTOR_JOINT = 3,
+    SP_WHEEL_JOINT = 4,
+    SP_POINT_JOINT = 5,
+    SP_MOUSE_JOINT = 6,
+    SP_ROPE_JOINT = 7,
+    SP_GEAR_JOINT = 8,
     SP_JOINT_SIZE
 } spConstraintType;
 

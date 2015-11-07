@@ -299,6 +299,22 @@ spDemoRandomPastelColor()
     return color;
 }
 
+
+void 
+spDemoAttachSingleBody(spSingleBodyObject* object)
+{
+    spBodyAddShape(object->body, object->shape);
+    spWorldAddBody(&Demo->world, object->body);
+}
+
+void 
+spDemoSingleBodyTransform(spSingleBodyObject* object, spVector position, spFloat angle)
+{
+    spBodyClearForces(object->body);
+    spBodyClearVelocity(object->body);
+    spBodySetTransform(object->body, position, angle);
+}
+
 spBool
 spDemoKeyPressed(spKey key)
 {
@@ -467,7 +483,7 @@ spDemoDrawAngularSpringJoint(spConstraint* constraint, spColor color, spColor bo
     /// draw the angular spring
     spDrawCircle(pointA, 0.0f, spLineScaleSmall, Color, Border);
     spDrawCircle(pointB, 0.0f, spLineScaleSmall, Color, Border);
-    spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig, Color, Border);
+    spDrawSpring(pointA, pointB, spLineScaleSmall, spLineScaleBig*0.5f, Color, Border);
 }
 
 void 
@@ -613,49 +629,52 @@ spDemoDrawWheelJoint(spConstraint* constraint, spColor color, spColor border)
 }
 
 void 
-spDemoDrawConstraint(spConstraint* constraint)
+spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
 {
     if (spConstraintIsGearJoint(constraint))
     {
-        spDemoDrawGearJoint(constraint, RGBA(1,0,1,.5), RGBA(0,0,0,.5));
+        spDemoDrawGearJoint(constraint, color, border);
         //spColor color = RGBA(1.0,0.0,1.0,0.5f);
         //spColor black = RGBA(0.0,0.0,0.0,0.5f);
     }
     else if (spConstraintIsAngularSpringJoint(constraint))
     {
-        spDemoDrawAngularSpringJoint(constraint, RGBA(1,0,1,.5f), RGBA(0,0,0,0.5));
+        spDemoDrawAngularSpringJoint(constraint, color, border);
         //spColor color = RGBA(1.0,0.0,1.0,0.5f);
         //spColor black = RGBA(0.0,0.0,0.0,0.5f);
     }
     else if (spConstraintIsMotorJoint(constraint))
     {
-        spDemoDrawMotorJoint(constraint, RGBA(1,.5,0,.5f), RGBA(0,0,0,.5));
+        spDemoDrawMotorJoint(constraint, color, border);
         //spColor color = RGBA(1.0,0.5,0.0,0.5f);
         //spColor black = RGBA(0.0,0.0,0.0,0.5f);
     }
     else if (spConstraintIsMouseJoint(constraint))
     {
-        spDemoDrawMouseJoint(constraint, RGB(0,1,0), WHITE(), BLACK());
+        spDemoDrawMouseJoint(constraint, color, WHITE(), border);
     }
     else if (spConstraintIsRopeJoint(constraint))
     {
-        spDemoDrawRopeJoint(constraint, RGB(1,1,0), RGB(.5,.5,0), BLACK());
+        spDemoDrawRopeJoint(constraint, color, RGBA(color.r*0.5f, color.g*0.5f, color.b*0.5f, color.a), border);
     }
     else if (spConstraintIsDistanceJoint(constraint))
     {
-        spDemoDrawDistanceJoint(constraint, RGB(.8,0,0), BLACK());
+        spDemoDrawDistanceJoint(constraint, color, border);
     }
     else if (spConstraintIsPointJoint(constraint))
     {
-        spDemoDrawPointJoint(constraint, RGB(0,.5,1), BLACK());
+        spDemoDrawPointJoint(constraint, color, border);
+        //spDemoDrawPointJoint(constraint, RGB(0,.5,1), BLACK());
     }
     else if (spConstraintIsSpringJoint(constraint))
     {
-        spDemoDrawSpringJoint(constraint, RGB(0,.8,0), BLACK());
+        spDemoDrawSpringJoint(constraint, color, border);
+        //spDemoDrawSpringJoint(constraint, RGB(0,.8,0), BLACK());
     }
     else if (spConstraintIsWheelJoint(constraint))
     {
-        spDemoDrawWheelJoint(constraint, RGB(0,1,0), BLACK());
+        spDemoDrawWheelJoint(constraint, color, border);
+        //spDemoDrawWheelJoint(constraint, RGB(0,1,0), BLACK());
     }
 }
 
@@ -664,7 +683,7 @@ spDemoDrawMouse()
 {
     if (Demo->mouse.shape != NULL)
     {
-        spDemoDrawConstraint(Demo->mouse.constraint);
+        spDemoDrawConstraint(Demo->mouse.constraint, RGB(0.0f, 1.0f, 0.0f), RGB(0,0,0));
     }
 }
 

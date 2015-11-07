@@ -83,6 +83,10 @@ DEMO_API spColor spDemoRandomColor();
 
 DEMO_API spColor spDemoRandomPastelColor();
 
+DEMO_API void spDemoAttachSingleBody(spSingleBodyObject* object);
+
+DEMO_API void spDemoSingleBodyTransform(spSingleBodyObject* object, spVector position, spFloat angle);
+
 DEMO_API spBool spDemoKeyPressed(spKey key);
 
 DEMO_API spBool spDemoKeyReleased(spKey key);
@@ -93,7 +97,7 @@ DEMO_API void spDemoDrawMultiBody(spMultiBodyObject* object);
 
 DEMO_API void spDemoDrawShape(spShape* shape, spColor color, spColor border);
 
-DEMO_API void spDemoDrawConstraint(spConstraint* constraint);
+DEMO_API void spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border);
 
 DEMO_API void spDemoDrawCircle(spShape* shape, spColor color, spColor border);
 

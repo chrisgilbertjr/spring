@@ -153,7 +153,7 @@ INLINE spFloat spClamp(const spFloat x, const spFloat min, const spFloat max)
 /// check if two floats are equal within an epsilon value
 INLINE spBool spAlmostEqualFlts(const spFloat a, const spFloat b)
 {
-     return (b - 1e-6) <= a && a <= (b + 1e-6) ? spTrue : spFalse;
+     return (b - 1e-2) <= a && a <= (b + 1e-2) ? spTrue : spFalse;
 }
 
 /// i could make this faster copying more than 1 byte at a time, but i dont think its necessary

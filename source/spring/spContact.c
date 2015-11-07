@@ -2,7 +2,7 @@
 #include "spContact.h"
 #include "spBody.h"
 
-static spFloat baumgarte = 0.1f;
+static spFloat baumgarte = 0.15f;
 spFloat spSlop = 0.15f;
 
 void 

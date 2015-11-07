@@ -824,7 +824,7 @@ PolygonToSegment(const spPolygon* poly, const spSegment* segment)
             spvAlmostEqual(points.b, spxTransform(segment->shape.body->xf, segment->pointB)))
         {
             spCollisionResult result = spCollisionResultConstruct();
-            vertexVertexCorrection(&mEdge, points);
+            //vertexVertexCorrection(&mEdge, points);
             if (mEdge.distance + segment->radius + poly->radius >= 0.0f)
             {
                 result.normal = mEdge.normal;

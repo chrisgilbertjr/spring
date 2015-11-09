@@ -17,7 +17,7 @@ CompareIntervals(const void* a, const void* b)
     float minA = boxA->axis[g_axis].min;
     float minB = boxB->axis[g_axis].min;
 
-    if (minA > minB)
+    if (minA >= minB)
     {
         return 1;
     }
@@ -57,7 +57,7 @@ UpdateBox(spSapBox* box)
     spShape* shape = box->shape;
     spBound* bound = &shape->bound;
     spVector center = spBoundGetWorldCenter(bound, &shape->body->xf);
-    spVector width = spvfMult(spBoundGetHalfWidth(bound), 3.0f);
+    spVector width = spBoundGetHalfWidth(bound);
 
     box->axis[SP_X].min = center.x - width.x;
     box->axis[SP_X].max = center.x + width.x;
@@ -75,10 +75,10 @@ spSapConstruct()
     return sap;
 }
 
-spSap 
+void 
 spSapDestroy(spSap* sap)
 {
-    for (spInt i = sap->count; i >= 0; ++i)
+    for (spInt i = sap->count-1; i >= 0; --i)
     {
         BoxFree(sap->boxes[i]);
     }
@@ -164,7 +164,7 @@ spSapUpdateSortAxis(spSap* sap)
     spVariance variance = spSapVariance(sap);
 
     g_axis = SP_X;
-    if (variance.axis[SP_Y] > variance.axis[SP_X])
+    if (variance.axis[SP_Y] >= variance.axis[SP_X])
     {
         g_axis = SP_Y;
     }

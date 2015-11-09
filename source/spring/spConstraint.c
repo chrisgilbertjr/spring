@@ -6,6 +6,15 @@
 spFloat spBaumgarte = 0.2f;
 
 void 
+spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve)
+{
+    funcs->free = free;
+    funcs->preSolve = preSolve;
+    funcs->warmStart = warmStart;
+    funcs->solve = solve;
+}
+
+void 
 spConstraintInit(spConstraint* constraint, spBody* a, spBody* b, spConstraintType type)
 {
     NULLCHECK(constraint);
@@ -26,13 +35,15 @@ spConstraintConstruct(spBody* a, spBody* b, spConstraintType type)
 }
 
 void 
-spConstraintFree(spConstraint* constraint)
+spConstraintFree(spConstraint** constraint)
 {
+    spConstraint* Constraint = *constraint;
+
     /// remove the constraint from the world
-    spWorldRemoveConstraint(constraint->world, constraint);
+    spWorldRemoveConstraint(Constraint->world, constraint);
 
     /// free the constraint
-    constraint->funcs.free(constraint);
+    Constraint->funcs.free(constraint);
 }
 
 spConstraint* 

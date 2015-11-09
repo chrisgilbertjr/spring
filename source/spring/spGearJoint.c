@@ -5,7 +5,7 @@
 /// convenience macro for getters/setters
 #define gearJoint spConstraintCastGearJoint(constraint)
 
-void 
+static void 
 Free(spGearJoint** joint)
 {
     NULLCHECK(*joint);

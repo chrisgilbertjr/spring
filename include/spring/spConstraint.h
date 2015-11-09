@@ -25,7 +25,7 @@ typedef enum
     SP_JOINT_SIZE
 } spConstraintType;
 
-typedef void (*spFreeFunc)(spConstraint* constraint);
+typedef void (*spFreeFunc)(spConstraint** constraint);
 typedef void (*spPreSolveFunc)(spConstraint* constraint, const spFloat h);
 typedef void (*spWarmStartFunc)(spConstraint* constraint);
 typedef void (*spSolveFunc)(spConstraint* constraint);
@@ -52,19 +52,14 @@ struct spConstraint
     spWorld* world;          ///< world the constraint is in
 };
 
-INLINE void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve)
-{
-    funcs->free = free;
-    funcs->preSolve = preSolve;
-    funcs->warmStart = warmStart;
-    funcs->solve = solve;
-}
+/// initialize constraint function pointers
+SPRING_API void spConstraintInitFuncs(spConstraintFuncs* funcs, spFreeFunc free, spPreSolveFunc preSolve, spWarmStartFunc warmStart, spSolveFunc solve);
 
 /// initialize a constraint given two bodies and a type
 SPRING_API void spConstraintInit(spConstraint* constraint, struct spBody* a, struct spBody* b, spConstraintType type); 
 
 /// free a constraint from the heap
-SPRING_API void spConstraintFree(spConstraint* constraint);
+SPRING_API void spConstraintFree(spConstraint** constraint);
 
 /// construct a constraint on the stack given two bodies and a type
 SPRING_API spConstraint spConstraintConstruct(struct spBody* a, struct spBody* b, spConstraintType type);

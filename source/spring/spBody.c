@@ -118,7 +118,7 @@ spBodyDestroyConstraints(spBody* body)
         spConstraint* next = constraint->next;
         if (constraint->bodyA == body || constraint->bodyB == body)
         {
-            spConstraintFree(constraint);
+            spConstraintFree(&constraint);
         }
         constraint = next;
     }
@@ -132,7 +132,7 @@ spBodyDestroy(spBody** bodyPtr)
 
     /// destroy shapes/constraints
     spBodyDestroyShapes(body);
-    spBodyDestroyConstraints(body);
+    //spBodyDestroyConstraints(body);
 
     /// free the memory
     spBodyFree(bodyPtr);

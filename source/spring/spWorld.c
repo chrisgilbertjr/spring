@@ -91,7 +91,7 @@ spWorldDestroy(spWorld* world)
     while(constraint)
     {
         spConstraint* next = constraint->next;
-        spConstraintFree(constraint);
+        spConstraintFree(&constraint);
         constraint = next;
     }
 
@@ -99,6 +99,7 @@ spWorldDestroy(spWorld* world)
     world->jointList = NULL;
     world->bodyList = NULL;
     spSapDestroy(&world->sweepAndPrune);
+    int x = 0;
 }
 
 spWorld 
@@ -113,7 +114,6 @@ void
 spWorldStep(spWorld* world, const spFloat h)
 {
     /// do broad phase collision detection
-    //spWorldBroadPhaseBruteForce(world);
     spWorldBroadPhaseSAP(world);
 
     /// do narrow phase collision detection
@@ -360,10 +360,10 @@ spWorldAddConstraint(spWorld* world, spConstraint* constraint)
 }
 
 void 
-spWorldRemoveConstraint(spWorld* world, spConstraint* constraint)
+spWorldRemoveConstraint(spWorld* world, spConstraint** constraint)
 {
-    SP_LINKED_LIST_REMOVE(spConstraint, constraint, world->jointList);
-    constraint->world = NULL;
+    spConstraint* c = *constraint;
+    SP_LINKED_LIST_REMOVE(spConstraint, c, world->jointList);
 }
 
 spConstraint* 

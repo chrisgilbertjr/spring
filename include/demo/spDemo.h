@@ -75,6 +75,8 @@ DEMO_API void spDemoFree(spDemo* demo);
 
 DEMO_API void spDemoRun(spDemo* demo);
 
+DEMO_API void spDemoSetKeyCallback(keyboardFunc keyboard);
+
 DEMO_API void spDemoInitRandomSeed();
 
 DEMO_API spFloat spDemoRandomFloatRange(float min, float max);
@@ -82,6 +84,8 @@ DEMO_API spFloat spDemoRandomFloatRange(float min, float max);
 DEMO_API spColor spDemoRandomColor();
 
 DEMO_API spColor spDemoRandomPastelColor();
+
+DEMO_API spVector spDemoGravity();
 
 DEMO_API void spDemoAttachSingleBody(spSingleBodyObject* object);
 

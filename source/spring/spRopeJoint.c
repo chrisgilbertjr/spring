@@ -5,7 +5,7 @@
 /// convenience macro for getters/setters
 #define ropeJoint spConstraintCastRopeJoint(constraint)
 
-spFloat spRopeJointDistBias = 0.0f;
+spFloat spRopeJointDistBias = 5e-2;
 
 static void 
 Free(spRopeJoint** joint)

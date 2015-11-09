@@ -37,7 +37,7 @@ SPRING_API extern spAxis g_axis; /// axis to sort against (highest variance)
 SPRING_API spSap spSapConstruct();
 
 /// destroy a sweep and prune broadphase and release all resources
-SPRING_API spSap spSapDestroy(spSap* sap);
+SPRING_API void spSapDestroy(spSap* sap);
 
 /// insert a shape in the sweep and prune broadphase
 SPRING_API void spSapInsert(spSap* sap, spShape* shape);

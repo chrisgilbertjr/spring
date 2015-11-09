@@ -111,6 +111,7 @@ spPointJointInit(spPointJoint* joint, spBody* a, spBody* b, spVector anchorA, sp
         (spPreSolveFunc)PreSolve, 
         (spWarmStartFunc)WarmStart, 
         (spSolveFunc)Solve);
+    int x = 0;
 }
 
 spPointJoint* 

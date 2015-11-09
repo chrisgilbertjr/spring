@@ -84,14 +84,14 @@ spDemoNew(initFunc init, updateFunc update, renderFunc render, destroyFunc destr
     Demo->render = render;
     Demo->destroy = destroy;
     Demo->keyboard = KeyboardDefault;
-    Demo->background = BLACK();
+    Demo->background = RGBA255(176.f, 226.f, 255.f, 0.f);
     Demo->timestep = 1.0f / 60.0f;
     Demo->time= 0.0f;
     Demo->timePrev = 0.0f;
     Demo->timeAccum = 0.0f;
     Demo->paused = spFalse;
-    Demo->frustum = frustum;
     Demo->viewport = view;
+    Demo->frustum = frustum;
     DemoOrthoMatrix(Demo->ortho, &frustum);
     DemoViewMatrix(Demo->view, spVectorZero());
     return Demo;
@@ -155,7 +155,7 @@ MouseClick(spWindow* window, int button, int state, int mods)
         if (mouse->shape != NULL)
         {
             spMouseJointEnd(mouse->constraint);
-            spWorldRemoveConstraint(&Demo->world, mouse->constraint);
+            spWorldRemoveConstraint(&Demo->world, &mouse->constraint);
             mouse->shape = NULL;
         }
     }
@@ -263,6 +263,12 @@ Destroy()
     Demo->destroy();
 }
 
+void 
+spDemoSetKeyCallback(keyboardFunc keyboard)
+{
+    Demo->keyboard = keyboard;
+}
+
 void
 spDemoInitRandomSeed()
 {
@@ -299,6 +305,11 @@ spDemoRandomPastelColor()
     return color;
 }
 
+spVector 
+spDemoGravity()
+{
+    return spVectorConstruct(0.0f, 0.098065f * -Demo->frustum.top+Demo->frustum.bottom);
+}
 
 void 
 spDemoAttachSingleBody(spSingleBodyObject* object)
@@ -664,17 +675,14 @@ spDemoDrawConstraint(spConstraint* constraint, spColor color, spColor border)
     else if (spConstraintIsPointJoint(constraint))
     {
         spDemoDrawPointJoint(constraint, color, border);
-        //spDemoDrawPointJoint(constraint, RGB(0,.5,1), BLACK());
     }
     else if (spConstraintIsSpringJoint(constraint))
     {
         spDemoDrawSpringJoint(constraint, color, border);
-        //spDemoDrawSpringJoint(constraint, RGB(0,.8,0), BLACK());
     }
     else if (spConstraintIsWheelJoint(constraint))
     {
         spDemoDrawWheelJoint(constraint, color, border);
-        //spDemoDrawWheelJoint(constraint, RGB(0,1,0), BLACK());
     }
 }
 

@@ -59,7 +59,7 @@ SPRING_API void spWorldRemoveBody(spWorld* world, spBody* body);
 SPRING_API void spWorldAddConstraint(spWorld* world, spConstraint* constraint);
 
 /// remove a constraint from the world
-SPRING_API void spWorldRemoveConstraint(spWorld* world, spConstraint* constraint);
+SPRING_API void spWorldRemoveConstraint(spWorld* world, spConstraint** constraint);
 
 /// get the worlds joint list
 SPRING_API spConstraint* spWorldGetJointList(spWorld* world);

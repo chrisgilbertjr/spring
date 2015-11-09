@@ -2,7 +2,7 @@
 A lightweight 2D rigid body physics engine for games.
 
 #### Whats new: ####
-* Joints Demo now complete! 11/8/15
+* Joints Demo now complete for MSVC2013!
 * UNIX projects are somewhat functional using CMake. static libs can be built.
 
 #### Whats coming: ####

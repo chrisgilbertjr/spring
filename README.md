@@ -3,9 +3,11 @@ A lightweight 2D rigid body physics engine for games.
 
 #### Whats new: ####
 * Joints Demo now complete! 11/8/15
-* 
-#### Coming soon: ####
-* UNIX builds are now in the works
+* UNIX projects are somewhat functional using CMake. static libs can be built.
+
+#### Whats coming: ####
+* UNIX builds are still being worked on. shared libs and demo builds will be coming soon.
+* XCode projects planned to be worked on after UNIX.
 
 # About:
 Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D.  Its written in C, and will have builds for multiple platforms. I hope you find something useful or at least have some fun with spring!

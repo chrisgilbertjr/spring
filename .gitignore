@@ -14,6 +14,7 @@ msvc/vs2013/demo_template
 *.userprefs
 
 # Build results
+[Bb]uild/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -23,10 +24,6 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
-build/msvc2013/Spring/[Dd]ebug/
-build/msvc2013/Spring/[Rr]elease/
-build/msvc2013/[Dd]ebug/
-build/msvc2013/[Rr]elease/
 
 # Visual Studo 2015 cache/options directory
 .vs/

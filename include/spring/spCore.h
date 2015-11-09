@@ -173,13 +173,7 @@ INLINE void* spMemset(void* mem, spInt value, spSize bytes)
 /// @defgroup spDebug spDebug
 /// @{
 
-#ifdef NDEBUG
-    #define NULLCHECK(ptr)
-    #define NANCHECK(val)
-    #define spAssert  
-    #define spWarning 
-    #define spLog  
-#else
+#ifndef NDEBUG
     #define NULLCHECK(ptr) spAssert(ptr != NULL, "pointer is NULL!\n")
     #define NANCHECK(val)  spAssert(val == val,  "value is NaN!\n")
     //#define spAssert  DEBUGAssert
@@ -204,6 +198,12 @@ INLINE void* spMemset(void* mem, spInt value, spSize bytes)
 
 	/// TODO:
 	SPRING_API void DEBUGLog(const char* msg, ...);
+#else
+    #define NULLCHECK(ptr)
+    #define NANCHECK(val)
+    #define spAssert  
+    #define spWarning 
+    #define spLog  
 #endif
 
 /// @}

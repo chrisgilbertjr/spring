@@ -7,7 +7,7 @@
   #define INLINE __inline
 #else
   #define SPRING_API 
-  #define INLINE 
+  #define INLINE inline
 #endif
 
 #endif

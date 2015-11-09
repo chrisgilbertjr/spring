@@ -6,8 +6,8 @@
 #include "spBody.h"
 
 /// common collision filters and a default material
-extern const spMask spCollideAll   = ~(spMask)0;
-extern const spMask spCollideNone  =  (spMask)0;
+const spMask spCollideAll   = ~(spMask)0;
+const spMask spCollideNone  =  (spMask)0;
 const spFilter spFilterCollideNone = {  (spMask)0,  (spMask)0,  (spMask)0 };
 const spFilter spFilterCollideAll  = { ~(spMask)0, ~(spMask)0, ~(spMask)0 };
 const spMaterial spDefaultMaterial = { 0.6f, 0.2f };

@@ -10,9 +10,21 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\source\demo\convex.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\demo\demo.vcxproj">
+      <Project>{d869371d-1e65-4c45-8068-898704b743db}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\spring\spring.vcxproj">
+      <Project>{2af3a2ed-ca12-4a82-a9d7-af82c1791099}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{433FD9C8-F1A6-411A-A5C9-C572C03BAFDC}</ProjectGuid>
-    <RootNamespace>joints</RootNamespace>
+    <RootNamespace>multibody</RootNamespace>
+    <ProjectName>convex</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,7 +56,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew\include;..\..\..\glfw3\include;..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew\include;..\..\..\include;..\..\..\glfw3\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -59,7 +71,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew\include;..\..\..\glfw3\include;..\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew\include;..\..\..\include;..\..\..\glfw3\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,17 +81,6 @@
       <AdditionalLibraryDirectories>..\..\..\glfw3\lib-msvc120;..\..\..\glew\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\source\demo\joints.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\demo\demo.vcxproj">
-      <Project>{d869371d-1e65-4c45-8068-898704b743db}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\spring\spring.vcxproj">
-      <Project>{2af3a2ed-ca12-4a82-a9d7-af82c1791099}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

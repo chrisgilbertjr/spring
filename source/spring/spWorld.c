@@ -114,7 +114,8 @@ void
 spWorldStep(spWorld* world, const spFloat h)
 {
     /// do broad phase collision detection
-    spWorldBroadPhaseSAP(world);
+    //spWorldBroadPhaseSAP(world);
+    spWorldBroadPhaseBruteForce(world);
 
     /// do narrow phase collision detection
     spWorldNarrowPhase(world);

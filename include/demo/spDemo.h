@@ -79,11 +79,17 @@ DEMO_API void spDemoSetKeyCallback(keyboardFunc keyboard);
 
 DEMO_API void spDemoInitRandomSeed();
 
+DEMO_API void spMultiBodyObjectInit(spMultiBodyObject* object, spInt count);
+
+DEMO_API void spMultiBodyObjectFree(spMultiBodyObject* object);
+
 DEMO_API spFloat spDemoRandomFloatRange(float min, float max);
 
 DEMO_API spColor spDemoRandomColor();
 
 DEMO_API spColor spDemoRandomPastelColor();
+
+DEMO_API spColor spDemoRandomScaleColor(spFloat scale);
 
 DEMO_API spVector spDemoGravity();
 

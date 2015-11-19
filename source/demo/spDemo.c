@@ -275,6 +275,25 @@ spDemoInitRandomSeed()
     srand((unsigned int)time(NULL));
 }
 
+void
+spMultiBodyObjectInit(spMultiBodyObject* object, spInt count)
+{
+    object->count = count;
+    object->shapes = (spShape**) spMalloc(sizeof(spShape*) * count);
+    object->colors = (spColor*) spMalloc(sizeof(spColor) * count);
+    object->borders = (spColor*) spMalloc(sizeof(spColor) * count);
+}
+
+void 
+spMultiBodyObjectFree(spMultiBodyObject* object)
+{
+    object->count = 0;
+    free(object->borders);
+    free(object->colors);
+    free(object->shapes);
+}
+
+
 spFloat
 spDemoRandomFloatRange(float min, float max) 
 {
@@ -297,11 +316,17 @@ spDemoRandomColor()
 spColor 
 spDemoRandomPastelColor()
 {
+    return spDemoRandomScaleColor(0.5f);
+}
+
+spColor 
+spDemoRandomScaleColor(spFloat scale)
+{
     spColor pastel = { 1.0f, 1.0f, 1.0f, 1.0f };
     spColor color = spDemoRandomColor();
-    color.r = (pastel.r + color.r) * 0.5f;
-    color.g = (pastel.g + color.g) * 0.5f;
-    color.b = (pastel.b + color.b) * 0.5f;
+    color.r = (pastel.r + color.r) * scale;
+    color.g = (pastel.g + color.g) * scale;
+    color.b = (pastel.b + color.b) * scale;
     return color;
 }
 

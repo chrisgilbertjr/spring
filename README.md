@@ -32,9 +32,9 @@ __MAC OSX:__ Mac will also be supported once the UNIX build is working. You can 
 # Demos
 There are a few demos and more will be added over time. I will be adding some to showcase the functionality of the engine. Demos will be included in seperate MSVC solutions and/or build steps for other platforms. The demo API was not intended for realtime use. Because of this, the documentation is very sparse.
 
-demo controls:  
-r: reset the demo  
-g: toggle gravity  
+__demo controls__:  
+__r__: reset the demo  
+__g__: toggle gravity  
 
 # Documentation
 At the moment, the only place to get documentation on the code is the code itself. I will be working on getting doxygen documentation setup and included with the project once builds for all platforms are complete.

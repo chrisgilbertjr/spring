@@ -2,7 +2,9 @@
 A lightweight 2D rigid body physics engine for games.
 
 #### Whats new: ####
-* Joints Demo now complete for MSVC2013!
+* Added libs for glew as they were being ignored from before.
+* Convex demo now complete for MSC2013!
+* Joints demo now complete for MSVC2013!
 * UNIX projects are somewhat functional using CMake. static libs can be built.
 
 #### Whats coming: ####

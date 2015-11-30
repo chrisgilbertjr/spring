@@ -32,7 +32,7 @@ __UNIX:__ The UNIX build system is in the works. I will using be Cmake, and will
 __MAC OSX:__ Mac will also be supported once the UNIX build is working. You can use Cmake if you like, but i will be adding an xcode project in the future. I will also have to update some OpenGL code in order for demos to be ran, so this might take a while longer.
 
 # Demos
-All demos require at least OpenGL 3.3. There are a few demos and more will be added over time. I will be adding some to showcase the functionality of the engine. Demos will be included in seperate MSVC solutions and/or build steps for other platforms. The demo API was not intended for realtime use. Because of this, the documentation is very sparse.
+All demos require at least _OpenGL 3.3_. There are a few demos and more will be added over time. I will be adding some to showcase the functionality of the engine. Demos will be included in seperate MSVC solutions and/or build steps for other platforms. The demo API was not intended for realtime use. Because of this, the documentation is very sparse.
 
 __demo controls__:  
 __r__: reset the demo  

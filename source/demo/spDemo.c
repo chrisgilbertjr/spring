@@ -76,8 +76,12 @@ spDemo*
 spDemoNew(initFunc init, updateFunc update, renderFunc render, destroyFunc destroy, spFrustum frustum, spViewport view)
 {
     spDemo* Demo = (spDemo*)spMalloc(sizeof(spDemo));
+    spMouse mouse;
+    mouse.constraint = spMouseJointNew(NULL, 2.0f, 0.4f, spVectorZero(), spVectorZero());
+    mouse.position = spVectorConstruct(0, 0);
+    mouse.shape = NULL;
     Demo->world = spWorldConstruct(6, spVectorConstruct(0.0f, 0.098065f * -frustum.top+frustum.bottom));
-    Demo->mouse = (spMouse){spMouseJointNew(NULL, 2.0f, 0.4f, spVectorZero(), spVectorZero()), NULL, spVectorConstruct(0.0f, 0.0f) };
+    Demo->mouse = mouse;
     Demo->window = NULL;
     Demo->initialize = init;
     Demo->update = update;
@@ -183,7 +187,8 @@ SetupGLFW()
     /// make sure we can get a core profile context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /// create the window
     Demo->window = glfwCreateWindow(Demo->viewport.width, Demo->viewport.height, "Simple example", NULL, NULL);

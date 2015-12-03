@@ -9,8 +9,8 @@
 
 typedef struct { GLfloat x, y; } spVec;
 typedef struct { GLfloat x, y, z; } spBary;
-typedef struct { GLfloat r, g, b, a; } spColor;
-typedef struct { spVec pos, aliasing; spBary barycentric; spColor fill, outline; } spVertex;
+typedef struct _spColor { GLfloat r, g, b, a; } spColor;
+typedef struct _spVertex { spVec pos; spVec aliasing; spBary barycentric; spColor fill; spColor outline; } spVertex;
 typedef struct { spVertex a, b, c; } spTriangle;
 typedef struct { spInt width, height; } spViewport;
 typedef struct { spFloat left, right, top, bottom, near, far; } spFrustum;
@@ -20,11 +20,11 @@ typedef struct { spFloat left, right, top, bottom, near, far; } spFrustum;
 #define spViewportNew(w, h) (spViewport){w, h}
 
 /// some useful colors
-#define RGBA255(r, g, b, a) (spColor){(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)a/255.f }
-#define RGB255(r, g, b)     (spColor){(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)1 }
-#define RGBA(r, g, b, a)    (spColor){(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a }
-#define RGB(r, g, b)        (spColor){(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)1 }
-#define COLA(c, a)          (spColor){(GLfloat)c, (GLfloat)c, (GLfloat)c, (GLfloat)a }
+#define RGBA255(r, g, b, a) ((spColor){(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)a/255.f })
+#define RGB255(r, g, b)     ((spColor){(GLfloat)r/255.f, (GLfloat)g/255.f, (GLfloat)b/255.f, (GLfloat)1 })
+#define RGBA(r, g, b, a)    ((spColor){(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)a })
+#define RGB(r, g, b)        ((spColor){(GLfloat)r, (GLfloat)g, (GLfloat)b, (GLfloat)1 })
+#define COLA(c, a)          ((spColor){(GLfloat)c, (GLfloat)c, (GLfloat)c, (GLfloat)a })
 
 #define RED()    RGBA(0.5f, 0.0f, 0.0f, 1.0) 
 #define BLUE()   RGBA(0.0f, 0.0f, 0.5f, 1.0) 

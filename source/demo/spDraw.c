@@ -6,13 +6,45 @@
 static const spInt BufferGrowSize = 64;
 spRenderContext context;
 
-#define aliasZero { 0.0f, 0.0f }
-#define baryZero   { 0.0f, 0.0f, 0.0f }
-#define baryBorder { 0.0f, 1.0f, 0.0f }
-#define baryCenter { 1.0f, 0.0f, 0.0f }
+static spVertex 
+Vertex(spVec a, spVec b, spBary c, spColor d, spColor e)
+{
+    spVertex v;
+    v.pos = a;
+    v.aliasing = b;
+    v.barycentric = c;
+    v.fill = d;
+    v.outline = e;
+    return v;
+}
+
+static spVec
+Vec(spFloat x, spFloat y)
+{
+    spVec v;
+    v.x = x;
+    v.y = y;
+    return v;
+}
+
+static spBary
+Bary(spFloat x, spFloat y, spFloat z)
+{
+    spBary b;
+    b.x = x;
+    b.y = y;
+    b.z = z;
+    return b;
+}
+
+#define aliasZero  Vec( 0.0f, 0.0f )
+#define baryZero   Bary( 0.0f, 0.0f, 0.0f )
+#define baryBorder Bary( 0.0f, 1.0f, 0.0f )
+#define baryCenter Bary( 1.0f, 0.0f, 0.0f )
 #define FLUSH_GL_ERRORS() glGetError()
 #define BUFFER_OFFSET(index) ((char *)NULL + (index)) 
 #define VERTEX(a) (spVertex) {a}
+
 
 static void 
 Transpose(spFloat* transpose)
@@ -244,7 +276,10 @@ AddTriangle(spVertex* a, spVertex* b, spVertex* c)
 {
     UpdateBufferSize();
 
-    spTriangle triangle = { *a, *b, *c };
+    spTriangle triangle;
+    triangle.a = *a;
+    triangle.b = *b;
+    triangle.c = *c;
     context.buffer[context.triangles++] = triangle;
 }
 
@@ -273,7 +308,7 @@ static void
 PrintInfoLog(GLint object, GLint length)
 {
     char* infoLog = (char*)spMalloc(length);
-    glGetProgramInfoLog(object, length, (GLsizei*)NULL, infoLog);
+    glGetShaderInfoLog(object, length, (GLsizei*)NULL, infoLog);
     spWarning(spFalse, "Info Log: %s\n", infoLog);
     spFree(&infoLog);
 }
@@ -282,7 +317,7 @@ static spBool
 CompileSuccessful(GLint shader)
 {
     /// get the compile status
-    GLint success;
+    GLint success = 12;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     
     /// if successful, return true
@@ -324,11 +359,14 @@ CompileShader(GLenum type, const char* source)
 {
     /// create the shader
     GLint shader = glCreateShader(type);
+    CheckGLErrors();
     GLint length = (GLint)strlen(source);
 
     /// feed in the shader source and compule the shader
     glShaderSource(shader, 1, &source, &length);
+    CheckGLErrors();
     glCompileShader(shader);
+    CheckGLErrors();
 
     /// check if the compilewas successful
     spAssert(CompileSuccessful(shader), "shader compilation failed\n");
@@ -423,9 +461,9 @@ void spDrawPolygon(spVector position, spFloat angle, spVector* verts, spInt coun
         spVector v1 = verts[i];
         spVector v2 = verts[(i+1)%count];
 
-        spVertex p0 = (spVertex){{v0.x, v0.y}, {0.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, color, border};
-        spVertex p1 = (spVertex){{v1.x, v1.y}, {0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, color, border}; 
-        spVertex p2 = (spVertex){{v2.x, v2.y}, {0.0f,  1.0f}, {0.0f, 1.0f, 1.0f}, color, border};
+        spVertex p0 = Vertex(Vec(v0.x, v0.y), Vec(0.0f, -1.0f), Bary(1.0f, 1.0f, 0.0f), color, border);
+        spVertex p1 = Vertex(Vec(v1.x, v1.y), Vec(0.0f,  1.0f), Bary(0.0f, 1.0f, 0.0f), color, border); 
+        spVertex p2 = Vertex(Vec(v2.x, v2.y), Vec(0.0f,  1.0f), Bary(0.0f, 1.0f, 1.0f), color, border);
         AddTriangle(&p0, &p1, &p2);
     }
 }
@@ -448,34 +486,34 @@ void spDrawSegment(spVector a, spVector b, spFloat radius, spColor color, spColo
 	spVector v6 = spvSub(a, spvSub(nw, tw));
 	spVector v7 = spvAdd(a, spvAdd(nw, tw));
 
-    spVertex p0 = {{v0.x, v0.y}, { 1.0f, -1.0f}, baryZero, color, border};
-    spVertex p1 = {{v1.x, v1.y}, { 1.0f,  1.0f}, baryZero, color, border};
-    spVertex p2 = {{v2.x, v2.y}, { 0.0f, -1.0f}, baryZero, color, border};
+    spVertex p0 = Vertex(Vec(v0.x, v0.y), Vec( 1.0f, -1.0f), baryZero, color, border);
+    spVertex p1 = Vertex(Vec(v1.x, v1.y), Vec( 1.0f,  1.0f), baryZero, color, border);
+    spVertex p2 = Vertex(Vec(v2.x, v2.y), Vec( 0.0f, -1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{v3.x, v3.y}, { 0.0f,  1.0f}, baryZero, color, border};
-    p1 = (spVertex){{v1.x, v1.y}, { 1.0f,  1.0f}, baryZero, color, border};
-    p2 = (spVertex){{v2.x, v2.y}, { 0.0f, -1.0f}, baryZero, color, border};
+    p0 = Vertex(Vec(v3.x, v3.y), Vec( 0.0f,  1.0f), baryZero, color, border);
+    p1 = Vertex(Vec(v1.x, v1.y), Vec( 1.0f,  1.0f), baryZero, color, border);
+    p2 = Vertex(Vec(v2.x, v2.y), Vec( 0.0f, -1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{v3.x, v3.y}, { 0.0f,  1.0f}, baryZero, color, border};
-    p1 = (spVertex){{v4.x, v4.y}, { 0.0f, -1.0f}, baryZero, color, border}; 
-    p2 = (spVertex){{v2.x, v2.y}, { 0.0f, -1.0f}, baryZero, color, border};
+    p0 = Vertex(Vec(v3.x, v3.y), Vec( 0.0f,  1.0f), baryZero, color, border);
+    p1 = Vertex(Vec(v4.x, v4.y), Vec( 0.0f, -1.0f), baryZero, color, border); 
+    p2 = Vertex(Vec(v2.x, v2.y), Vec( 0.0f, -1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{v3.x, v3.y}, { 0.0f,  1.0f}, baryZero, color, border}; 
-    p1 = (spVertex){{v4.x, v4.y}, { 0.0f, -1.0f}, baryZero, color, border}; 
-    p2 = (spVertex){{v5.x, v5.y}, { 0.0f,  1.0f}, baryZero, color, border};
+    p0 = Vertex(Vec(v3.x, v3.y), Vec( 0.0f,  1.0f), baryZero, color, border); 
+    p1 = Vertex(Vec(v4.x, v4.y), Vec( 0.0f, -1.0f), baryZero, color, border); 
+    p2 = Vertex(Vec(v5.x, v5.y), Vec( 0.0f,  1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{v6.x, v6.y}, {-1.0f, -1.0f}, baryZero, color, border}; 
-    p1 = (spVertex){{v4.x, v4.y}, { 0.0f, -1.0f}, baryZero, color, border}; 
-    p2 = (spVertex){{v5.x, v5.y}, { 0.0f,  1.0f}, baryZero, color, border};
+    p0 = Vertex(Vec(v6.x, v6.y), Vec(-1.0f, -1.0f), baryZero, color, border); 
+    p1 = Vertex(Vec(v4.x, v4.y), Vec( 0.0f, -1.0f), baryZero, color, border); 
+    p2 = Vertex(Vec(v5.x, v5.y), Vec( 0.0f,  1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{v6.x, v6.y}, {-1.0f, -1.0f}, baryZero, color, border}; 
-    p1 = (spVertex){{v7.x, v7.y}, {-1.0f,  1.0f}, baryZero, color, border}; 
-    p2 = (spVertex){{v5.x, v5.y}, { 0.0f,  1.0f}, baryZero, color, border};
+    p0 = Vertex(Vec(v6.x, v6.y), Vec(-1.0f, -1.0f), baryZero, color, border); 
+    p1 = Vertex(Vec(v7.x, v7.y), Vec(-1.0f,  1.0f), baryZero, color, border); 
+    p2 = Vertex(Vec(v5.x, v5.y), Vec( 0.0f,  1.0f), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 }
 
@@ -494,23 +532,23 @@ spDrawLine(spVector start, spVector end, spFloat size, spColor color, spColor bo
     spVector v4 = spvSub(a, nw);
     spVector v5 = spvAdd(a, nw);
 
-    spVertex p0 = {{ v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color, border};
-    spVertex p1 = {{ v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color, border};
-    spVertex p2 = {{ v2.x, v2.y }, { 0.0f,-1.0f }, baryZero, color, border};
+    spVertex p0 = Vertex(Vec( v3.x, v3.y ), Vec( 0.0f, 1.0f ), baryZero, color, border);
+    spVertex p1 = Vertex(Vec( v4.x, v4.y ), Vec( 0.0f,-1.0f ), baryZero, color, border);
+    spVertex p2 = Vertex(Vec( v2.x, v2.y ), Vec( 0.0f,-1.0f ), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 
-    p0 = (spVertex){{ v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color, border};
-    p1 = (spVertex){{ v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color, border};
-    p2 = (spVertex){{ v5.x, v5.y }, { 0.0f, 1.0f }, baryZero, color, border};
+    p0 = Vertex(Vec( v3.x, v3.y ), Vec( 0.0f, 1.0f ), baryZero, color, border);
+    p1 = Vertex(Vec( v4.x, v4.y ), Vec( 0.0f,-1.0f ), baryZero, color, border);
+    p2 = Vertex(Vec( v5.x, v5.y ), Vec( 0.0f, 1.0f ), baryZero, color, border);
     AddTriangle(&p0, &p1, &p2);
 }
 
 void spDrawCircle(spVector center, spFloat angle, spFloat radius, spColor color, spColor border)
 {
-    spVertex a = {{center.x - radius, center.y - radius}, {-1.0f,-1.0f}, baryZero, color, border};
-    spVertex b = {{center.x + radius, center.y - radius}, {+1.0f,-1.0f}, baryZero, color, border};
-    spVertex c = {{center.x + radius, center.y + radius}, {+1.0f,+1.0f}, baryZero, color, border};
-    spVertex d = {{center.x - radius, center.y + radius}, {-1.0f,+1.0f}, baryZero, color, border};
+    spVertex a = Vertex(Vec(center.x - radius, center.y - radius), Vec(-1.0f,-1.0f), baryZero, color, border);
+    spVertex b = Vertex(Vec(center.x + radius, center.y - radius), Vec(+1.0f,-1.0f), baryZero, color, border);
+    spVertex c = Vertex(Vec(center.x + radius, center.y + radius), Vec(+1.0f,+1.0f), baryZero, color, border);
+    spVertex d = Vertex(Vec(center.x - radius, center.y + radius), Vec(-1.0f,+1.0f), baryZero, color, border);
 
     AddTriangle(&a, &b, &c);
     AddTriangle(&c, &d, &a);
@@ -570,14 +608,14 @@ spDrawRope(spVector start, spVector end, spInt segments, spFloat size, spColor c
         spVector v4 = spvSub(pointA, offset);
         spVector v5 = spvAdd(pointA, offset);
 
-        spVertex p0 = { { v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color0, border };
-        spVertex p1 = { { v4.x, v4.y }, { 0.0f, -1.0f }, baryZero, color0, border };
-        spVertex p2 = { { v2.x, v2.y }, { 0.0f, -1.0f }, baryZero, color0, border };
+        spVertex p0 = Vertex(Vec( v3.x, v3.y ), Vec( 0.0f, 1.0f  ), baryZero, color0, border );
+        spVertex p1 = Vertex(Vec( v4.x, v4.y ), Vec( 0.0f, -1.0f ), baryZero, color0, border );
+        spVertex p2 = Vertex(Vec( v2.x, v2.y ), Vec( 0.0f, -1.0f ), baryZero, color0, border );
         AddTriangle(&p0, &p1, &p2);
 
-        p0 = (spVertex){{ v3.x, v3.y }, { 0.0f, 1.0f }, baryZero, color1, border};
-        p1 = (spVertex){{ v4.x, v4.y }, { 0.0f,-1.0f }, baryZero, color1, border};
-        p2 = (spVertex){{ v5.x, v5.y }, { 0.0f, 1.0f }, baryZero, color1, border};
+        p0 = Vertex(Vec( v3.x, v3.y ), Vec( 0.0f, 1.0f ), baryZero, color1, border);
+        p1 = Vertex(Vec( v4.x, v4.y ), Vec( 0.0f,-1.0f ), baryZero, color1, border);
+        p2 = Vertex(Vec( v5.x, v5.y ), Vec( 0.0f, 1.0f ), baryZero, color1, border);
         AddTriangle(&p0, &p1, &p2);;
 
         /// swap the colors

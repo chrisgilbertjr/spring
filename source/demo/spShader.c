@@ -28,9 +28,9 @@ const char* vertexShader =
     "    p_aliasing    = v_aliasing;\n"
     "    p_barycentric = v_barycentric;\n"
     "    gl_Position   = v_transform * vec4(v_position, 0.0f, 1.0f);\n"
-    "};\n";
+    "}\n";
 
-const char* pixelShader = 
+const char* pixelShader =
     "#version 330\n"
 
     //"uniform float v_size;\n"

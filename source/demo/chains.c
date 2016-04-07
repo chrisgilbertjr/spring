@@ -205,8 +205,12 @@ Destroy()
     spWorldDestroy(&Demo->world);
 }
 
-int main(void)
+static void 
+Run(void)
 {
     spDemoRun(spDemoNew(Setup, Update, Render, Destroy, spFrustumView(400, 300), spViewportNew(800, 600)));
     return 0;
 }
+
+/// extern function pointer
+Chains = Run;

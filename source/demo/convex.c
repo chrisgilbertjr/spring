@@ -12,7 +12,7 @@ static ball balls[BALLS];
 static multi convex[2];
 
 /// for easy poly creation
-spVector poly[4] = { 0 };
+static spVector poly[4] = { 0 };
 
 /// convenience functions
 static spVector
@@ -181,8 +181,11 @@ Destroy()
     spWorldDestroy(&Demo->world);
 }
 
-int main(void)
+static void 
+Run(void)
 {
     spDemoRun(spDemoNew(Setup, Update, Render, Destroy, spFrustumView(100, 100), spViewportNew(800, 800)));
-    return 0;
 }
+
+/// extern function pointer
+Convex = Run;

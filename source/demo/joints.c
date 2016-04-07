@@ -34,7 +34,7 @@ spVector wallpos[16] = {
 { 100.0f, -100.0f}, { 100.0f,  100.0f},};
 
 /// for easy poly creation
-spVector poly[5] = { 0 };
+static spVector poly[5] = { 0 };
 
 /// convenience function
 static spVector
@@ -335,8 +335,11 @@ Destroy()
     spBodyFree(&pin.body);
 }
 
-int main(void)
+static void 
+Run(void)
 {
     spDemoRun(spDemoNew(Setup, Update, Render, Destroy, spFrustumView(100, 100), spViewportNew(800, 800)));
-    return 0;
 }
+
+/// extern function pointer
+Joints = Run;

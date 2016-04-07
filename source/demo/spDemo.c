@@ -736,6 +736,7 @@ spDemoRun(spDemo* demo)
         Render();
     }
 
+    glfwDestroyWindow(demo->window);
     Destroy();
 
     spDemoFree(demo);

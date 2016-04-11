@@ -433,8 +433,10 @@ spDemoDrawPolygon(spShape* shape, spColor color, spColor border)
     spPolygon* poly = spShapeCastPolygon(shape);
 
     /// get the world space COM
-    spTransform* xf = &shape->body->xf;
-    spVector center = spxTransform(*xf, spShapeGetCOM(shape));
+    spTransform xf = (shape->body == NULL) 
+        ? spTransformConstruct(spVectorConstruct(0.0f, 0.0f), spRotationConstruct(0.0f)) 
+        : shape->body->xf;
+    spVector center = spxTransform(xf, spShapeGetCOM(shape));
     spVector vertices[32];
     spEdge* edges = poly->edges;
     spInt count = poly->count;
@@ -442,9 +444,10 @@ spDemoDrawPolygon(spShape* shape, spColor color, spColor border)
     /// get all the poly vertices in world space
     for (spInt i = 0; i < count; ++i)
     {
-        vertices[i] = spxTransform(*xf, edges[i].vertex);
+        vertices[i] = spxTransform(xf, edges[i].vertex);
     }
 
+    int x = 0;
     /// draw the polygon
     spDrawPolygon(vec(0.0f, 0.0f), 0.0f, vertices, count, center, color, border);
 }

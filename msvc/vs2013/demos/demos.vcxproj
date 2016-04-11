@@ -79,6 +79,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\demo\chains.c" />
+    <ClCompile Include="..\..\..\source\demo\cloth.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\source\demo\convex.c" />
     <ClCompile Include="..\..\..\source\demo\joints.c" />
     <ClCompile Include="..\..\..\source\demo\main.c" />

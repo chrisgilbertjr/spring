@@ -1,5 +1,5 @@
 
-#include "demo\spDemo.h"
+#include "demo\demos.h"
 
 #define LINKS 12
 #define BALLS 8
@@ -209,7 +209,6 @@ static void
 Run(void)
 {
     spDemoRun(spDemoNew(Setup, Update, Render, Destroy, spFrustumView(400, 300), spViewportNew(800, 600)));
-    return 0;
 }
 
 /// extern function pointer

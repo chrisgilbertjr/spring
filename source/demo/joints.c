@@ -1,5 +1,5 @@
 
-#include "demo\spDemo.h"
+#include "demo\demos.h"
 
 typedef spSingleBodyObject box;
 typedef spSingleBodyObject ball;
@@ -336,7 +336,7 @@ Destroy()
 }
 
 static void 
-Run(void)
+Run()
 {
     spDemoRun(spDemoNew(Setup, Update, Render, Destroy, spFrustumView(100, 100), spViewportNew(800, 800)));
 }

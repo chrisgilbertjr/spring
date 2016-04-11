@@ -15,6 +15,9 @@
     <ClCompile Include="..\..\..\source\demo\chains.c">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\demo\cloth.c">
+      <Filter>source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\source\demo\convex.c">
       <Filter>source</Filter>
     </ClCompile>

@@ -1,7 +1,5 @@
 #### Spring game dynamics ####
-A lightweight 2D rigid body physics engine for games. I developed spring mainly for educational reasons, as physics has always piqued my interest. Feel free to use spring however you would like.
 
-#### About: ####
 Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D. Its written in C and does not use any external libraries. It can be built using MS Visual Studio, but UNIX builds using CMake are in the works. Spring was developed mainly for educational purposes, so I hope you can find it useful!
 
 #### Features: ####

@@ -1,5 +1,5 @@
 
-#include "demo\demos.h"
+#include "demo\spDemo.h"
 
 typedef void (*demoFunc)();
 
@@ -14,7 +14,7 @@ PrintMenu()
     fprintf(stdout, "********************************************************************************\n");
     fprintf(stdout, "Please select a demo:\n");
     fprintf(stdout, "1: joints - Demonstrates each of the 8 different constraint types.\n");
-    fprintf(stdout, "2: convex - Demonstrates convex/concave shape collisions.\n");
+    fprintf(stdout, "2: concave - Concave shapes using multiple shapes with a single rigid body.\n");
     fprintf(stdout, "3: chains - A chain built using distance constraints and boxes.\n");
     fprintf(stdout, "4: cloth  - Simple 2D cloth built using spring constraints.\n");
     fprintf(stdout, "0: quit\n");

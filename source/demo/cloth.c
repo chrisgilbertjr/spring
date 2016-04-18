@@ -1,5 +1,5 @@
 
-#include "demo\demos.h"
+#include "demo\spDemo.h"
 
 #define SIZE 16 
 

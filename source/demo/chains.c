@@ -1,5 +1,5 @@
 
-#include "demo\demos.h"
+#include "demo\spDemo.h"
 
 #define LINKS 12
 #define BALLS 8

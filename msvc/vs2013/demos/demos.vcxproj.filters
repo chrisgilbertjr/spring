@@ -18,13 +18,8 @@
     <ClCompile Include="..\..\..\source\demo\cloth.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\demo\convex.c">
+    <ClCompile Include="..\..\..\source\demo\concave.c">
       <Filter>source</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\include\demo\demos.h">
-      <Filter>source</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

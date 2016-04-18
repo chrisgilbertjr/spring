@@ -1,5 +1,5 @@
 
-#include "demo\demos.h"
+#include "demo\spDemo.h"
 
 typedef spSingleBodyObject ball;
 typedef spSingleBodyObject wall;

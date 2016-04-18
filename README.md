@@ -1,43 +1,22 @@
-# Spring game dynamics
+#### Spring game dynamics ####
 A lightweight 2D rigid body physics engine for games. I developed spring mainly for educational reasons, as physics has always piqued my interest. Feel free to use spring however you would like.
 
-#### Whats new: ####
-* Added libs for glew as they were being ignored from before.
-* Convex demo now complete for MSC2013!
-* Joints demo now complete for MSVC2013!
-* UNIX projects are somewhat functional using CMake. static libs can be built.
+#### About: ####
+Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D. Its written in C and does not use any external libraries. It can be built using MS Visual Studio, but UNIX builds using CMake are in the works. Spring was developed mainly for educational purposes, so I hope you can find it useful!
 
-#### Whats coming: ####
-* UNIX builds are still being worked on. shared libs and demo builds will be coming soon.
-* XCode projects planned to be worked on after UNIX.
-* Will add a license ASAP.
-
-# About:
-Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D.  Its written in C, and will have builds for multiple platforms. I hope you find something useful or at least have some fun with spring!
-
-# Features:
+#### Features: ####
 * Circle, convex polygon, and line segment collision primitives.
 * Supports multiple shapes per rigid body, allowing for the creation of non-convex shapes that interact believably.
 * Broadphase collision detection using an array based sweep and prune algorithm.
 * Narrowphase collision detection done using the GJK algorithm to determine if two objects intersect.
 * Expanding polytype algorithm used to extract contact information from GJK collision.
 * Fast constraint solver using the sequential impulse algorithm.
-* Nine different joint types that allow the creation of things such as vehicles, bridges and ragdolls
-* Simple to use API with good plenty of documentation within the code (doxygen is in the works)
+* Eight different joint types that allow the creation of things such as vehicles, bridges and ragdolls
 
-# Build
-__MSVC:__ Visual studio 2013 projects/solutions for libraries are available. Demos will be up shortly. Building them should be straightforward. I will support more visual studio versions once linux and mac builds are setup.
+#### Demos ####
+Demos in Spring are built using the included demo API, which is based on GLFW3 and require _OpenGL 3.3_. To run the demos, build the included Visual Studio solution msvc/vs2013/demos, and a list of demos will be available to run. UNIX builds will be available in the future. Below i will include a link to videos of each demo running.
 
-__UNIX:__ The UNIX build system is in the works. I will using be Cmake, and will have a CMakeLists file up within a few days.
-
-__MAC OSX:__ Mac will also be supported once the UNIX build is working. You can use Cmake if you like, but i will be adding an xcode project in the future. I will also have to update some OpenGL code in order for demos to be ran, so this might take a while longer.
-
-# Demos
-All demos require at least _OpenGL 3.3_. There are a few demos and more will be added over time. I will be adding some to showcase the functionality of the engine. Demos will be included in seperate MSVC solutions and/or build steps for other platforms. The demo API was not intended for realtime use. Because of this, the documentation is very sparse.
-
-__demo controls__:  
-__r__: reset the demo  
-__g__: toggle gravity  
-
-# Documentation
-At the moment, the only place to get documentation on the code is the code itself. I will be working on getting doxygen documentation setup and included with the project once builds for all platforms are complete.
+###### Joints  - https://www.youtube.com/watch?v=08gRirQtBT4 ######
+###### Concave - https://www.youtube.com/watch?v=ZiJPUX2PrFM ######
+###### Chains  - https://www.youtube.com/watch?v=HVK0ORYZ0H0 ######
+###### Cloth   - https://www.youtube.com/watch?v=rSIz-SLTQGA ######

@@ -12,7 +12,7 @@ Spring game dynamics is a small small physics engine used to simulate rigid bodi
 * Eight different joint types that allow the creation of things such as vehicles, bridges and ragdolls
 
 #### Demos ####
-Demos in Spring are built using the included demo API, which is based on GLFW3 and require _OpenGL 3.3_. To run the demos, build the included Visual Studio solution msvc/vs2013/demos, and a list of demos will be available to run. UNIX builds will be available in the future. Below i will include a link to videos of each demo running.
+Demos in Spring are built using the included demo API, which is based on GLFW3 and _OpenGL 3.3_. To run the demos, build the Visual Studio solution msvc/vs2013/demos. UNIX builds will be available in the future. Below i will include a link to videos of each demo running.
 
 * Joints  - https://www.youtube.com/watch?v=08gRirQtBT4 
 * Concave - https://www.youtube.com/watch?v=ZiJPUX2PrFM 

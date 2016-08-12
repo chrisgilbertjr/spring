@@ -94,7 +94,7 @@ Create()
 
     for (spInt i = 0; i < (SIZE-1)*(SIZE-1); ++i)
     {
-        patch[i] = spPolygonNew(polyNew(1, 1), 4, 1.f);
+        patch[i] = spShapeCastPolygon(spPolygonNew(polyNew(1, 1), 4, 1.f));
     }
 
     spFloat f = 4.0f;
@@ -173,7 +173,7 @@ Render()
     {
         spColor c = RGB(0.6,0,0);
         if ((i % 2) == 0) c = RGB(0.8,0,0);
-        spDemoDrawPolygon(patch[i], c, c);
+        spDemoDrawPolygon((spShape*)patch[i], c, c);
     }
 
     for (spInt i = 0; i < 4; ++i)

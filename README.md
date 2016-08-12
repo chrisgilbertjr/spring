@@ -1,7 +1,5 @@
 #### Spring game dynamics ####
-A lightweight 2D rigid body physics engine for games. I developed spring mainly for educational reasons, as physics has always piqued my interest. Feel free to use spring however you would like.
 
-#### About: ####
 Spring game dynamics is a small small physics engine used to simulate rigid bodies in 2D. Its written in C and does not use any external libraries. It can be built using MS Visual Studio, but UNIX builds using CMake are in the works. Spring was developed mainly for educational purposes, so I hope you can find it useful!
 
 #### Features: ####
@@ -14,9 +12,9 @@ Spring game dynamics is a small small physics engine used to simulate rigid bodi
 * Eight different joint types that allow the creation of things such as vehicles, bridges and ragdolls
 
 #### Demos ####
-Demos in Spring are built using the included demo API, which is based on GLFW3 and require _OpenGL 3.3_. To run the demos, build the included Visual Studio solution msvc/vs2013/demos, and a list of demos will be available to run. UNIX builds will be available in the future. Below i will include a link to videos of each demo running.
+Demos in Spring are built using the included demo API, which is based on GLFW3 and _OpenGL 3.3_. To run the demos, build the Visual Studio solution msvc/vs2013/demos. UNIX builds will be available in the future. Below i will include a link to videos of each demo running.
 
-###### Joints  - https://www.youtube.com/watch?v=08gRirQtBT4 ######
-###### Concave - https://www.youtube.com/watch?v=ZiJPUX2PrFM ######
-###### Chains  - https://www.youtube.com/watch?v=HVK0ORYZ0H0 ######
-###### Cloth   - https://www.youtube.com/watch?v=rSIz-SLTQGA ######
+* Joints  - https://www.youtube.com/watch?v=08gRirQtBT4 
+* Concave - https://www.youtube.com/watch?v=ZiJPUX2PrFM 
+* Chains  - https://www.youtube.com/watch?v=HVK0ORYZ0H0 
+* Cloth   - https://www.youtube.com/watch?v=rSIz-SLTQGA
